@@ -1,8 +1,8 @@
 import React from "react";
 
-const Carousel = () => {
+const Banner = () => {
   return (
-    <div className="carousel h-[300px] 800px:[h-400px] w-full">
+    <div className="carousel h-[300px] 800px:h-[400px] w-full">
       <div id="slide1" className="carousel-item relative w-full">
         <img
           src="https://img.daisyui.com/images/stock/photo-1625726411847-8cbb60cc71e6.webp"
@@ -63,4 +63,4 @@ const Carousel = () => {
   );
 };
 
-export default Carousel;
+export default Banner;
