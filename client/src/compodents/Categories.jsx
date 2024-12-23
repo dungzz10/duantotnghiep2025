@@ -1,5 +1,5 @@
 import React from "react";
-import { productCategories } from "../utils/ProductCate";
+import { productCategories } from "../utils/products";
 const Categories = () => {
   return (
     <div className="section">

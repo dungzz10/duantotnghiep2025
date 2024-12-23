@@ -1,12 +1,10 @@
 import React from "react";
-import { BiSearch } from "react-icons/bi";
-const Heaader = () => {
+import { BiSearch } from "react-icons/bi"
+const Header = () => {
   return (
     <>
       <div className="navbar bg-base-100">
         <div className="flex-1">
-          {/* logo here
-           */}
           <a className="btn btn-ghost text-xl">daisyUI</a>
         </div>
         <div className="flex-none">
@@ -82,37 +80,36 @@ const Heaader = () => {
           </div>
         </div>
       </div>
-      {/* nav bar */}
-      <div className="800px:navbar hidden bg-base-100">
-        {/*  */}
-        <div class="navbar-start">
-          <div class="dropdown">
-            <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+      {/*  */}
+      <div className="800px:navbar bg-base-100">
+        <div className="navbar-start w-1/3">
+          <div className="dropdown">
+            <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
+                className="h-5 w-5"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M4 6h16M4 12h8m-8 6h16"
                 />
               </svg>
             </div>
             <ul
-              tabindex="0"
-              class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+              tabIndex={0}
+              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
             >
               <li>
                 <a>Item 1</a>
               </li>
               <li>
                 <a>Parent</a>
-                <ul class="p-2">
+                <ul className="p-2">
                   <li>
                     <a>Submenu 1</a>
                   </li>
@@ -126,20 +123,18 @@ const Heaader = () => {
               </li>
             </ul>
           </div>
-          <div className="navbar-start w-1/3">
-            <a className="btn btn-accent normal-case text-xl">All Categories</a>
+          <a className="btn btn-accent normal-case text-xl">All Categories</a>
+        </div>
+        <div className="navbar-center flex-1 hidden lg:flex">
+          <div className="relative  w-full">
+            
+            <input className="input w-full input-bordered rounded-full" />
+            <BiSearch
+							className="text-gray-400 absolute top-3 right-3" size={25}/>
+         
           </div>
         </div>
-        {/*  */}
-        <div className="navbar-center hidden lg:flex relative">
-          <input className="input w-full input-bordered rounded-full" />
-          <BiSearch
-            className="text-gray-400 absolute top-3  right-3"
-            size={25}
-          />
-        </div>
-        {/*  */}
-        <div className="navbar-end">
+        <div className="navbar-end w-1/3">
           <a className="btn">Button</a>
         </div>
       </div>
@@ -147,4 +142,4 @@ const Heaader = () => {
   );
 };
 
-export default Heaader;
+export default Header;
