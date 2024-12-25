@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
-import App from "../App";
+import LayoutClient from "../layouts/LayoutClient";
+import LayoutAdmin from "../layouts/LayoutAdmin";
 import HomePage from "../features/HomePage";
 import Login from "../features/login/Login";
 import NotFoundPage from "../features/404/NotFoundPage";
@@ -8,50 +9,57 @@ import SignupPage from "../features/signup/SignupPage";
 import AboutPage from "../features/about/AboutPage";
 import ContactPage from "../features/contacts/ContactPage";
 import ProductPage from "../features/product/ProductPage";
+// Admin pages
+
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element:<App/>, 
+    element: <LayoutClient />, // Layout dành cho người dùng
     children: [
       {
         path: "/",
-        element: <HomePage /> 
+        element: <HomePage />,
       },
       {
         path: "/login",
-        element: <Login /> 
-
+        element: <Login />,
       },
       {
         path: "/signup",
-        element: <SignupPage /> 
-
+        element: <SignupPage />,
       },
       {
         path: "/products",
-        element: <ProductPage /> 
-
+        element: <ProductPage />,
       },
       {
-        path: `/products/:id`,
-        element: <ProductDetailPage /> 
-
+        path: "/products/:id",
+        element: <ProductDetailPage />,
       },
       {
         path: "/about",
-        element: <AboutPage /> 
-
+        element: <AboutPage />,
       },
       {
         path: "/contact",
-        element: <ContactPage /> 
-
+        element: <ContactPage />,
       },
       {
         path: "*",
-        element: <NotFoundPage /> 
+        element: <NotFoundPage />,
       },
-    ]
-  }
+    ],
+  },
+  {
+    path: "/admin",
+    element: <LayoutAdmin />, // Layout dành cho admin
+    children: [
+    
+      {
+        path: "*",
+        element: <NotFoundPage />,
+      },
+    ],
+  },
 ]);
