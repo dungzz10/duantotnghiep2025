@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const userRouter = require("./router/userRouter");
+const userRouter = require("./routers/userRouter");
 const HandelError = require("./utils/Error");
 const globalMillwareError = require("./controllers/errorControll")
 
