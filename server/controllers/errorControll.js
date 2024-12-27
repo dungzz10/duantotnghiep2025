@@ -1,9 +1,9 @@
 const HandelError = require("../utils/Error");
 module.exports = (err, req, res, next) => {
-  console.log(err.name)
-  (err.statusCode = err.statusCode || 500),
-    (err.status = err.status || "error");
-
+  console.error(err); // Sửa từ console.log thành console.error
+  
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || "error";
   // 1. Xử lý lỗi CastError (lỗi định dạng đối tượng ID)
   if (err.name === "CastError") {
     const castMessage = `Tham số không hợp lệ: ${err.path}: ${err.value}`;
