@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema(
   {
@@ -93,6 +94,22 @@ userSchema.methods.comparePassword = async function (userPassword, dbPassword) {
  console.log(typeof(dbPassword) )
  console.log(typeof(userPassword) )
   return await bcrypt.compare(userPassword, dbPassword);
+};
+userSchema.methods.getResetPasswordToken = function () {
+  // Tạo token reset password
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  console.log(resetToken)
+
+  // Mã hóa token reset password
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+    console.log(resetToken)
+  // Thời gian hết hạn của token reset password
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 phút
+
+  return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);
