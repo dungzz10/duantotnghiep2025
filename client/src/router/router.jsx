@@ -45,21 +45,22 @@ export const router = createBrowserRouter([
         path: "/contact",
         element: <ContactPage />,
       },
-      {
-        path: "*",
-        element: <NotFoundPage />,
-      },
+
     ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
   {
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-    
-      {
-        path: "*",
-        element: <NotFoundPage />,
-      },
+
+      // {
+      //   path: "*",
+      //   element: <NotFoundPage />,
+      // },
     ],
   },
 ]);
