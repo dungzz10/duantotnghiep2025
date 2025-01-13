@@ -1,4 +1,5 @@
 import React from 'react'
+import Products from '../product/Products'
 
 const ProductDetailPage = () => {
   return (
@@ -176,6 +177,7 @@ const ProductDetailPage = () => {
         </div>
       </div>
     </div>
+    <Products/>
   </div>
 </section>
 
