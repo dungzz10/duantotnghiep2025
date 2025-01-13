@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const CatchAsync = require("../utils/CatchAsync");
 
 const userSchema = new mongoose.Schema(
   {
@@ -20,7 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minLength: [6, "Password should be greater than 6 character"],
-      select: false,  // Giữ mật khẩu ẩn trong truy vấn mặc định
+      select: false, // Giữ mật khẩu ẩn trong truy vấn mặc định
     },
 
     photo: {
@@ -63,7 +64,7 @@ const userSchema = new mongoose.Schema(
 
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date,  
+    passwordResetExpires: Date,
     active: {
       type: Boolean,
       default: true,
@@ -84,32 +85,47 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   next();
 });
-
+// thay doi truong passwordChangedAt khi thay doi password
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password") || this.isNew) return next();
+  this.passwordChangedAt = Date.now() - 1000;
+});
 
 userSchema.methods.comparePassword = async function (userPassword, dbPassword) {
   userPassword = String(userPassword);
-  console.log(userPassword)
-  console.log(dbPassword)
+  console.log(userPassword);
+  console.log(dbPassword);
   // Kiểm tra kiểu dữ liệu của các tham số
- console.log(typeof(dbPassword) )
- console.log(typeof(userPassword) )
+  console.log(typeof dbPassword);
+  console.log(typeof userPassword);
   return await bcrypt.compare(userPassword, dbPassword);
 };
 userSchema.methods.getResetPasswordToken = function () {
   // Tạo token reset password
   const resetToken = crypto.randomBytes(20).toString("hex");
-  console.log(resetToken)
+  console.log(resetToken);
 
   // Mã hóa token reset password
   this.passwordResetToken = crypto
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-    console.log(resetToken)
+  console.log(this.passwordResetToken);
   // Thời gian hết hạn của token reset password
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 phút
 
   return resetToken;
+};
+// Kiểm tra xem mật khẩu có bị thay đổi sau khi token được cấp phát hay không
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(this.passwordChangedAt.getTime() / 1000);
+
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  // pass khong bi thay doi
+  return false;
 };
 
 const User = mongoose.model("User", userSchema);
