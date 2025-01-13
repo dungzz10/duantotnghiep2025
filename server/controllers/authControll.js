@@ -7,8 +7,13 @@ const crypto = require("crypto");
 
 const sentJwtToken = (userid) => {
   return jwt.sign({ id: userid }, "khoa", { expiresIn: "1h" });
-
-}
+};
+const cookieOptions = {
+  expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),
+  httpOnly: true,
+  sammestie: "none",
+  secure: true,
+};
 // Đăng ký người dùng (signup)
 exports.signup = CatchAsync(async (req, res, next) => {
   const { email, password, name } = req.body;
@@ -63,7 +68,7 @@ exports.signin = CatchAsync(async (req, res, next) => {
 
     if (comparePass) {
       const token = sentJwtToken(yesUser._id);
-      return res.status(200).json({
+      return res.status(200).cookie("cookie", token, cookieOptions).json({
         success: true,
         token,
       });
@@ -76,68 +81,161 @@ exports.signin = CatchAsync(async (req, res, next) => {
   }
 });
 exports.forgotPassword = CatchAsync(async (req, res, next) => {
+  // 1. Lấy email từ body của request
   const { email } = req.body;
+
+  // 2. Tìm người dùng dựa trên email và đảm bảo truy vấn bao gồm cả trường `password`
   const yesUser = await User.findOne({ email }).select("+password");
   console.log("User found:", yesUser);
 
+  // 3. Nếu không tìm thấy người dùng, trả lỗi
   if (!yesUser) {
     return next(new HandelError("khong tim thay user cua ban (email)", 400));
   }
+
+  // 4. Tạo token đặt lại mật khẩu (reset password token)
   const resetToken = yesUser.getResetPasswordToken();
-  // Lưu lại đối tượng người dùng (yesUser) vào cơ sở dữ liệu sau khi cập nhật các trường (như token reset).
+
+  // 5. Lưu lại đối tượng người dùng vào cơ sở dữ liệu mà không cần xác thực dữ liệu
   await yesUser.save({ validateBeforeSave: false });
-  // Gửi email reset password
+
+  // 6. Tạo URL reset mật khẩu, bao gồm token trong đường dẫn
   const resetUrl = `localhost:3000/resetpassword/${resetToken}`;
+
+  // 7. Sử dụng thư viện `novu` để gửi email reset mật khẩu
   try {
     await novu.trigger("demo-password-reset", {
       to: {
-        subscriberId: yesUser._id,
+        subscriberId: yesUser._id, // ID của người nhận
       },
       payload: {
-        abc: email,
-        resetPasswordLink: resetUrl,
+        abc: email, // Đính kèm email làm thông tin thêm nhung khong duoc
+        resetPasswordLink: resetUrl, // Link đặt lại mật khẩu
       },
     });
   } catch (error) {
     console.log(error);
+
+    // 8. Nếu email không gửi được, xóa token đặt lại mật khẩu và lưu vào cơ sở dữ liệu
     yesUser.resetPasswordToken = undefined;
     yesUser.resetPasswordExpire = undefined;
     await yesUser.save({ validateBeforeSave: false });
+
+    // 9. Trả lỗi do không gửi được email
     return next(new HandelError("Email loi khi gui", 500));
   }
+
+  // 10. Nếu email gửi thành công, trả phản hồi JSON xác nhận
   res.status(200).json({
     success: true,
     message: `Email sent ${email}`,
   });
 });
+
 exports.resetPassword = CatchAsync(async (req, res, next) => {
+  // 1. Lấy password và confirmpassword từ body của request
   const { password, confirmpassword } = req.body;
+
+  // 2. Lấy token từ tham số trong URL
   const token = req.params.token;
+
+  // 3. Mã hóa token từ request để khớp với giá trị lưu trong cơ sở dữ liệu
   const hashresettoken = crypto
     .createHash("sha256")
     .update(token)
     .digest("hex");
 
-  // Tìm người dùng với token
+  // 4. Tìm người dùng trong cơ sở dữ liệu dựa trên token mã hóa và kiểm tra thời hạn token
   const user = await User.findOne({
     passwordResetToken: hashresettoken,
-    passwordResetExpires: { $gt: Date.now() },
+    passwordResetExpires: { $gt: Date.now() }, // Chỉ chọn nếu token còn hiệu lực
   });
+
+  // 5. Nếu không tìm thấy người dùng hoặc token hết hạn, trả lỗi
   if (!user) {
     return next(new HandelError("Token het han hoac khong dung", 400));
   }
+
+  // 6. Kiểm tra xem mật khẩu mới và mật khẩu xác nhận có khớp nhau không
   if (password !== confirmpassword) {
     return next(new HandelError("Mat khau khong trung khop", 400));
-  }else{
+  } else {
+    // 7. Nếu khớp, cập nhật mật khẩu mới cho người dùng
     user.password = password;
+
+    // 8. Xóa token đặt lại mật khẩu và thời hạn từ cơ sở dữ liệu
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
+
+    // 9. Lưu lại các thay đổi của người dùng
     await user.save({ validateBeforeSave: false });
+
+    // 10. Tạo token JWT mới để xác thực sau khi đặt lại mật khẩu thành công
     const jwtToken = sentJwtToken(user._id);
-    res.status(200).json({
+
+    // 11. Trả phản hồi JSON xác nhận thành công và gửi token JWT
+    res.status(200).cookie("cookie", jwtToken, cookieOptions).json({
       success: true,
       token: jwtToken,
       message: "Reset password thanh cong",
     });
   }
 });
+// upppdate user password
+exports.updatePassword = CatchAsync(async (req, res, next) => {
+  //  Lấy thông tin người dùng từ req.user
+  console.log(req.user);
+  const userId = req.user.id;
+
+  console.log(userId);
+  const user = await User.findById(userId).select("+password");
+  console.log(user);
+  const { currentPassword, newPassword } = req.body;
+  // mật khẩu hiện tại với mật khẩu trong cơ sở dữ liệu
+  const isPasscorect = await user.comparePassword(
+    currentPassword,
+    user.password
+  );
+  if (!isPasscorect) {
+    return next(new HandelError("Mat khau hien tai khong dung", 400));
+  }
+  // uppdate password
+  user.password = newPassword;
+  user.passwordChangedAt = Date.now() - 1000;
+  await user.save();
+  const token = sentJwtToken(user._id);
+  res.status(200).cookie("cookie", token, cookieOptions).json({
+    success: true,
+    token,
+  });
+});
+// load user
+exports.loadUser = CatchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const user = await User.findById(userId);
+  res.status(200).json({
+    status: "success",
+    user,
+  });
+});
+// logout user
+exports.logout = CatchAsync(async (req, res, next) => {
+  res.cookie("cookie", "null", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({
+    success: true,
+    message: "Logout thanh cong",
+  });
+});
+
+//  get all user
+exports.getUser = CatchAsync(async (req, res, next) => {
+  const user = await User.find();
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
