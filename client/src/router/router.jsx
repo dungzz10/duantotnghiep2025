@@ -9,8 +9,7 @@ import SignupPage from "../features/signup/SignupPage";
 import AboutPage from "../features/about/AboutPage";
 import ContactPage from "../features/contacts/ContactPage";
 import ProductPage from "../features/product/ProductPage";
-// Admin pages
-
+import CartPage from "../features/cart/CartPage";
 
 export const router = createBrowserRouter([
   {
@@ -21,14 +20,7 @@ export const router = createBrowserRouter([
         path: "/",
         element: <HomePage />,
       },
-      {
-        path: "/login",
-        element: <Login />,
-      },
-      {
-        path: "/signup",
-        element: <SignupPage />,
-      },
+
       {
         path: "/products",
         element: <ProductPage />,
@@ -44,22 +36,46 @@ export const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactPage />,
-      },
+      }, ,
       {
-        path: "*",
-        element: <NotFoundPage />,
+        path: "/cart",
+        element: <CartPage />,
+      }, ,
+      {
+        path: "/cart/checkout",
+        element: <ContactPage />,
+      }, ,
+      {
+        path: "/user/profile",
+        element: <ContactPage />,
+      }, ,
+      {
+        path: "/contact",
+        element: <ContactPage />,
       },
+
     ],
+  }, {
+    path: "/signin",
+    element: <Login />,
+  },
+  {
+    path: "/signup",
+    element: <SignupPage />,
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
   {
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-    
-      {
-        path: "*",
-        element: <NotFoundPage />,
-      },
+
+      // {
+      //   path: "*",
+      //   element: <NotFoundPage />,
+      // },
     ],
   },
 ]);
