@@ -90,6 +90,12 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password") || this.isNew) return next();
   this.passwordChangedAt = Date.now() - 1000;
 });
+// Middleware pre("find") của Mongoose sẽ được kích hoạt trước khi một truy vấn find được thực thi
+//  regex  /^find/ ap dung voi tat ca find findone ..v ..v
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: true });
+  next();
+});
 
 userSchema.methods.comparePassword = async function (userPassword, dbPassword) {
   userPassword = String(userPassword);

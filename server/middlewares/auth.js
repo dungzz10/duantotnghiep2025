@@ -32,13 +32,17 @@ exports.isAuththenticated = CatchAsync(async (req, res, next) => {
     );
   }
   // Gán thông tin người dùng vào đối tượng request:
-  console.log(user)
+  // console.log(user)
 // gan user vao req.user
   req.user = user;
   next();
 });
 exports.checkquyen = (...roles) => {
+  
+// console.log(roles)
   return (req, res, next) => {
+// console.log(1)
+    // console.log(req.user.id)
     if (!roles.includes(req.user.role)) {
       return next(
         new HandelError("Bạn không có quyền thực hiện hành động này", 403)
