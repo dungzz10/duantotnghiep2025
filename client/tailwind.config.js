@@ -4,7 +4,7 @@ export default {
   theme: {
     fontFamily: {
       sans: ["Roboto", "san-serif"],
-      headings: ["Poppins", "san-serif"],
+      headings: ["Roboto", "san-serif"],
     },
     extend: {
       screens: {
