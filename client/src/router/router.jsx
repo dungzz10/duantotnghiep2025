@@ -10,6 +10,7 @@ import AboutPage from "../features/about/AboutPage";
 import ContactPage from "../features/contacts/ContactPage";
 import ProductPage from "../features/product/ProductPage";
 import CartPage from "../features/cart/CartPage";
+import Register from "../features/signup/Register";
 
 export const router = createBrowserRouter([
   {
@@ -61,7 +62,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/signup",
-    element: <SignupPage />,
+    element: <Register />,
   },
   {
     path: "*",
