@@ -1,26 +1,34 @@
 import React from "react";
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd"; // Thêm message
 import { Link } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import toast from "react-hot-toast";
-import loginApi from "./loginApi"; // Đảm bảo loginApi là hàm đúng
-
+import { useLogin } from "./loginhandel"; // Giữ nguyên phần này
+import { useNavigate } from "react-router-dom";
 const Login = () => {
-  // Sử dụng React Query's useMutation
-  const loginMutation = useMutation({
-    mutationFn: async(data)=>{
-      return await loginApi(data);
-    }
-  })
-  // Hàm xử lý khi form được submit thành công
+  const navigate = useNavigate();
+  const { mutate, isLoading } = useLogin();
+
   const onFinish = (values) => {
     console.log("Form Values:", values);
-    loginMutation.mutate(values); // Gửi dữ liệu form tới API
+
+    mutate(values, {
+      onSuccess: (data) => {
+        message.success("Đăng nhập thành công!");
+        console.log("Login success:", data);
+        navigate("/");
+      },
+      onError: (error) => {
+        console.log("Login failed:", error);
+        message.error(error.response?.data?.message);
+        console.error("Login failed:", error);
+      },
+    });
   };
 
   // Hàm xử lý khi form submit thất bại (validation lỗi)
   const onFinishFailed = (errorInfo) => {
     console.error("Validation Failed:", errorInfo);
+    // Hiển thị thông báo khi validation không hợp lệ
+    message.error("Vui lòng điền đầy đủ thông tin đăng nhập!");
   };
 
   return (
@@ -40,12 +48,13 @@ const Login = () => {
             onFinishFailed={onFinishFailed} // Hàm xử lý khi validation lỗi
             autoComplete="off"
           >
-            {/* Input Username */}
+            {/* Input email */}
             <Form.Item
-              label="Username"
-              name="username"
+              label="email"
+              name="email"
               rules={[
-                { required: true, message: "Please input your username!" },
+                { type: "email", message: "The input is not valid E-mail!" },
+                { required: true, message: "Please input your email" },
               ]}
             >
               <Input />
@@ -82,10 +91,11 @@ const Login = () => {
             {/* Submit Button */}
             <Form.Item style={{ marginTop: "20px" }}>
               <Button
+                disabled={isLoading}
                 type="primary"
                 htmlType="submit"
                 className="w-full"
-                loading={loginMutation.isLoading} // Hiển thị loading khi đang gửi request
+                loading={isLoading} // Hiển thị loading khi đang gửi request
               >
                 Submit
               </Button>

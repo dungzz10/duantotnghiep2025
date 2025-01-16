@@ -5,7 +5,8 @@ const loginApi = async (data) => {
     const res = await agent.Account.login(data);
     return res;
   } catch (error) {
-    console.log( error);
+    console.log("eerr", error);
+    
     throw error
    
   }
