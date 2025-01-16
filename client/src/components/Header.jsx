@@ -1,6 +1,7 @@
 import React from "react";
-import { BiSearch } from "react-icons/bi"
-const Header = () => {
+import { BiSearch } from "react-icons/bi";
+import { Link } from "react-router-dom";
+const Header = ({ user }) => {
   return (
     <>
       <div className="navbar bg-base-100">
@@ -47,37 +48,48 @@ const Header = () => {
               </div>
             </div>
           </div>
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle avatar"
-            >
-              <div className="w-10 rounded-full">
-                <img
-                  alt="Tailwind CSS Navbar component"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
+          {user ? (
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle avatar"
+              >
+                <div className="w-10 rounded-full">
+                  <img
+                    alt="Tailwind CSS Navbar component"
+                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                  />
+                </div>
               </div>
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+              >
+                <li>
+                  <a className="justify-between">
+                    Profile
+                    <span className="badge">New</span>
+                  </a>
+                </li>
+                <li>
+                  <a>Settings</a>
+                </li>
+                <li>
+                  <a>Logout</a>
+                </li>
+              </ul>
             </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              <li>
-                <a className="justify-between">
-                  Profile
-                  <span className="badge">New</span>
-                </a>
-              </li>
-              <li>
-                <a>Settings</a>
-              </li>
-              <li>
-                <a>Logout</a>
-              </li>
-            </ul>
-          </div>
+          ) : (
+            <div>
+              <Link to="/signin" className="btn btn-ghost mr-1">
+                Signin
+              </Link>
+              <Link to="/signup" className="btn btn-ghost">
+                Signup
+              </Link>
+            </div>
+          )}
         </div>
       </div>
       {/*  */}
@@ -127,11 +139,11 @@ const Header = () => {
         </div>
         <div className="navbar-center flex-1 hidden lg:flex">
           <div className="relative  w-full">
-            
             <input className="input w-full input-bordered rounded-full" />
             <BiSearch
-							className="text-gray-400 absolute top-3 right-3" size={25}/>
-         
+              className="text-gray-400 absolute top-3 right-3"
+              size={25}
+            />
           </div>
         </div>
         <div className="navbar-end w-1/3">
