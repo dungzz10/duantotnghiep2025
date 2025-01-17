@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const userRouter = require("./routers/userRouter");
+const productRouter = require("./routers/productRouter")
 const HandelError = require("./utils/Error");
 const globalMillwareError = require("./controllers/errorControll");
 
@@ -25,6 +26,8 @@ app.get("/test", (req, res) => {
 });
 
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/product", productRouter);
+
 app.all("*", (req, res, next) => {
   next(new HandelError(`duong dan cua ban bi loi ${req.originalUrl}`, 400));
 });

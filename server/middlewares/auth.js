@@ -21,6 +21,7 @@ exports.isAuththenticated = CatchAsync(async (req, res, next) => {
 
   // decoded { id: '676eba983d3a8217bc99938f', iat: 1736764357, exp: 1736767957 }
   const user = await User.findById(decoded.id);
+  // console.log(user)
   if (!user) {
     return next(new HandelError("User khong ton tai ", 404));
   }
@@ -28,20 +29,25 @@ exports.isAuththenticated = CatchAsync(async (req, res, next) => {
   // Kiểm tra xem mật khẩu có bị thay đổi sau khi token được cấp phát hay không:
   if (user.changedPasswordAfter(decoded.iat)) {
     return next(
-      new HandelError("Mật khẩu của bạn đã thay đổi. Vui lòng đăng nhập lại", 401)
+      new HandelError(
+        "Mật khẩu của bạn đã thay đổi. Vui lòng đăng nhập lại",
+        401
+      )
     );
   }
+  // console.log(1)
   // Gán thông tin người dùng vào đối tượng request:
   // console.log(user)
-// gan user vao req.user
+  // gan user vao req.user
+
   req.user = user;
+
   next();
 });
 exports.checkquyen = (...roles) => {
-  
-// console.log(roles)
+  // console.log(roles)
   return (req, res, next) => {
-// console.log(1)
+    // console.log(1)
     // console.log(req.user.id)
     if (!roles.includes(req.user.role)) {
       return next(
@@ -50,4 +56,4 @@ exports.checkquyen = (...roles) => {
     }
     next();
   };
-}
+};
