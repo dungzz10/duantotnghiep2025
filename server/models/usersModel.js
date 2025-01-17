@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema(
       default:
         "https://res.cloudinary.com/queentech/image/upload/v1690010294/78695default-profile-picture1_dhkeeb.jpg",
     },
-
+    introduction: String,
+    numProducts: { type: Number, default: 0 },
     role: {
       type: String,
       enum: ["user", "admin"],
