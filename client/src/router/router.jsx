@@ -55,16 +55,17 @@ export const router = createBrowserRouter([
         path: "/contact",
         element: <ContactPage />,
       },
+      {
+        path: "/signin",
+        element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <Register />,
+      },
 
     ],
-  }, {
-    path: "/signin",
-    element: <Login />,
-  },
-  {
-    path: "/signup",
-    element: <Register />,
-  },
+  }, 
   {
     path: "*",
     element: <NotFoundPage />,
