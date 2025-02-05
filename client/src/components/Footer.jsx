@@ -4,24 +4,24 @@ const Footer = () => {
   return (
     <footer className="footer section bg-neutral text-neutral-content p-10">
   <nav>
-    <h6 className="footer-title">Services</h6>
-    <a className="link link-hover">Branding</a>
-    <a className="link link-hover">Design</a>
-    <a className="link link-hover">Marketing</a>
-    <a className="link link-hover">Advertisement</a>
+    <h6 className="footer-title">Dịch vụ</h6>
+    <a className="link link-hover">Xây dựng thương hiệu</a>
+    <a className="link link-hover">Thiết kế</a>
+    <a className="link link-hover">Tiếp thị</a>
+    <a className="link link-hover">Quảng cáo</a>
   </nav>
   <nav>
-    <h6 className="footer-title">Company</h6>
-    <a className="link link-hover">About us</a>
-    <a className="link link-hover">Contact</a>
-    <a className="link link-hover">Jobs</a>
-    <a className="link link-hover">Press kit</a>
+    <h6 className="footer-title">Công ty</h6>
+    <a className="link link-hover">Về chúng tôi</a>
+    <a className="link link-hover">Liên hệ</a>
+    <a className="link link-hover">Việc làm</a>
+    <a className="link link-hover">Bộ báo chí</a>
   </nav>
   <nav>
-    <h6 className="footer-title">Legal</h6>
-    <a className="link link-hover">Terms of use</a>
-    <a className="link link-hover">Privacy policy</a>
-    <a className="link link-hover">Cookie policy</a>
+    <h6 className="footer-title">Hợp pháp</h6>
+    <a className="link link-hover">Điều khoản sử dụng</a>
+    <a className="link link-hover">Chính sách bảo mật</a>
+    <a className="link link-hover">Chính sách đổi trả</a>
   </nav>
 </footer>
   )
