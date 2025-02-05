@@ -4,152 +4,114 @@ import { Link } from "react-router-dom";
 const Header = ({ user }) => {
   return (
     <>
-      <div className="navbar bg-base-100">
-        <div className="flex-1">
-          <a className="btn btn-ghost text-xl">daisyUI</a>
-        </div>
-        <div className="flex-none">
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle"
-            >
-              <div className="indicator">
+      <header>
+        <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
+          <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+            <a href="" className="flex items-center">
+              <img
+                src=""
+                className="mr-3 h-6 sm:h-9"
+                alt="Logo"
+              />
+              <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
+                LOGO
+              </span>
+            </a>
+            <div className="flex items-center lg:order-2">
+             <Link className="bg-[black] text-white dark:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800" to={'/signup'}>Sign Up
+             </Link>
+             
+             <Link className="bg-[black] text-white dark:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800" to={'/signin'}>Sign In
+             </Link>
+              
+              <button
+                data-collapse-toggle="mobile-menu-2"
+                type="button"
+                className="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+                aria-controls="mobile-menu-2"
+                aria-expanded="false"
+              >
+                <span className="sr-only">Open main menu</span>
                 <svg
+                  className="w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    fillRule="evenodd"
+                    d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                    clipRule="evenodd"
                   />
                 </svg>
-                <span className="badge badge-sm indicator-item">8</span>
-              </div>
+                <svg
+                  className="hidden w-6 h-6"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
             </div>
             <div
-              tabIndex={0}
-              className="card card-compact dropdown-content bg-base-100 z-[1] mt-3 w-52 shadow"
+              className="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1"
+              id="mobile-menu-2"
             >
-              <div className="card-body">
-                <span className="text-lg font-bold">8 Items</span>
-                <span className="text-info">Subtotal: $999</span>
-                <div className="card-actions">
-                  <button className="btn btn-primary btn-block">
-                    View cart
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-          {user ? (
-            <div className="dropdown dropdown-end">
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-ghost btn-circle avatar"
-              >
-                <div className="w-10 rounded-full">
-                  <img
-                    alt="Tailwind CSS Navbar component"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                  />
-                </div>
-              </div>
-              <ul
-                tabIndex={0}
-                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-              >
+              <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
                 <li>
-                  <a className="justify-between">
-                    Profile
-                    <span className="badge">New</span>
-                  </a>
+                  <Link to=""
+                    className="block py-2 pr-4 pl-3 text-white rounded bg-primary-700 lg:bg-transparent lg:text-primary-700 lg:p-0 dark:text-white"
+                    aria-current="page"
+                  >
+                    Trang chủ
+                  </Link>
                 </li>
                 <li>
-                  <a>Settings</a>
+                  <Link to="/products"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Sản phẩm
+                  </Link>
                 </li>
                 <li>
-                  <a>Logout</a>
+                  <Link to="product/sale"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Sản phẩm đang giảm giá
+                  </Link>
+                </li>
+                <li>
+                  <Link to="branch"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Thương hiệu
+                  </Link>
+                </li>
+                <li>
+                  <Link to="about"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Giới thiệu
+                  </Link>
+                </li>
+                <li>
+                  <Link to="contact"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Liên hệ
+                  </Link>
                 </li>
               </ul>
             </div>
-          ) : (
-            <div>
-              <Link to="/signin" className="btn btn-ghost mr-1">
-                Signin
-              </Link>
-              <Link to="/signup" className="btn btn-ghost">
-                Signup
-              </Link>
-            </div>
-          )}
-        </div>
-      </div>
-      {/*  */}
-      <div className="800px:navbar bg-base-100">
-        <div className="navbar-start w-1/3">
-          <div className="dropdown">
-            <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h8m-8 6h16"
-                />
-              </svg>
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              <li>
-                <a>Item 1</a>
-              </li>
-              <li>
-                <a>Parent</a>
-                <ul className="p-2">
-                  <li>
-                    <a>Submenu 1</a>
-                  </li>
-                  <li>
-                    <a>Submenu 2</a>
-                  </li>
-                </ul>
-              </li>
-              <li>
-                <a>Item 3</a>
-              </li>
-            </ul>
           </div>
-          <a className="btn btn-accent normal-case text-xl">All Categories</a>
-        </div>
-        <div className="navbar-center flex-1 hidden lg:flex">
-          <div className="relative  w-full">
-            <input className="input w-full input-bordered rounded-full" />
-            <BiSearch
-              className="text-gray-400 absolute top-3 right-3"
-              size={25}
-            />
-          </div>
-        </div>
-        <div className="navbar-end w-1/3">
-          <a className="btn">Button</a>
-        </div>
-      </div>
+        </nav>
+      </header>
+
     </>
   );
 };

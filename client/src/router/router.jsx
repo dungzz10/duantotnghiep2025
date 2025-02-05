@@ -11,6 +11,7 @@ import ContactPage from "../features/contacts/ContactPage";
 import ProductPage from "../features/product/ProductPage";
 import CartPage from "../features/cart/CartPage";
 import Register from "../features/signup/Register";
+import CheckoutPage from "../features/cart/CheckoutPage";
 
 export const router = createBrowserRouter([
   {
@@ -44,7 +45,7 @@ export const router = createBrowserRouter([
       }, ,
       {
         path: "/cart/checkout",
-        element: <ContactPage />,
+        element: <CheckoutPage />,
       }, ,
       {
         path: "/user/profile",
@@ -54,9 +55,9 @@ export const router = createBrowserRouter([
         path: "/contact",
         element: <ContactPage />,
       },
-
     ],
-  }, {
+  },
+  {
     path: "/signin",
     element: <Login />,
   },
