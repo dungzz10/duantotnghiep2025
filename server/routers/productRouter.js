@@ -1,6 +1,9 @@
-const express = require("express");
-const router = express.Router();
-const { createProduct } = require("../controllers/productControll");
-const { isAuththenticated } = require("../middlewares/auth");
-router.post("/",isAuththenticated, createProduct);
-module.exports = router;
+import express from "express";
+import { createProduct, GetallProduct } from "../controllers/productControll.js";
+import { isAuththenticated } from "../middlewares/auth.js";
+const productRouter = express.Router();
+productRouter.post("/", isAuththenticated, createProduct);
+productRouter.get("/", GetallProduct);
+// productRouter.post(":id", createProduct);
+
+export default productRouter

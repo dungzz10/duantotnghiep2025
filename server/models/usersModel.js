@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
-const CatchAsync = require("../utils/CatchAsync");
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import crypto from "crypto";
+// import CatchAsync from "../utils/CatchAsync";
 
 const userSchema = new mongoose.Schema(
   {
@@ -135,6 +135,5 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-const User = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema)
 
-module.exports = User;

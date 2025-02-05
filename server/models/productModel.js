@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose  from "mongoose";
 
 // Định nghĩa schema
 const productSchema = new mongoose.Schema(
@@ -109,5 +109,4 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-const Product = mongoose.model("Product", productSchema);
-module.exports = Product;
+export default mongoose.model("Product", productSchema)
