@@ -12,6 +12,10 @@ import ProductPage from "../features/product/ProductPage";
 import CartPage from "../features/cart/CartPage";
 import Register from "../features/signup/Register";
 import CheckoutPage from "../features/cart/CheckoutPage";
+import AccessoryPage from "../features/accessory/AccessoryPage";
+import ProductNewsPage from "../features/productnews/ProductNewsPage";
+import BranchPage from "../features/branch/BranchPage";
+import ProductSalePage from "../features/productsale/ProductSalePage";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +30,22 @@ export const router = createBrowserRouter([
       {
         path: "/products",
         element: <ProductPage />,
+      },
+      {
+        path: "/accessory",
+        element: <AccessoryPage />,
+      },
+      {
+        path: "/product/sale",
+        element: <ProductSalePage />,
+      },
+      {
+        path: "product/new",
+        element: <ProductNewsPage />,
+      },
+      {
+        path: "branch",
+        element: <BranchPage />,
       },
       {
         path: "/products/:id",
