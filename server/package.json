@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "nodemon server.js"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,7 +20,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.47",
     "mongoose": "^7.5.2",
     "morgan": "^1.10.0",
     "nodemon": "^3.0.1",

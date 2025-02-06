@@ -10,4 +10,4 @@ class HandelError extends Error {
 	}
 }
 
-module.exports = HandelError
+export default HandelError

@@ -1,9 +1,9 @@
-const User = require("../models/usersModel");
-const jwt = require("jsonwebtoken");
-const CatchAsync = require("../utils/CatchAsync");
-const HandelError = require("../utils/Error");
-const novu = require("../utils/novu");
-const crypto = require("crypto");
+import User from"../models/usersModel.js";
+import jwt from "jsonwebtoken";
+import CatchAsync from "../utils/CatchAsync.js";
+import HandelError from "../utils/Error.js";
+import novu from "../utils/novu.js";
+import crypto from "crypto";
 
 const sentJwtToken = (userid) => {
   return jwt.sign({ id: userid }, "khoa", { expiresIn: "1h" });
@@ -15,7 +15,7 @@ const cookieOptions = {
   secure: true,
 };
 // Đăng ký người dùng (signup)
-exports.signup = CatchAsync(async (req, res, next) => {
+export const signup = CatchAsync(async (req, res, next) => {
   const { email, password, name } = req.body;
 
   // Kiểm tra nếu người dùng đã tồn tại
@@ -51,7 +51,7 @@ exports.signup = CatchAsync(async (req, res, next) => {
   });
 });
 
-exports.signin = CatchAsync(async (req, res, next) => {
+export const signin = CatchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   const yesUser = await User.findOne({ email }).select("+password");
@@ -80,7 +80,7 @@ exports.signin = CatchAsync(async (req, res, next) => {
     }
   }
 });
-exports.forgotPassword = CatchAsync(async (req, res, next) => {
+export const forgotPassword = CatchAsync(async (req, res, next) => {
   // 1. Lấy email từ body của request
   const { email } = req.body;
 
@@ -132,7 +132,7 @@ exports.forgotPassword = CatchAsync(async (req, res, next) => {
   });
 });
 
-exports.resetPassword = CatchAsync(async (req, res, next) => {
+export const resetPassword = CatchAsync(async (req, res, next) => {
   // 1. Lấy password và confirmpassword từ body của request
   const { password, confirmpassword } = req.body;
 
@@ -182,7 +182,7 @@ exports.resetPassword = CatchAsync(async (req, res, next) => {
   }
 });
 // upppdate user password
-exports.updatePassword = CatchAsync(async (req, res, next) => {
+export const updatePassword = CatchAsync(async (req, res, next) => {
   //  Lấy thông tin người dùng từ req.user
   console.log(req.user);
   const userId = req.user.id;
@@ -210,7 +210,7 @@ exports.updatePassword = CatchAsync(async (req, res, next) => {
   });
 });
 // load user
-exports.loadUser = CatchAsync(async (req, res, next) => {
+export const loadUser = CatchAsync(async (req, res, next) => {
   const userId = req.user.id;
   const user = await User.findById(userId);
   res.status(200).json({
@@ -219,7 +219,7 @@ exports.loadUser = CatchAsync(async (req, res, next) => {
   });
 });
 // logout user
-exports.logout = CatchAsync(async (req, res, next) => {
+export const logout = CatchAsync(async (req, res, next) => {
   res.cookie("cookie", "null", {
     expires: new Date(Date.now() + 10 * 1000),
     httpOnly: true,
@@ -231,7 +231,7 @@ exports.logout = CatchAsync(async (req, res, next) => {
 });
 
 //  get all user
-exports.getUser = CatchAsync(async (req, res, next) => {
+export const getUser = CatchAsync(async (req, res, next) => {
   const user = await User.find();
   res.status(200).json({
     success: true,

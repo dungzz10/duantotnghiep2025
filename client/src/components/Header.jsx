@@ -7,7 +7,7 @@ const Header = ({ user }) => {
       <header>
         <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
           <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-            <a href="" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <img
                 src=""
                 className="mr-3 h-6 sm:h-9"
@@ -16,14 +16,12 @@ const Header = ({ user }) => {
               <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
                 LOGO
               </span>
-            </a>
+            </Link>
             <div className="flex items-center lg:order-2">
-             <Link className="bg-[black] text-white dark:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800" to={'/signup'}>Sign Up
-             </Link>
-             
-             <Link className="bg-[black] text-white dark:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800" to={'/signin'}>Sign In
-             </Link>
-              
+              <Link className="bg-[black] text-white dark:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800" to={'/signup'}>Sign Up
+              </Link>
+              <Link className="bg-[black] text-white dark:text-white focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 lg:px-5 py-2 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800" to={'/signin'}>Sign In
+              </Link>
               <button
                 data-collapse-toggle="mobile-menu-2"
                 type="button"
@@ -64,9 +62,8 @@ const Header = ({ user }) => {
             >
               <ul className="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
                 <li>
-                  <Link to=""
-                    className="block py-2 pr-4 pl-3 text-white rounded bg-primary-700 lg:bg-transparent lg:text-primary-700 lg:p-0 dark:text-white"
-                    aria-current="page"
+                  <Link to="/"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                   >
                     Trang chủ
                   </Link>
@@ -79,10 +76,24 @@ const Header = ({ user }) => {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/accessory"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Phụ kiện
+                  </Link>
+                </li>
+                <li>
                   <Link to="product/sale"
                     className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
                   >
-                    Sản phẩm đang giảm giá
+                    Giảm giá
+                  </Link>
+                </li>
+                <li>
+                  <Link to="product/new"
+                    className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700"
+                  >
+                    Mới ra mắt
                   </Link>
                 </li>
                 <li>
@@ -111,7 +122,6 @@ const Header = ({ user }) => {
           </div>
         </nav>
       </header>
-
     </>
   );
 };
