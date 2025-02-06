@@ -90,6 +90,7 @@ exports.getAllProduct = CatchAsync(async (req, res, next) => {
   });
 });
 exports.getOneProducts = CatchAsync(async (req, res, next) => {
+  
 
 
   
