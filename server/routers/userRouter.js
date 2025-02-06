@@ -1,24 +1,21 @@
-const express = require("express");
-const { signup, signin,forgotPassword, resetPassword,getUser, updatePassword, loadUser, logout } = require("../controllers/authControll");
-const { isAuththenticated,checkquyen } = require("../middlewares/auth");
-const { getOneUser, uppdateMe,deactiveUser } = require("../controllers/userControll");
-const router = express.Router();
+import express from "express";
+import { signup, signin, forgotPassword, resetPassword, getUser, updatePassword, loadUser, logout } from "../controllers/authControll.js";
+import { isAuththenticated, checkquyen } from "../middlewares/auth.js";
+import { getOneUser, uppdateMe, deactiveUser } from "../controllers/userControll.js";
+const userRouter = express.Router();
 // auth router
-router.post("/signup", signup); 
-router.post("/signin",signin)
-router.post("/forgotpassword",forgotPassword)
-router.post("/resetpassword/:token",resetPassword)
-router.put("/uppdatepassword",isAuththenticated,updatePassword)
+userRouter.post("/signup", signup);
+userRouter.post("/signin", signin)
+userRouter.post("/forgotpassword", forgotPassword)
+userRouter.post("/resetpassword/:token", resetPassword)
+userRouter.put("/uppdatepassword", isAuththenticated, updatePassword)
 
-router.post("/logout",isAuththenticated,logout)
+userRouter.post("/logout", isAuththenticated, logout)
 
 // routee user
-router.get("/loaduser",isAuththenticated,loadUser)
-router.get("/",isAuththenticated ,checkquyen("admin"),getUser)
-router.get("/:userId",isAuththenticated,getOneUser)
-router.put("/me",isAuththenticated,uppdateMe)
-router.put("/deactive/:userId",isAuththenticated,checkquyen("admin"),deactiveUser)
-
-
-
-module.exports = router;
+userRouter.get("/loaduser", isAuththenticated, loadUser)
+userRouter.get("/", isAuththenticated, checkquyen("admin"), getUser)
+userRouter.get("/:userId", isAuththenticated, getOneUser)
+userRouter.put("/me", isAuththenticated, uppdateMe)
+userRouter.put("/deactive/:userId", isAuththenticated, checkquyen("admin"), deactiveUser)
+export default userRouter

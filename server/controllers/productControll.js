@@ -1,9 +1,40 @@
-const Product = require("../models/productModel");
-const CatchAsync = require("../utils/CatchAsync");
-const HandelError = require("../utils/Error");
-const User = require("../models/usersModel");
+import Product from "../models/productModel.js";
+import CatchAsync from "../utils/CatchAsync.js";
+import HandelError from "../utils/Error.js";
+import User from "../models/usersModel.js";
+// list san pham
+
+// export const getOneProduct = async function (req, res) {
+//   const productId = req.params.productId; // Lấy id của bài đăng
+//   try {
+//       const product = await Product.findById(req.params.id).populate("tags").populate("CategoryId")
+//       if (!product) {
+//           return res.status(404).json({
+//               message: "Không tìm thấy sản phẩm",
+//           });
+//       }
+//       // Tìm các bài đăng liên quan
+//       const relatedProducts = await Product.find({
+//           $and: [
+//               { _id: { $ne: productId } },
+//               { $or: [{ tags: { $in: product.tags } }, { CategoryId: product.CategoryId }] }],
+//       }).limit(6).populate("tags");
+//       // Tăng số lượt xem lên một đơn vị
+//       product.views++;
+//       await product.save();
+//       return res.status(200).json({
+//           message: "thành công",
+//           data: product, relatedProducts
+//       });
+
+//   } catch (error) {
+//       return res.status(500).json({
+//           message: error.message,
+//       });
+//   }
+// };
 // tao san pham moi
-exports.createProduct = CatchAsync(async (req, res, next) => {
+export const createProduct = CatchAsync(async (req, res, next) => {
   console.log(req.user);
   const productData = req.body;
   console.log(productData);
@@ -20,7 +51,7 @@ exports.createProduct = CatchAsync(async (req, res, next) => {
   });
   //
 });
-exports.getAllProduct = CatchAsync(async (req, res, next) => {
+export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Sao chép req.query và loại bỏ các trường không cần thiết
   const queryObj = { ...req.query };
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
@@ -89,9 +120,47 @@ exports.getAllProduct = CatchAsync(async (req, res, next) => {
     totalPages,
   });
 });
-exports.getOneProducts = CatchAsync(async (req, res, next) => {
-  
+export const getSingleProducts = CatchAsync(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+  res.status(200).json({
+    success: true,
+    product,
+  });
+});
+export const updateProduct = CatchAsync(async (req, res, next) => {
+  const product = await Product.findByIdAndUpdate(
+    { _id: req.params.id },
+    req.body,
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  res.status(200).json({
+    success: true,
+    product,
+    message: "Cập nhật sản phẩm thành công",
+  });
+});
 
-
-  
+export const uppdatemanyProduct = CatchAsync(async (req, res, next) => {
+  const { updateItem } = req.body;
+  if (!updateItem || !Array.isArray(updateItem)) {
+    return res.status(400).json({ message: "Dữ liệu cập nhật không hợp lệ" });
+  }
+  const updates = updateItem.map((item) => ({
+    updateOne: {
+      filter: { _id: item._id },
+      update: { $set: item },
+    },
+  }));
+  //  Thực hiện cập nhật hàng loạt bằng bulkWrite()
+  await Product.bulkWrite(updates);
+  res.status(200).json({
+    success: true,
+    message: "Cập nhật sản phẩm thành công",
+  }); 
 });

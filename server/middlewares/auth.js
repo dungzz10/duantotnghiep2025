@@ -1,8 +1,8 @@
-const User = require("../models/usersModel");
-const HandelError = require("../utils/Error");
-const CatchAsync = require("../utils/CatchAsync");
-const jwt = require("jsonwebtoken");
-exports.isAuththenticated = CatchAsync(async (req, res, next) => {
+import User from "../models/usersModel.js";
+import HandelError from "../utils/Error.js";
+import CatchAsync from "../utils/CatchAsync.js";
+import jwt from "jsonwebtoken";
+export const isAuththenticated = CatchAsync(async (req, res, next) => {
   // Lấy token từ req.cookies: dua tren ten cookie da dat
   const { cookie } = req.cookies;
   // console.log(cookie )
@@ -44,7 +44,7 @@ exports.isAuththenticated = CatchAsync(async (req, res, next) => {
 
   next();
 });
-exports.checkquyen = (...roles) => {
+export const checkquyen = (...roles) => {
   // console.log(roles)
   return (req, res, next) => {
     // console.log(1)

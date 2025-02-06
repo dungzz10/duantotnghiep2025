@@ -1,5 +1,5 @@
-const HandelError = require("../utils/Error");
-module.exports = (err, req, res, next) => {
+import HandelError from "../utils/Error.js";
+const globalMillwareError = (err, req, res, next) => {
   console.error(err); // Sửa từ console.log thành console.error
   
   err.statusCode = err.statusCode || 500;
@@ -62,3 +62,4 @@ module.exports = (err, req, res, next) => {
     });
   }
 };
+export default globalMillwareError
