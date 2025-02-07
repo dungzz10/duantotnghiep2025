@@ -6,7 +6,7 @@ import { useUser } from "../app/hook/LoadUser";
 
 const LayoutClient = () => {
   const { user, isloading } = useUser();
-  // console.log(user);
+   console.log(user);
   if (isloading) {
     return <div>Loading...</div>;
   }
