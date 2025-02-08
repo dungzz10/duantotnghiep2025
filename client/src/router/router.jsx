@@ -16,6 +16,7 @@ import AccessoryPage from "../features/accessory/AccessoryPage";
 import ProductNewsPage from "../features/productnews/ProductNewsPage";
 import BranchPage from "../features/branch/BranchPage";
 import ProductSalePage from "../features/productsale/ProductSalePage";
+import EmptyCart from "../features/cart/EmptyCart";
 
 export const router = createBrowserRouter([
   {
@@ -58,19 +59,23 @@ export const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactPage />,
-      }, ,
+      }, 
       {
         path: "/cart",
         element: <CartPage />,
-      }, ,
+      }, 
       {
         path: "/cart/checkout",
         element: <CheckoutPage />,
-      }, ,
+      },
+      {
+        path: "/cart/emptycart",
+        element: <EmptyCart />,
+      }, 
       {
         path: "/user/profile",
         element: <ContactPage />,
-      }, ,
+      }, 
       {
         path: "/contact",
         element: <ContactPage />,
