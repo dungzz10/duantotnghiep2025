@@ -17,6 +17,7 @@ import ProductNewsPage from "../features/productnews/ProductNewsPage";
 import BranchPage from "../features/branch/BranchPage";
 import ProductSalePage from "../features/productsale/ProductSalePage";
 import EmptyCart from "../features/cart/EmptyCart";
+import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
 
 export const router = createBrowserRouter([
   {
@@ -89,6 +90,10 @@ export const router = createBrowserRouter([
   {
     path: "/signup",
     element: <Register />,
+  },
+  {
+    path: "/forgotpassword",
+    element: <ForgotPassword />,
   },
   {
     path: "*",

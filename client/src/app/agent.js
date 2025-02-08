@@ -93,6 +93,17 @@ const Account = {
       throw error;
     }
   },
+  forgotPassword: async (email) => {
+    console.log("body", email);
+    try {
+      await request.post("/user/forgotpassword", { email }); // Bọc email vào object
+    } catch (error) {
+      throw error;
+    }
+  },
+
+
+  
 
   me: () => request.get("/user/me"),
 };

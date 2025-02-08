@@ -83,6 +83,8 @@ export const signin = CatchAsync(async (req, res, next) => {
 export const forgotPassword = CatchAsync(async (req, res, next) => {
   // 1. Lấy email từ body của request
   const { email } = req.body;
+  console.log(req.body);
+  console.log("Email:", email);
 
   // 2. Tìm người dùng dựa trên email và đảm bảo truy vấn bao gồm cả trường `password`
   const yesUser = await User.findOne({ email }).select("+password");
