@@ -1,12 +1,15 @@
 import React from "react";
 import { Form, Input, Button } from "antd";
 import { Link } from "react-router-dom";
-
+import { userRegister } from "./RegisterUser";
 const Register = () => {
   const [form] = Form.useForm();
+  const { mutate: Login, isLoading } = userRegister();
+  console.log(isLoading);
 
   const onFinish = (values) => {
     console.log("Success:", values);
+    Login(values);
     form.resetFields(); // Reset form after successful submission
   };
 
@@ -17,7 +20,7 @@ const Register = () => {
   return (
     <div className="min-h-screen text-left flex flex-col justify-center py-14 sm:px-4 lg:px-8">
       <h1 className="mt-6 text-center text-2xl font-bold ">
-        Đăng kí tài khoản của bạn 
+        Đăng kí tài khoản của bạn
       </h1>
       <div className="mt-8 mx-auto w-full max-w-md">
         <div className="bg-white w-full py-8 px-4 shadow sm:rounded-lg">
@@ -34,8 +37,8 @@ const Register = () => {
           >
             {/* Username */}
             <Form.Item
-              label="Username"
-              name="username"
+              label="name"
+              name="name"
               rules={[
                 { required: true, message: "Please input your username!" },
               ]}
@@ -89,8 +92,13 @@ const Register = () => {
 
             {/* Submit button */}
             <Form.Item style={{ marginTop: "20px" }}>
-              <Button type="primary" htmlType="submit" className="w-full">
-                Đăng kí 
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="w-full"
+                disabled={isLoading}
+              >
+                Đăng kí
               </Button>
             </Form.Item>
 
