@@ -81,7 +81,7 @@ const Login = () => {
             >
               <Checkbox>Remember me</Checkbox>
               <Link
-                to="/forgot-password"
+                to="/forgotpassword"
                 className="text-sm text-blue-500 hover:underline"
               >
                 Forgot password?
