@@ -1,7 +1,9 @@
 import agent from "../agent"
 export const logoutUserApi = async () => {
     try {
-        await agent.Account.logout();
+       return await agent.Account.logout();
+    //    console.log("Logout Success:", res);
+    //    return res;
         
     } catch (error) {
         throw error;

@@ -3,7 +3,8 @@ import { useforgotpassword } from "./forgotpassword";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const { forgotpassword, isLoading } = useforgotpassword();
+  const { forgotpassword, isLoading,contextHolder } = useforgotpassword();
+  console.log("isLoading", isLoading);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,6 +17,8 @@ const ForgotPassword = () => {
   };
 
   return (
+    <>
+    {contextHolder}
     <div className="w-full h-screen flex items-center justify-center flex-col">
       <div className="w-[400px] p-10 shadow-xl">
         <h1 className="mb-4 text-2xl font-bold">Forgot Password</h1>
@@ -38,6 +41,7 @@ const ForgotPassword = () => {
         </form>
       </div>
     </div>
+    </>
   );
 };
 

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { logoutUserApi } from "../api/logoutUserApi";
 import { useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
 export const userLogout = () => { 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -15,9 +15,10 @@ export const userLogout = () => {
       queryClient.resetQueries(["user"]);
       localStorage.removeItem("token");
       navigate("/"); // 
+      console.log("Logout Success:", data);
       
       if (data?.success) {
-        console.log("Logout Success:", data);
+        toast.success(data.message);
       }
     },
   });
