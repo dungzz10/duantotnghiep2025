@@ -1,4 +1,4 @@
-import User from"../models/usersModel.js";
+import User from "../models/usersModel.js";
 import jwt from "jsonwebtoken";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
@@ -102,7 +102,7 @@ export const forgotPassword = CatchAsync(async (req, res, next) => {
   await yesUser.save({ validateBeforeSave: false });
 
   // 6. Tạo URL reset mật khẩu, bao gồm token trong đường dẫn
-  const resetUrl = `localhost:3000/resetpassword/${resetToken}`;
+  const resetUrl = `localhost:5173/resetpassword/${resetToken}`;
 
   // 7. Sử dụng thư viện `novu` để gửi email reset mật khẩu
   try {
@@ -160,6 +160,8 @@ export const resetPassword = CatchAsync(async (req, res, next) => {
 
   // 6. Kiểm tra xem mật khẩu mới và mật khẩu xác nhận có khớp nhau không
   if (password !== confirmpassword) {
+    console.log("Password:", password);
+    console.log("Confirm Password:", confirmpassword);
     return next(new HandelError("Mat khau khong trung khop", 400));
   } else {
     // 7. Nếu khớp, cập nhật mật khẩu mới cho người dùng
@@ -240,4 +242,3 @@ export const getUser = CatchAsync(async (req, res, next) => {
     user,
   });
 });
-

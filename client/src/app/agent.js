@@ -86,8 +86,10 @@ const Account = {
 
   logout: async () => {
     try {
-      await request.post("/user/logout");
-      localStorage.removeItem("token"); // ✅ Xóa token khi logout
+      const res = await request.post("/user/logout");
+      console.log("Logout Success:", res);
+      return res;
+      // localStorage.removeItem("token"); // ✅ Xóa token khi logout
     } catch (error) {
       console.error("Logout failed:", error);
       throw error;
@@ -96,14 +98,21 @@ const Account = {
   forgotPassword: async (email) => {
     console.log("body", email);
     try {
-      await request.post("/user/forgotpassword", { email }); // Bọc email vào object
+      const res = await request.post("/user/forgotpassword", { email }); // Bọc email vào object
+      // console.log("Forgot Password Success:", res);
+      return res;
     } catch (error) {
       throw error;
     }
   },
-
-
-  
+  resetPassword: async (body) => {
+    try {
+      const res = await request.post(`/user/resetpassword/${body.resetToken}`, body);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
 
   me: () => request.get("/user/me"),
 };

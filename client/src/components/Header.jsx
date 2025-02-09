@@ -4,7 +4,7 @@ import { userLogout } from "../app/hook/LogoutUser";
 
 const Header = ({ user }) => {
   const { Logout } = userLogout();
-  console.log("User:", userLogout);
+  // console.log("User:", userLogout);
 
   const handleLogout = () => {
     console.log("Logout");

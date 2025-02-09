@@ -17,6 +17,7 @@ import ProductNewsPage from "../features/productnews/ProductNewsPage";
 import BranchPage from "../features/branch/BranchPage";
 import ProductSalePage from "../features/productsale/ProductSalePage";
 import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
+import ResetPassword from "../features/resetpassword/ResetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -89,6 +90,10 @@ export const router = createBrowserRouter([
   {
     path: "/forgotpassword",
     element: <ForgotPassword />,
+  },
+  {
+    path: "/resetpassword/:resetToken",
+    element: <ResetPassword />,
   },
   {
     path: "*",
