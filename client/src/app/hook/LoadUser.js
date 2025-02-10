@@ -3,6 +3,7 @@ import { loadUser } from "../api/loadUserApt";
 
 export const useUser = () => {
   const { data: user, isLoading } = useQuery({
+    
     queryKey: ["user"],
     queryFn: async () => await loadUser(),
   });
