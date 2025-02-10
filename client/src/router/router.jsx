@@ -19,6 +19,7 @@ import ProductSalePage from "../features/productsale/ProductSalePage";
 import EmptyCart from "../features/cart/EmptyCart";
 import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
 import ResetPassword from "../features/resetpassword/ResetPassword";
+import ProfilePage from "../features/profile/ProfilePage";
 
 export const router = createBrowserRouter([
   {
@@ -93,6 +94,10 @@ export const router = createBrowserRouter([
     element: <Register />,
   },
   {
+    path: "/profile",
+    element: <ProfilePage />,
+  },
+  {
     path: "/forgotpassword",
     element: <ForgotPassword />,
   },
@@ -108,6 +113,10 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
+      {
+        // path: "/",
+        // element: <HomePage />,
+      },
 
       // {
       //   path: "*",
