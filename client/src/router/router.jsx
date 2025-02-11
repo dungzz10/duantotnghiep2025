@@ -20,6 +20,11 @@ import EmptyCart from "../features/cart/EmptyCart";
 import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
 import ResetPassword from "../features/resetpassword/ResetPassword";
 import ProfilePage from "../features/profile/ProfilePage";
+import Dashboard from "../features/admin/dashboard/dashboard";
+import Iventory from "../features/admin/inventory/Iventory";
+import Order from "../features/admin/orders/Order";
+import Customer from "../features/admin/customers/customer";
+import Productsadmin from "../features/admin/products/Productsadmin";
 
 export const router = createBrowserRouter([
   {
@@ -62,11 +67,11 @@ export const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactPage />,
-      }, 
+      },
       {
         path: "/cart",
         element: <CartPage />,
-      }, 
+      },
       {
         path: "/cart/checkout",
         element: <CheckoutPage />,
@@ -74,11 +79,11 @@ export const router = createBrowserRouter([
       {
         path: "/cart/emptycart",
         element: <EmptyCart />,
-      }, 
+      },
       {
         path: "/user/profile",
         element: <ContactPage />,
-      }, 
+      },
       {
         path: "/contact",
         element: <ContactPage />,
@@ -113,15 +118,11 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-      {
-        // path: "/",
-        // element: <HomePage />,
-      },
-
-      // {
-      //   path: "*",
-      //   element: <NotFoundPage />,
-      // },
+      { path: "dashboard", element: <Dashboard /> }, // ĐÚNG
+      { path: "inventory", element: <Iventory /> }, // ĐÚNG
+      { path: "orders", element: <Order /> }, // ĐÚNG
+      { path: "customers", element: <Customer /> }, // ĐÚNG
+      { path: "products", element: <Productsadmin /> }, // ĐÚNG
     ],
   },
 ]);

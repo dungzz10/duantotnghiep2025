@@ -6,11 +6,11 @@ import PageContain from "../components/admin/PageContain";
 import AppFooter from "../components/admin/AppFooter";
 const LayoutAdmin = () => {
   return (
-    <div className="flex flex-col h-screen w-full min-h-screen">
+    <div className="flex flex-col h-screen w-full min-h-screen px-auto containerCustom">
       <AppHeafer></AppHeafer>
       <Space className="flex flex-grow">
         <SideMEnu></SideMEnu>
-        <PageContain></PageContain>
+        {/* <PageContain></PageContain> */}
       </Space>
       <AppFooter></AppFooter>
     </div>
