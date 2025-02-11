@@ -242,3 +242,24 @@ export const getUser = CatchAsync(async (req, res, next) => {
     user,
   });
 });
+export const signinAdmin = CatchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const adminUser = await User.findOne({ email, role: "admin" }).select("+password");
+  if (!adminUser) {
+    return next(new HandelError("Bạn không có quyền truy cập!", 403));
+  }
+
+  const isPasswordValid = await adminUser.comparePassword(password, adminUser.password);
+  if (!isPasswordValid) {
+    return next(new HandelError("Mật khẩu không đúng", 400));
+  }
+
+  const token = sentJwtToken(adminUser._id);
+  res.status(200).cookie("cookie", token, cookieOptions).json({
+    success: true,
+    token,
+    message: "Admin đăng nhập thành công!",
+  });
+});
+
