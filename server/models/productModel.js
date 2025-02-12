@@ -9,6 +9,11 @@ const productSchema = new mongoose.Schema(
       maxLength: [40, "ten san pham khong duoc qua 40 ki tu"],
       minlength: [5, "ten san pham phai lon hon 5 ki tu"],
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    }
+    ,
     brand: {
       type: String,
       required: [true, "san pham can co ten"],

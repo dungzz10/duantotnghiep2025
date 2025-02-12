@@ -53,10 +53,11 @@ export const createProduct = CatchAsync(async (req, res, next) => {
 });
 export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Sao chép req.query và loại bỏ các trường không cần thiết
-  const queryObj = { ...req.query };
+  const queryObj = { ...req.query, isDeleted: false };
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
   excludedFields.forEach((el) => delete queryObj[el]);
 
+ 
   // Xử lý toán tử tìm kiếm theo biểu thức chính quy
   if (req.query.title) {
     queryObj.title = { $regex: req.query.title, $options: "i" };
@@ -68,12 +69,13 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
     /\b(gte|gt|lte|lt|in|ne)\b/g,
     (value) => `$${value}`
   );
-
+  // console.log(queryString);
   // Tạo truy vấn cơ bản
   let query = Product.find(JSON.parse(queryString));
 
   // Xử lý sắp xếp
   if (req.query.sort) {
+    // console.log(req.query.sort);
     const sortBy = req.query.sort.split(",").join(" "); // Chuyển "price,rating" thành "price rating"
     query = query.sort(sortBy);
   } else {
@@ -164,3 +166,37 @@ export const uppdatemanyProduct = CatchAsync(async (req, res, next) => {
     message: "Cập nhật sản phẩm thành công",
   }); 
 });
+// Xóa mềm sản phẩm
+export const softDeleteProduct = CatchAsync(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+
+  product.isDeleted = true;
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Sản phẩm đã được xóa mềm",
+  });
+});
+
+// Khôi phục sản phẩm đã xóa mềm
+export const restoreProduct = CatchAsync(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+
+  product.isDeleted = false;
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Sản phẩm đã được khôi phục",
+  });
+});
+
