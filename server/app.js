@@ -8,6 +8,7 @@ import userRouter from"./routers/userRouter.js";
 import productRouter from"./routers/productRouter.js";
 import HandelError from"./utils/Error.js";
 import globalMillwareError from"./controllers/errorControll.js";
+import RouterBranch from "./routers/branch.js";
 
 dotenv.config();
 
@@ -31,6 +32,8 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/contact", RouterContact);
 app.use("/api/v1/categories", RouterCategory);
+app.use("/api/v1/branch", RouterBranch);
+
 
 
 app.all("*", (req, res, next) => {
