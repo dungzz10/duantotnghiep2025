@@ -1,5 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import { getAllProduct } from "../../../server/controllers/productControll";
 
 axios.defaults.baseURL = "http://localhost:5000/api/v1";
 axios.defaults.withCredentials = true; // Cho phép gửi cookie cùng request
@@ -116,10 +117,22 @@ const Account = {
 
   me: () => request.get("/user/me"),
 };
+const Product = {
+  getAllProducts: async (body) => {
+    try {
+      const res = await request.get("/product", body);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+}
 
 // 📌 Tạo `agent` để dễ dàng import vào các file khác
 const agent = {
   Account,
+  Product
 };
 
 export default agent;
