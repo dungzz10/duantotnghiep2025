@@ -110,16 +110,18 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
   if (req.query.page) {
     totalPages = Math.ceil(countproduct / limit);
   }
+  // console.log("total",totalPages);
   // Thực hiện truy vấn
   const products = await query;
 
   // Phản hồi kết quả
   res.status(201).json({
+    totalPages,
     success: true,
     productLength: products.length,
     products,
     countproduct,
-    totalPages,
+   
   });
 });
 export const getSingleProducts = CatchAsync(async (req, res, next) => {
