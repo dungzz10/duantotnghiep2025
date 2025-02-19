@@ -8,10 +8,10 @@ const LayoutAdmin = () => {
   return (
     <div className="flex flex-col h-screen w-full min-h-screen px-auto containerCustom">
       <AppHeafer></AppHeafer>
-      <Space className="flex flex-grow">
+      {/* <Space className="flex flex-grow"> */}
         <SideMEnu></SideMEnu>
         {/* <PageContain></PageContain> */}
-      </Space>
+      {/* </Space> */}
       <AppFooter></AppFooter>
     </div>
   );
