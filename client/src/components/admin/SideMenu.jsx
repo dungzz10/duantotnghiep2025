@@ -5,6 +5,7 @@ import {
   DatabaseOutlined,
   ShoppingCartOutlined,
   UserOutlined,
+  ShopOutlined,
 } from "@ant-design/icons";
 import { Outlet, useNavigate } from "react-router-dom";
 import PageContain from "./PageContain";
@@ -14,6 +15,7 @@ const menuItems = [
   { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Inventory" },
   { key: "/admin/orders", icon: <ShoppingCartOutlined />, label: "Orders" },
   { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
+  { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
 ];
 
 const Sidebar = () => {
@@ -31,7 +33,7 @@ const Sidebar = () => {
         />
       </div>
       <div className="flex-grow flex-col">
-        <div className="text-xl flex items-start p-5">Welcome to Admin Panel</div> 
+        <div className="text-xl flex items-start p-5 w-full">Welcome to Admin Panel</div> 
         <div className="flex-grow">
           <PageContain></PageContain>
         </div>

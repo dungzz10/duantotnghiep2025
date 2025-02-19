@@ -13,7 +13,7 @@ userRouter.put("/uppdatepassword", isAuththenticated, updatePassword)
 userRouter.post("/logout", isAuththenticated, logout)
 
 // routee user
-userRouter.get("/loaduser", isAuththenticated, loadUser)
+userRouter.get("/loaduser", loadUser)
 userRouter.get("/", isAuththenticated, checkquyen("admin"), getUser)
 userRouter.get("/:userId", isAuththenticated, getOneUser)
 userRouter.put("/me", isAuththenticated, uppdateMe)

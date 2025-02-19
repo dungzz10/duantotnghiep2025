@@ -1,7 +1,9 @@
+import Category from "../models/categoryModel.js";
 import Product from "../models/productModel.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
 import User from "../models/usersModel.js";
+// import Category from "../models/category";
 // list san pham
 
 // export const getOneProduct = async function (req, res) {
@@ -35,21 +37,39 @@ import User from "../models/usersModel.js";
 // };
 // tao san pham moi
 export const createProduct = CatchAsync(async (req, res, next) => {
+  // Log user và dữ liệu sản phẩm để kiểm tra
   console.log(req.user);
   const productData = req.body;
   console.log(productData);
-  console.log(req.user);
+
+  // Gán ID người dùng vào sản phẩm
   productData.user = req.user.id;
+
+  // Tạo sản phẩm mới từ dữ liệu nhận được
   const product = new Product(productData);
+
+  // Lưu sản phẩm vào cơ sở dữ liệu
   await product.save();
-  const user = await User.findById(req.user.id);
-  user.numProducts += 1;
-  await user.save();
+
+  // Kiểm tra xem có category hay không và cập nhật danh mục
+  if (productData.category) {
+    await Category.findByIdAndUpdate(
+      productData.category, // ID danh mục
+      { $push: { products: product._id } }, // Thêm ID sản phẩm vào mảng products của danh mục
+      { new: true }
+    );
+  }
+
+  // Cập nhật số lượng sản phẩm của người dùng
+  // const user = await User.findById(req.user.id);
+  // user.numProducts += 1;
+  // await user.save();
+
+  // Trả về phản hồi thành công
   res.status(201).json({
     success: true,
     product,
   });
-  //
 });
 export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Sao chép req.query và loại bỏ các trường không cần thiết
@@ -57,7 +77,6 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
   excludedFields.forEach((el) => delete queryObj[el]);
 
- 
   // Xử lý toán tử tìm kiếm theo biểu thức chính quy
   if (req.query.title) {
     queryObj.title = { $regex: req.query.title, $options: "i" };
@@ -121,7 +140,6 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
     productLength: products.length,
     products,
     countproduct,
-   
   });
 });
 export const getSingleProducts = CatchAsync(async (req, res, next) => {
@@ -166,7 +184,7 @@ export const uppdatemanyProduct = CatchAsync(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Cập nhật sản phẩm thành công",
-  }); 
+  });
 });
 // Xóa mềm sản phẩm
 export const softDeleteProduct = CatchAsync(async (req, res, next) => {
@@ -201,4 +219,3 @@ export const restoreProduct = CatchAsync(async (req, res, next) => {
     message: "Sản phẩm đã được khôi phục",
   });
 });
-

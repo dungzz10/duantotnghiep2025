@@ -1,7 +1,9 @@
 import HandelError from "../utils/Error.js";
 const globalMillwareError = (err, req, res, next) => {
+   console.log(12);
   console.error(err); // Sửa từ console.log thành console.error
-  
+  console.log(err.name);
+  // console.log(2);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
   // 1. Xử lý lỗi CastError (lỗi định dạng đối tượng ID)
@@ -19,6 +21,7 @@ const globalMillwareError = (err, req, res, next) => {
 
   // 3. Xử lý lỗi trùng dữ liệu (duplicate data error)
   if (err.code === 11000) {
+    console.log(err.code);
     const regex = /\{([^}]*)\}/;
     const match = err.message.match(regex);
 
