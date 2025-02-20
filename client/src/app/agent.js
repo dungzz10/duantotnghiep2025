@@ -108,7 +108,10 @@ const Account = {
   },
   resetPassword: async (body) => {
     try {
-      const res = await request.post(`/user/resetpassword/${body.resetToken}`, body);
+      const res = await request.post(
+        `/user/resetpassword/${body.resetToken}`,
+        body
+      );
       return res;
     } catch (error) {
       throw error;
@@ -125,14 +128,50 @@ const Product = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+};
+const Admin = {
+  loginadmin: async (body) => {
+    try {
+      const res = await request.post("/user/admin/signin", body);
+      if (res.token) {
+        localStorage.setItem("token", res.token);
+      }
+      return res;
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
+  },
 
-}
+  logoutAdmin: async () => {
+    try {
+      const res = await request.post("/user/admin/logout");
+      console.log("Logout Admin Success:", res);
+      return res;
+    } catch (error) {
+      console.error("Logout Admin failed:", error);
+      throw error;
+    }
+  },
+
+  loadAdmin: async () => {
+    try {
+      const res = await request.get("/user/admin/loadadmin");
+      console.log("Load Admin Success:", res);
+      return res;
+    } catch (error) {
+      console.error("Load Admin failed:", error);
+      throw error;
+    }
+  },
+};
 
 // 📌 Tạo `agent` để dễ dàng import vào các file khác
 const agent = {
   Account,
-  Product
+  Product,
+  Admin,
 };
 
 export default agent;
