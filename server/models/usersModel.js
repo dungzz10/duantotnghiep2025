@@ -69,7 +69,6 @@ const userSchema = new mongoose.Schema(
     active: {
       type: Boolean,
       default: true,
-      select: false,
     },
   },
   {
@@ -94,7 +93,7 @@ userSchema.pre("save", async function (next) {
 // Middleware pre("find") của Mongoose sẽ được kích hoạt trước khi một truy vấn find được thực thi
 //  regex  /^find/ ap dung voi tat ca find findone ..v ..v
 userSchema.pre(/^find/, function (next) {
-  this.find({ active: true });
+  // this.find({ active: true });
   next();
 });
 
@@ -135,5 +134,4 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
   return false;
 };
 
-export default mongoose.model("User", userSchema)
-
+export default mongoose.model("User", userSchema);

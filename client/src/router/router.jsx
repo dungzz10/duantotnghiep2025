@@ -24,8 +24,12 @@ import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
 import Order from "../features/admin/orders/Order";
 import Customer from "../features/admin/customers/customer";
-import Productsadmin from "../features/admin/products/Productsadmin";
+
 import LoginAdmin from "../features/admin/login/LoginAdmin";
+import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdmin";
+import SignupAdmin from "../features/signup/SignupAdmin";
+import ProductAdminPage from "../features/admin/products/ProductAdminPage";
+import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
 
 export const router = createBrowserRouter([
   {
@@ -119,12 +123,24 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-      { path: "loginadmin", element: <LoginAdmin /> },
       { path: "dashboard", element: <Dashboard /> },
+
       { path: "inventory", element: <Iventory /> },
       { path: "orders", element: <Order /> },
-      { path: "customers", element: <Customer /> },
-      { path: "products", element: <Productsadmin /> },
+      {
+        path: "customers",
+        element: <Customer />,
+        children: [
+          { path: "listuseradmin", element: <ListUserAdmin /> },
+          { path: "adduseradmin", element: <SignupAdmin /> },
+        ],
+      },
+      {
+        path: "products",
+        element: <ProductAdminPage />,
+        children: [{ path: "addproductadmin", element: <ProductsAdmin /> }],
+      },
     ],
   },
+  { path: "/admin/loginadmin", element: <LoginAdmin /> },
 ]);

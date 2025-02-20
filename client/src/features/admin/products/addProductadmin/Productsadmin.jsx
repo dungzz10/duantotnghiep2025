@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { productCategories } from "../../../utils/products";
+import { productCategories } from "../../../../utils/products";
 import { Upload, Input, Select, Button, Form, Radio, message } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Cloudinary } from "@cloudinary/url-gen";
