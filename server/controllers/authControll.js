@@ -236,7 +236,9 @@ export const logout = CatchAsync(async (req, res, next) => {
 
 //  get all user
 export const getUser = CatchAsync(async (req, res, next) => {
-  const user = await User.find();
+  const user = await User.find({})
+    .select("+active")
+    
   res.status(200).json({
     success: true,
     user,
@@ -245,12 +247,17 @@ export const getUser = CatchAsync(async (req, res, next) => {
 export const signinAdmin = CatchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const adminUser = await User.findOne({ email, role: "admin" }).select("+password");
+  const adminUser = await User.findOne({ email, role: "admin" }).select(
+    "+password"
+  );
   if (!adminUser) {
     return next(new HandelError("Bạn không có quyền truy cập!", 403));
   }
 
-  const isPasswordValid = await adminUser.comparePassword(password, adminUser.password);
+  const isPasswordValid = await adminUser.comparePassword(
+    password,
+    adminUser.password
+  );
   if (!isPasswordValid) {
     return next(new HandelError("Mật khẩu không đúng", 400));
   }
@@ -264,7 +271,6 @@ export const signinAdmin = CatchAsync(async (req, res, next) => {
 });
 // Logout Admin
 export const logoutAdmin = CatchAsync(async (req, res, next) => {
-  
   res.cookie("cookie", "null", {
     expires: new Date(Date.now() + 10 * 1000), // Set thời gian hết hạn cho cookie
     httpOnly: true, // Chỉ cho phép truy cập cookie từ phía server
@@ -277,14 +283,19 @@ export const logoutAdmin = CatchAsync(async (req, res, next) => {
 
 // Load thông tin Admin hiện tại
 export const loadAdmin = CatchAsync(async (req, res, next) => {
-  console.log("Load user",req.user);
+  console.log("Load user", req.user);
   const adminId = req.user.id; // Đảm bảo admin đã đăng nhập và có token
   console.log("Admin ID:", adminId);
   const admin = await User.findById(adminId);
-  
+
   // Kiểm tra nếu không tìm thấy người dùng admin
   if (!admin || admin.role !== "admin") {
-    return next(new HandelError("Bạn không phải admin hoặc không tìm thấy người dùng!", 403));
+    return next(
+      new HandelError(
+        "Bạn không phải admin hoặc không tìm thấy người dùng!",
+        403
+      )
+    );
   }
 
   res.status(200).json({
@@ -292,5 +303,3 @@ export const loadAdmin = CatchAsync(async (req, res, next) => {
     admin,
   });
 });
-
-

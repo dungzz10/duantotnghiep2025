@@ -16,9 +16,14 @@ const LayoutAdmin = () => {
     <div className="flex flex-col h-screen w-full min-h-screen px-auto containerCustom">
       <AppHeafer admin={admin}></AppHeafer>
       {/* <Space className="flex flex-grow"> */}
-     
+
+      {admin?.role === "admin" ? (
         <SideMEnu></SideMEnu>
-    
+      ) : (
+        <>
+          <div className="flex h-screen">bạn cần phải đăng nhập để thực hiện hành động </div>
+        </>
+      )}
 
       {/* <PageContain></PageContain> */}
       {/* </Space> */}

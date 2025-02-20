@@ -165,6 +165,14 @@ const Admin = {
       throw error;
     }
   },
+  getAllUser: async () => {
+    try {
+      const res = await request.get("/user/");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // 📌 Tạo `agent` để dễ dàng import vào các file khác
