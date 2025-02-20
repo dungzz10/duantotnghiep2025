@@ -262,4 +262,35 @@ export const signinAdmin = CatchAsync(async (req, res, next) => {
     message: "Admin đăng nhập thành công!",
   });
 });
+// Logout Admin
+export const logoutAdmin = CatchAsync(async (req, res, next) => {
+  
+  res.cookie("cookie", "null", {
+    expires: new Date(Date.now() + 10 * 1000), // Set thời gian hết hạn cho cookie
+    httpOnly: true, // Chỉ cho phép truy cập cookie từ phía server
+  });
+  res.status(200).json({
+    success: true,
+    message: "Admin đã đăng xuất thành công",
+  });
+});
+
+// Load thông tin Admin hiện tại
+export const loadAdmin = CatchAsync(async (req, res, next) => {
+  console.log("Load user",req.user);
+  const adminId = req.user.id; // Đảm bảo admin đã đăng nhập và có token
+  console.log("Admin ID:", adminId);
+  const admin = await User.findById(adminId);
+  
+  // Kiểm tra nếu không tìm thấy người dùng admin
+  if (!admin || admin.role !== "admin") {
+    return next(new HandelError("Bạn không phải admin hoặc không tìm thấy người dùng!", 403));
+  }
+
+  res.status(200).json({
+    status: "success",
+    admin,
+  });
+});
+
 

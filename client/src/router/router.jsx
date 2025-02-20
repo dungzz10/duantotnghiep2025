@@ -25,6 +25,7 @@ import Iventory from "../features/admin/inventory/Iventory";
 import Order from "../features/admin/orders/Order";
 import Customer from "../features/admin/customers/customer";
 import Productsadmin from "../features/admin/products/Productsadmin";
+import LoginAdmin from "../features/admin/login/LoginAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -118,11 +119,12 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-      { path: "dashboard", element: <Dashboard /> }, // ĐÚNG
-      { path: "inventory", element: <Iventory /> }, // ĐÚNG
-      { path: "orders", element: <Order /> }, // ĐÚNG
-      { path: "customers", element: <Customer /> }, // ĐÚNG
-      { path: "products", element: <Productsadmin /> }, // ĐÚNG
+      { path: "loginadmin", element: <LoginAdmin /> },
+      { path: "dashboard", element: <Dashboard /> },
+      { path: "inventory", element: <Iventory /> },
+      { path: "orders", element: <Order /> },
+      { path: "customers", element: <Customer /> },
+      { path: "products", element: <Productsadmin /> },
     ],
   },
 ]);
