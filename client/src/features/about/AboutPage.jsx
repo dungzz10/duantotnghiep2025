@@ -7,7 +7,7 @@ const AboutPage = () => {
         <div className="container max-w-screen-xl m-auto text-center mx-12 ml-16 ">
           <div className="ml-20">
             <img
-              src="https://acabiz.vn/backend/images/blog_images/614844501.jpg"
+              src="https://png.pngtree.com/png-vector/20210710/ourlarge/pngtree-black-free-shipping-png-image_3577608.jpg"
               alt
               classname="pl-14 h-28"
             />
@@ -22,7 +22,7 @@ const AboutPage = () => {
         <div className="container max-w-screen-xl m-auto text-center mx-12 ">
           <div className="ml-20">
             <img
-              src="https://magiamgia.com/wp-content/uploads/2020/12/fnal-logo.png"
+              src="https://png.pngtree.com/png-vector/20230501/ourmid/pngtree-50-off-sale-vector-image-png-image_6746721.png"
               alt
               classname="pl-14 h-28"
             />
@@ -38,7 +38,7 @@ const AboutPage = () => {
         <div className="container max-w-screen-xl m-auto text-center mx-12 ">
           <div className="ml-20">
             <img
-              src="https://hatdoimackhen.com/wp-content/uploads/2021/01/cach-doi-tra-hang-tren-qua-mien-bac.jpg"
+              src="https://pos.nvncdn.com/1e891e-123352/art/20221221_LBX8kNJCjuY4iah8cbBdaEgY.png"
               alt
               classname="pl-14 h-28"
             />{" "}
@@ -54,7 +54,10 @@ const AboutPage = () => {
       </section>
       <section className=" container max-w-screen-xl grid grid-cols-2 mx-16 ">
         <div className=" *:mt-4 w-full">
-          <img src="./assets/images/about2.png" alt />
+          <img
+            src="https://aeros.vn/upload/images/cach-trang-tri-shop-giay-dep-3.jpg"
+            alt
+          />
         </div>
         <div classname=" pt-8 ml-2">
           <h2 classname="font-bold text-[32px]">GIỚI THIỆU CHUNG VỀ SHOP</h2>
@@ -109,7 +112,7 @@ const AboutPage = () => {
           </div>
           <div className="overflow-hidden">
             <img
-              src="https://giaythainguyen.com/wp-content/uploads/2020/04/giay-micky-2.jpg"
+              src="https://lh3.googleusercontent.com/6euB1qM538WNYNFPEl1w1sNM00sTlgr0KBRqk_CeOlMFGOqq2yEBqe49HIldpfv8oVypbiwsdoQ6VMUsamiyGr_JibvyKUon85vMJtAxihuOC80xF_6le7hsx3ptiYce1N5pEGDCRNDL9I2X4kZ5AXY"
               alt
               classname="hover:scale-125 duration-1000 "
             />
