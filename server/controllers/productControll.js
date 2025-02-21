@@ -74,6 +74,7 @@ export const createProduct = CatchAsync(async (req, res, next) => {
 export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Sao chép req.query và loại bỏ các trường không cần thiết
   const queryObj = { ...req.query, isDeleted: false };
+  console.log(queryObj);
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
   excludedFields.forEach((el) => delete queryObj[el]);
 
