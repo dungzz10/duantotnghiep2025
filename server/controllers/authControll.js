@@ -236,9 +236,8 @@ export const logout = CatchAsync(async (req, res, next) => {
 
 //  get all user
 export const getUser = CatchAsync(async (req, res, next) => {
-  const user = await User.find({})
-    .select("+active")
-    
+  const user = await User.find({}).select("+active");
+
   res.status(200).json({
     success: true,
     user,
@@ -301,5 +300,44 @@ export const loadAdmin = CatchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     admin,
+  });
+});
+
+export const updateUser = CatchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+  const { name, email, role, active } = req.body;
+
+  // Find the user by userId
+  let user = await User.findById(userId);
+  if (!user) {
+    return next(new HandelError("User not found", 404));
+  }
+
+  if (role) {
+    if (!["user", "admin"].includes(role)) {
+      return next(new HandelError("Invalid role", 400));
+    }
+    user.role = role;
+  }
+
+  if (active !== undefined) {
+    user.active = active;
+  }
+
+  if (name) {
+    user.name = name;
+  }
+
+  if (email) {
+    user.email = email;
+    ded;
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "User updated successfully",
+    user,
   });
 });
