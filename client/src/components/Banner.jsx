@@ -4,6 +4,7 @@ import { Carousel } from 'react-responsive-carousel';
 
 const Banner = () => {
   return (
+    <div className='relative text-[20px] w-full max-w-[1360px] mx-auto text-white'>
     <Carousel
       autoPlay={true}
       infiniteLoop={true}
@@ -12,15 +13,16 @@ const Banner = () => {
       showStatus={false}
     >
       <div>
-        <img src="./src/assets/slide-1.png" />
+        <img src="/src/assets/slide-1.png" />
       </div>
       <div>
-        <img src="./src/assets/slide-2.png" />
+        <img src="/src/assets/slide-2.png" />
       </div>
       <div>
-        <img src="./src/assets/slide-3.png" />
+        <img src="/src/assets/slide-3.png" />
       </div>
     </Carousel>
+    </div>
   );
 };
 
