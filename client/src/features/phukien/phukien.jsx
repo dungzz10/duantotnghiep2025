@@ -1,6 +1,6 @@
 import React from "react";
 
-const AboutPage = () => {
+const Phukien = () => {
   return (
     <main>
       <section className="container max-w-screen-xl m-auto grid grid-cols-12 gap-8 mt-16">
@@ -290,4 +290,4 @@ const AboutPage = () => {
   );
 };
 
-export default AboutPage;
+export default Phukien;
