@@ -37,21 +37,14 @@ const productSchema = new mongoose.Schema(
     },
     image: [
       {
-        id: {
-          type: String,
-        },
-        public_id: {
-          type: String,
-        },
-        url: {
-          type: String,
-        },
+        url: String,
+        public_id: String,
       },
     ],
     category: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", 
-      required: [true, "category is required"],
+     type: mongoose.Schema.Types.ObjectId,
+     ref: "Category",
+    required: [true, "category is required"],
     },
     tag: [String],
     // Biến thể sản phẩm
