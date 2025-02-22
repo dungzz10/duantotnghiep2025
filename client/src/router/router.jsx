@@ -30,6 +30,7 @@ import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdm
 import SignupAdmin from "../features/signup/SignupAdmin";
 import ProductAdminPage from "../features/admin/products/ProductAdminPage";
 import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
+import Phukien from "../features/phukien/phukien";
 
 export const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ export const router = createBrowserRouter([
       {
         path: "/about",
         element: <AboutPage />,
+      },
+      {
+        path: "/phukien",
+        element: <Phukien />,
       },
       {
         path: "/contact",
