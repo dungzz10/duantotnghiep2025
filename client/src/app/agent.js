@@ -1,6 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { getAllProduct } from "../../../server/controllers/productControll";
+import { getAllCategory } from "../../../server/controllers/category";
 
 axios.defaults.baseURL = "http://localhost:5000/api/v1";
 axios.defaults.withCredentials = true; // Cho phép gửi cookie cùng request
@@ -173,6 +174,24 @@ const Admin = {
       throw error;
     }
   },
+  addProduct: async (body) => {
+    try {
+      const res = await request.post("/product/", body)
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+const Category = {
+  getAllCategory: async () => {
+    try {
+      const res = await request.get("/categories/getall");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 // 📌 Tạo `agent` để dễ dàng import vào các file khác
@@ -180,6 +199,7 @@ const agent = {
   Account,
   Product,
   Admin,
+  Category,
 };
 
 export default agent;

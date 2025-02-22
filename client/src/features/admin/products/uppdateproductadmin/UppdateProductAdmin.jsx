@@ -4,8 +4,7 @@ import { Upload, Input, Select, Button, Form, Radio, message } from "antd";
 import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { Resize } from "@cloudinary/url-gen/actions";
-import useaddproductadmin from "./useaddproductadmin";
-import useCategory from "./usecategory";
+import useaddproductadmin from "../addProductadmin/useaddproductadmin";
 const { Option } = Select;
 const statusData = [
   { name: "Mới", value: "new" },
@@ -21,10 +20,8 @@ const cld = new Cloudinary({
   },
 });
 
-const ProductsAdmin = () => {
+const UppdateProductAdmin = () => {
   const { mutate, isLoading } = useaddproductadmin();
-  const { category, loading } = useCategory();
-  console.log("cate", category);
   const [form] = Form.useForm();
   const [tags, setTags] = useState([]); // Lưu trữ các thẻ sản phẩm
   const [images, setImages] = useState([]); // Quản lý ảnh trong state của ProductsAdmin
@@ -137,18 +134,12 @@ const ProductsAdmin = () => {
     mutate(productData);
     message.success("Sản phẩm đã được thêm thành công!");
   };
-  if (loading) return <p>Loading...</p>;
   if (isLoading) return <p>Loading...</p>;
 
   return (
     <div className="p-6 w-full max-w-6xl mx-auto bg-white shadow-md rounded-lg">
       <h1 className="text-2xl font-bold mb-4 text-center">Thêm Sản Phẩm</h1>
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={onFinish}
-        className="w-full"
-      >
+      <Form form={form} layout="vertical" onFinish={onFinish} className="w-full">
         {/* Hình ảnh sản phẩm */}
         <Form.Item label="Hình ảnh sản phẩm" name="image">
           <div className="flex flex-wrap gap-2">
@@ -201,9 +192,9 @@ const ProductsAdmin = () => {
             rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
           >
             <Select placeholder="Chọn danh mục">
-              {category?.data?.map((categoryItem) => (
-                <Option key={categoryItem._id} value={categoryItem.name}>
-                  {categoryItem.name}
+              {productCategories.map((category) => (
+                <Option key={category.id} value={category.title}>
+                  {category.title}
                 </Option>
               ))}
             </Select>
@@ -331,4 +322,4 @@ const ProductsAdmin = () => {
   );
 };
 
-export default ProductsAdmin;
+export default UppdateProductAdmin;

@@ -32,6 +32,7 @@ import ProductAdminPage from "../features/admin/products/ProductAdminPage";
 import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
 import ListproductAdmin from "../features/admin/products/listProductadmin/ListproductAdmin";
 import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
+import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -143,7 +144,9 @@ export const router = createBrowserRouter([
         path: "products",
         element: <ProductAdminPage />,
         children: [{ path: "addproductadmin", element: <ProductsAdmin /> },
-          { path: "listproductadmin", element: <ListproductAdmin /> }
+          { path: "listproductadmin", element: <ListproductAdmin /> },
+          { path: "update/:id", element: <UppdateProductAdmin /> }
+
 
         ],
       },
