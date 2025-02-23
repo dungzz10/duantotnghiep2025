@@ -32,6 +32,10 @@ import ProductAdminPage from "../features/admin/products/ProductAdminPage";
 import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
 import ListproductAdmin from "../features/admin/products/listProductadmin/ListproductAdmin";
 import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
+import Categories from "../components/Categories";
+import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
+import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
+import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -129,7 +133,6 @@ export const router = createBrowserRouter([
 
       { path: "inventory", element: <Iventory /> },
       { path: "orders", element: <Order /> },
-      { path: "categories", element: <Categories /> },
       {
         path: "categories",
         element: <Categories />,
