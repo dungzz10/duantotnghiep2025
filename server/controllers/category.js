@@ -4,7 +4,7 @@ import categorySchema from "../validates/category.js";
 
 export const getAllCategory = async (req, res) => {
   try {
-    const categories = await Category.find().populate("Product");
+    const categories = await Category.find();
     if (categories.length === 0) {
       return res.json({
         message: "Không có danh mục nào",
@@ -40,7 +40,7 @@ export const getAllCategorynoProduct = async (req, res) => {
 };
 export const getOneCategory = async function (req, res) {
   try {
-    const category = await Category.findById(req.params.id).populate("Product");
+    const category = await Category.findById(req.params.id)
     if (!category) {
       return res.json({
         message: "Không có danh mục nào",
