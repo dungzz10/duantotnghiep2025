@@ -33,8 +33,12 @@ const userSchema = new mongoose.Schema(
     numProducts: { type: Number, default: 0 },
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "admin", "superadmin"],
       default: "user",
+    },
+    superadmin: {
+      type: Boolean,
+      default: false,  
     },
 
     availableBalance: {

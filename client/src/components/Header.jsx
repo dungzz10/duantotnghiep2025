@@ -1,9 +1,23 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
 import { userLogout } from "../app/hook/LogoutUser";
+import React, { useState } from 'react'
+import Wrapper from "./Wrapper";
+
 import { ShoppingCart } from "lucide-react";
+import { IoMdHeartEmpty } from 'react-icons/io'
+import { BsCart } from 'react-icons/bs'
+import { BiMenuAltRight } from 'react-icons/bi'
+import { VscChromeClose } from 'react-icons/vsc'
+import Menu from "./Menu";
+import MenuMobile from "./MenuMobile";
+
 
 const Header = ({ user }) => {
+  const [mobileMenu, setMobileMenu] = useState(false) // trạng thái menu cho mobile
+  const [showCatMenu, setShowCatMenu] = useState(false) // trạng thái show menu
+
+
   const { Logout } = userLogout();
   // console.log("User:", userLogout);
 
@@ -13,103 +27,132 @@ const Header = ({ user }) => {
   };
 
   return (
-    <header>
-      <nav className="bg-white border-gray-200 px-4 lg:px-6 py-2.5 dark:bg-gray-800">
-        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
-          {/* LOGO */}
-          <Link to="/" className="flex items-center">
-            <img
-              src="https://via.placeholder.com/40"
-              className="mr-3 h-6 sm:h-9"
-              alt="Logo"
-            />
-            <span className="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-              LOGO
-            </span>
-          </Link>
+    <header className={`w-full h-[50px] md:h-[80px] bg-white flex items-center justify-between
+    z-20 sticky top-0 transition-transform duration-300 
+    `}>
+      <Wrapper className="h-[60px] flex justify-between items-center">
+        {/* LOGO */}
+        <Link to="/" >
+          <img
+            src="./src/assets/logo.svg"
+            className="w-[40px] md:w-[60px]"
+            alt="Logo"
+          />
+        </Link>
 
-          {/* USER SECTION */}
-          <div className="flex items-center lg:order-2">
-            {user ? (
-              <div className="dropdown dropdown-end z-20">
-                {/* Avatar (Button để mở dropdown) */}
-                <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-                  <div className="w-10 rounded-full">
-                    <img src={user.photo || "https://via.placeholder.com/40"} alt="User Avatar" />
-                  </div>
+        {/* MENU CHÍNH */}
+        <Menu
+          showCatMenu={showCatMenu}
+          setShowCatMenu={setShowCatMenu}
+        />
+
+        {mobileMenu && <MenuMobile
+          showCatMenu={showCatMenu}
+          setShowCatMenu={setShowCatMenu}
+          setMobileMenu={setMobileMenu}
+        />}
+
+        {/* USER SECTION */}
+        <div className="flex items-center lg:order-2">
+
+          {/* Cart */}
+          <div className='flex items-center gap-2 text-black'>
+            {/* Icon start  */}
+            <div className='w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center 
+            items-center hover:bg-black/[0.05] cursor-pointer relative'>
+              <IoMdHeartEmpty className='text-[15px] md:text-[20px]' />
+              <div className='h-[14px] md:h-[18px] min-w-[14px] md:min-w-[18px]
+                rounded-full bg-red-600 text-white absolute top-1 left-5 md:left-7
+                text-[10px] md:text-[12px] flex justify-center items-center px-[2px] 
+                md:px-[5px]'>51</div>
+            </div>
+            {/* icon end  */}
+
+            {/* Icon start  */}
+            <Link href='/cart'>
+              <div className='w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center 
+            items-center hover:bg-black/[0.05] cursor-pointer relative'>
+                <BsCart className='text-[15px] md:text-[20px]' />
+                <div className='h-[14px] md:h-[18px] min-w-[14px] md:min-w-[18px]
+                rounded-full bg-red-600 text-white absolute top-1 left-5 md:left-7
+                text-[10px] md:text-[12px] flex justify-center items-center px-[2px] 
+                md:px-[5px]'>5</div>
+              </div>
+            </Link>
+            {/* icon end */}
+
+            {/* mobile icon start */}
+
+            <div className='w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center 
+            items-center hover:bg-black/[0.05] cursor-pointer relative md:hidden'>
+              {mobileMenu ? (
+                <VscChromeClose className='text-[16px]'
+                  onClick={() => setMobileMenu(false)}
+                />
+              ) : (
+                <BiMenuAltRight className='text-[20px]'
+                  onClick={() => setMobileMenu(true)}
+                />
+              )
+              }
+            </div>
+          </div>
+
+
+
+
+          {user ? (
+            <div className="dropdown dropdown-end z-20">
+              {/* Avatar (Button để mở dropdown) */}
+              <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
+                <div className="w-10 rounded-full">
+                  <img src={user.photo || "https://via.placeholder.com/40"} alt="User Avatar" />
                 </div>
-
-                {/* Dropdown Menu */}
-                <ul
-                  tabIndex={0}
-                  className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow"
-                >
-                  <li>
-                    <Link to="/profile">Profile</Link>
-                  </li>
-                  <li>
-                    <Link to="/my-store?tab=products">My Store</Link>
-                  </li>
-                  <li>
-                    <Link to="/payment-management">Payment Management</Link>
-                  </li>
-                  <li>
-                    <Link to="/address">Address</Link>
-                  </li>
-                  <li>
-                    <Link to="/order">Orders</Link>
-                  </li>
-                  <li>
-                    <button onClick={handleLogout} className="text-red-600">
-                      Logout
-                    </button>
-                  </li>
-                </ul>
               </div>
-            ) : (
-              <div>
-                <Link to="/signin" className="btn white mr-1">
-                  Login
-                </Link>
-                <Link to="/signup" className="btn white">
-                  Register
-                </Link>
-              </div>
-            )}
-          </div>
 
-          {/* MENU CHÍNH */}
-          <div className="hidden lg:flex lg:items-center lg:space-x-8">
-            <Link to="/" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Trang chủ
-            </Link>
-            <Link to="/products" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Sản phẩm
-            </Link>
-            <Link to="/accessory" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Phụ kiện
-            </Link>
-            <Link to="/product/sale" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Giảm giá
-            </Link>
-            <Link to="/product/new" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Mới ra mắt
-            </Link>
-            <Link to="/branch" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Thương hiệu
-            </Link>
-            <Link to="/about" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Giới thiệu
-            </Link>
-            <Link to="/contact" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              Liên hệ
-            </Link>
-            <Link to="/cart" className="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
-              <ShoppingCart size={20} />
-            </Link>
-          </div>
+              {/* Dropdown Menu */}
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow"
+              >
+                <li>
+                  <Link to="/profile">Profile</Link>
+                </li>
+                <li>
+                  <Link to="/my-store?tab=products">My Store</Link>
+                </li>
+                <li>
+                  <Link to="/payment-management">Payment Management</Link>
+                </li>
+                <li>
+                  <Link to="/address">Address</Link>
+                </li>
+                <li>
+                  <Link to="/order">Orders</Link>
+                </li>
+                <li>
+                  <button onClick={handleLogout} className="text-red-600">
+                    Logout
+                  </button>
+                </li>
+              </ul>
+            </div>
+          ) : (
+            <div>
+              <Link to="/signin" className="btn white mr-1">
+                Login
+              </Link>
+              <Link to="/signup" className="btn white">
+                Register
+              </Link>
+            </div>
+          )}
+
+
         </div>
-      </nav>
+
+
+      </Wrapper>
     </header>
   );
 };
