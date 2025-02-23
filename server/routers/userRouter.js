@@ -1,5 +1,5 @@
 import express from "express";
-import { signup, signin, forgotPassword, resetPassword, getUser, updatePassword, loadUser, logout, signinAdmin, logoutAdmin, loadAdmin } from "../controllers/authControll.js";
+import { signup, signin, forgotPassword, resetPassword, getUser, updatePassword, loadUser, logout, signinAdmin, logoutAdmin, loadAdmin, updateUser } from "../controllers/authControll.js";
 import { isAuththenticated, checkquyen } from "../middlewares/auth.js";
 import { getOneUser, uppdateMe, deactiveUser } from "../controllers/userControll.js";
 
@@ -15,6 +15,7 @@ userRouter.put("/uppdatepassword", isAuththenticated, updatePassword);
 userRouter.post("/logout", isAuththenticated, logout);
 
 // route user
+userRouter.post("/uppdate/:userId", isAuththenticated, updateUser);
 userRouter.get("/loaduser",isAuththenticated, loadUser);
 userRouter.get("/", isAuththenticated, checkquyen("admin"), getUser);
 userRouter.get("/:userId", isAuththenticated, getOneUser);
@@ -24,7 +25,7 @@ userRouter.put("/deactive/:userId", isAuththenticated, checkquyen("admin"), deac
 // router admin
 userRouter.post("/admin/signin", signinAdmin);
 
-// Add logoutAdmin and loadAdmin routes for admin functionalities
+// Add logoutAdmin and loadAdmin routes for admin 
 userRouter.post("/admin/logout", isAuththenticated,logoutAdmin); // Đăng xuất admin
 userRouter.get("/admin/loadadmin",isAuththenticated, loadAdmin);  // Tải thông tin admin
 

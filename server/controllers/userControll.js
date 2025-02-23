@@ -35,6 +35,7 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
 
 // get one user  by id
 export const getOneUser = CatchAsync(async (req, res, next) => {
+  console.log("abd",req.params.userId)
   const user = await User.findById(req.params.userId);
   if (!user) {
     return next(new HandelError("khong tim thay user cua ban", 400));
