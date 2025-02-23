@@ -24,21 +24,17 @@ import Register from "../features/signup/Register";
 import LayoutAdmin from "../layouts/LayoutAdmin";
 import LayoutClient from "../layouts/LayoutClient";
 
+import CategoriesAdmin from "../features/admin/categories/Categories";
+import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
+import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdmin";
+import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
 import LoginAdmin from "../features/admin/login/LoginAdmin";
 import ProductAdminPage from "../features/admin/products/ProductAdminPage";
 import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
-<<<<<<< HEAD
-import SignupAdmin from "../features/signup/SignupAdmin";
-=======
 import ListproductAdmin from "../features/admin/products/listProductadmin/ListproductAdmin";
-import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
-import Categories from "../components/Categories";
-import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
-import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
-import CategoriesAdmin from "../features/admin/categories/Categories";
->>>>>>> 09625a2d4a7ada1883c312e4d1039e489fc1c618
+import SignupAdmin from "../features/signup/SignupAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -144,7 +140,6 @@ export const router = createBrowserRouter([
           { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
           // { path: "addcategoriesadmin", element: <add /> },
           { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
-
         ],
       },
       {
@@ -154,17 +149,15 @@ export const router = createBrowserRouter([
           { path: "listuseradmin", element: <ListUserAdmin /> },
           { path: "adduseradmin", element: <SignupAdmin /> },
           { path: "edit/:userId", element: <UppdateUserAdmin /> },
-
         ],
       },
       {
         path: "products",
         element: <ProductAdminPage />,
-        children: [{ path: "addproductadmin", element: <ProductsAdmin /> },
+        children: [
+          { path: "addproductadmin", element: <ProductsAdmin /> },
           { path: "listproductadmin", element: <ListproductAdmin /> },
-          { path: "update/:id", element: <UppdateProductAdmin /> }
-
-
+          { path: "update/:id", element: <UppdateProductAdmin /> },
         ],
       },
     ],
