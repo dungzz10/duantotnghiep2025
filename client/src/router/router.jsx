@@ -1,36 +1,34 @@
 import { createBrowserRouter } from "react-router-dom";
-import LayoutClient from "../layouts/LayoutClient";
-import LayoutAdmin from "../layouts/LayoutAdmin";
-import HomePage from "../features/HomePage";
-import Login from "../features/login/Login";
 import NotFoundPage from "../features/404/NotFoundPage";
-import ProductDetailPage from "../features/productdetail/ProductDetailPage";
-import SignupPage from "../features/signup/SignupPage";
+import HomePage from "../features/HomePage";
 import AboutPage from "../features/about/AboutPage";
-import ContactPage from "../features/contacts/ContactPage";
-import ProductPage from "../features/product/ProductPage";
-import CartPage from "../features/cart/CartPage";
-import Register from "../features/signup/Register";
-import CheckoutPage from "../features/cart/CheckoutPage";
 import AccessoryPage from "../features/accessory/AccessoryPage";
-import ProductNewsPage from "../features/productnews/ProductNewsPage";
-import BranchPage from "../features/branch/BranchPage";
-import ProductSalePage from "../features/productsale/ProductSalePage";
-import EmptyCart from "../features/cart/EmptyCart";
-import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
-import ResetPassword from "../features/resetpassword/ResetPassword";
-import ProfilePage from "../features/profile/ProfilePage";
+import Customer from "../features/admin/customers/customer";
 import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
 import Order from "../features/admin/orders/Order";
-import Customer from "../features/admin/customers/customer";
+import BranchPage from "../features/branch/BranchPage";
+import CartPage from "../features/cart/CartPage";
+import CheckoutPage from "../features/cart/CheckoutPage";
+import EmptyCart from "../features/cart/EmptyCart";
+import ContactPage from "../features/contacts/ContactPage";
+import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
+import Login from "../features/login/Login";
+import ProductPage from "../features/product/ProductPage";
+import ProductDetailPage from "../features/productdetail/ProductDetailPage";
+import ProductNewsPage from "../features/productnews/ProductNewsPage";
+import ProductSalePage from "../features/productsale/ProductSalePage";
+import ProfilePage from "../features/profile/ProfilePage";
+import ResetPassword from "../features/resetpassword/ResetPassword";
+import Register from "../features/signup/Register";
+import LayoutAdmin from "../layouts/LayoutAdmin";
+import LayoutClient from "../layouts/LayoutClient";
 
-import LoginAdmin from "../features/admin/login/LoginAdmin";
 import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdmin";
-import SignupAdmin from "../features/signup/SignupAdmin";
+import LoginAdmin from "../features/admin/login/LoginAdmin";
 import ProductAdminPage from "../features/admin/products/ProductAdminPage";
 import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
-import Phukien from "../features/phukien/phukien";
+import SignupAdmin from "../features/signup/SignupAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -70,10 +68,7 @@ export const router = createBrowserRouter([
         path: "/about",
         element: <AboutPage />,
       },
-      {
-        path: "/phukien",
-        element: <Phukien />,
-      },
+
       {
         path: "/contact",
         element: <ContactPage />,
