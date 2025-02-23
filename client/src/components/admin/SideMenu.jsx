@@ -13,7 +13,7 @@ import PageContain from "./PageContain";
 const menuItems = [
   { key: "/admin/dashboard", icon: <AppstoreOutlined />, label: "Dashboard" },
   { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Inventory" },
-  { key: "/admin/orders", icon: <ShoppingCartOutlined />, label: "Orders" },
+  { key: "/admin/categories", icon: <ShoppingCartOutlined />, label: "Danh mục" },
   { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
   { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
 ];

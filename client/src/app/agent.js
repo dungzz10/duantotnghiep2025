@@ -130,6 +130,19 @@ const Product = {
     }
   },
 };
+const Categories = {
+  getAllCategories: async () => {
+    try {
+      const res = await request.get("/categories/");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+   RemoveCategory : async (_id) => {
+    return request.delete(`/categories/${_id}`)
+}
+};
 const Admin = {
   loginadmin: async (body) => {
     try {
@@ -179,6 +192,7 @@ const Admin = {
 const agent = {
   Account,
   Product,
+  Categories,
   Admin,
 };
 
