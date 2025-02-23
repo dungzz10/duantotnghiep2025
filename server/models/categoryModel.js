@@ -35,7 +35,6 @@ import moment from "moment-timezone";
 
 moment.tz.setDefault("Asia/Ho_Chi_Minh");
 
-
 const categorySchema = new mongoose.Schema(
   {
     name: {
@@ -63,6 +62,5 @@ const categorySchema = new mongoose.Schema(
     },
   }
 );
-
 
 export default mongoose.model("Category", categorySchema);

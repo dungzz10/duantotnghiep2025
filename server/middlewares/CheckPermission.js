@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken";
 import User from "../models/usersModel.js";
-import dotenv from 'dotenv'
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 const { SECRET_CODE } = process.env;
+
+console.log(SECRET_CODE, 1234);
 
 export const checkPermission = async (req, res, next) => {
   try {
@@ -14,6 +16,8 @@ export const checkPermission = async (req, res, next) => {
     // lấy jwt token từ header
     const token = req.headers.authorization.split(" ")[1];
     jwt.verify(token, SECRET_CODE, async (err, payload) => {
+      console.log(123, SECRET_CODE, err);
+
       if (err) {
         if (err.name === "JsonWebTokenError") {
           return res.json({
@@ -27,7 +31,11 @@ export const checkPermission = async (req, res, next) => {
         }
       }
       // lấy thông tin user từ database
+      console.log(payload, 88888);
+
       const user = await User.findById(payload._id);
+      console.log(user, 8888);
+
       // kiểm tra xem user có đủ quyền để thực hiện hành động đó không
       if (user.role != "admin") {
         return res.json({

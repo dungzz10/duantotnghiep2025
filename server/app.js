@@ -1,14 +1,15 @@
 import RouterContact from "./routers/contact.js";
-import express from"express";
-import dotenv from"dotenv";
-import cookieParser from"cookie-parser";
-import cors from"cors";
+import express from "express";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import RouterCategory from "./routers/category.js";
-import userRouter from"./routers/userRouter.js";
-import productRouter from"./routers/productRouter.js";
-import HandelError from"./utils/Error.js";
-import globalMillwareError from"./controllers/errorControll.js";
+import userRouter from "./routers/userRouter.js";
+import productRouter from "./routers/productRouter.js";
+import HandelError from "./utils/Error.js";
+import globalMillwareError from "./controllers/errorControll.js";
 import RouterBranch from "./routers/branch.js";
+import RouterAccessory from "./routers/accessory.js";
 
 dotenv.config();
 
@@ -33,11 +34,10 @@ app.use("/api/v1/product", productRouter);
 app.use("/api/v1/contact", RouterContact);
 app.use("/api/v1/categories", RouterCategory);
 app.use("/api/v1/branch", RouterBranch);
-
-
+app.use("/api/v1/accessory", RouterAccessory);
 
 app.all("*", (req, res, next) => {
   next(new HandelError(`duong dan cua ban bi loi ${req.originalUrl}`, 400));
 });
 app.use(globalMillwareError);
-export default app
+export default app;
