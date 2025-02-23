@@ -11,10 +11,11 @@ const Menu = ({showCatMenu,setShowCatMenu}) => {
     ];
     
     const subMenuData = [
-        { id: 1, name: "Jordan", doc_count: 11 },
-        { id: 2, name: "Sneakers", doc_count: 8 },
-        { id: 3, name: "Running shoes", doc_count: 64 },
-        { id: 4, name: "Football shoes", doc_count: 107 },
+        { id: 3.1, name: "Sản phẩm", url: "/products" },
+      { id: 3.2, name: "Phụ kiện", url: "/accessory" },
+      { id: 3.3, name: "Giảm giá", url: "/product/sale" },
+      { id: 3.4, name: "Mới ra mắt", url: "/product/new" },
+      { id: 3.5, name: "Thương hiệu", url: "/branch" },
     ];
   return (
     <ul className='hidden md:flex items-center gap-8 font-medium text-black'>
@@ -36,7 +37,7 @@ const Menu = ({showCatMenu,setShowCatMenu}) => {
                                     return(
                                         <li className='h-12 flex justify-between items-center
                                          px-3 hover:bg-black/[0.05] rounded-md'>
-                                             <Link to='/duongdancategory' className="flex-1">{submenu.name}</Link>
+                                             <Link to={submenu?.url} className="flex-1">{submenu.name}</Link>
                                             <span className='opacity-50 text-sm'>99</span>
                                         </li>
                                     )
