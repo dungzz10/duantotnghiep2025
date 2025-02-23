@@ -8,6 +8,6 @@ RouterCategory.get("/", getAllCategory);
 RouterCategory.get("/:id", getOneCategory);
 RouterCategory.post("/create", isAuththenticated, createCategory);
 RouterCategory.put("/:id/edit", isAuththenticated, updateCategory);
-RouterCategory.delete("/:id/delete", isAuththenticated, removeCategory);
+RouterCategory.delete("/:id/delete", removeCategory);
 
 export default RouterCategory; 
