@@ -42,7 +42,7 @@ const AccessoryPage = () => {
                 <div className="overflow-hidden">
                   {item.image.length > 0 && (
                     <img
-                      src={item.image[0].url} // Lấy ảnh đầu tiên làm ảnh chính
+                      src={item.image[0].url}
                       alt={item.title}
                       className="hover:scale-125 duration-1000"
                     />
