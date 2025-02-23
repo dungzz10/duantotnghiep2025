@@ -103,7 +103,7 @@ const ListUserAdmin = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <a href={`/users/edit/${record._id}`}>Edit</a>
+          <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
           <a href={`/users/delete/${record._id}`}>Delete</a>
         </Space>
       ),

@@ -3,6 +3,7 @@ import Product from "../models/productModel.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
 import User from "../models/usersModel.js";
+import mongoose from "mongoose";
 // import Category from "../models/category";
 // list san pham
 
@@ -42,8 +43,36 @@ export const createProduct = CatchAsync(async (req, res, next) => {
   const productData = req.body;
   console.log(productData);
 
+  // Kiểm tra trùng lặp title
+  const existingProduct = await Product.findOne({ title: productData.title });
+  if (existingProduct) {
+    return next(new HandelError("Sản phẩm với tiêu đề này đã tồn tại.", 400));
+  }
+
   // Gán ID người dùng vào sản phẩm
   productData.user = req.user.id;
+
+  // Xử lý trường `image`
+  if (Array.isArray(productData.image)) {
+    productData.image = productData.image.map((image) => ({
+      url: image,
+      public_id: "some-public-id", // Gán giá trị public_id nếu cần
+    }));
+  }
+
+  // Kiểm tra và xử lý danh mục
+  // Tìm danh mục theo tên
+  if (productData.category) {
+    const category = await Category.findOne({ name: productData.category });
+
+    // Nếu danh mục không tồn tại
+    if (!category) {
+      return next(new HandelError("Danh mục không tồn tại", 400));
+    }
+
+    // Lấy ID của danh mục và gán vào sản phẩm
+    productData.category = category._id;
+  }
 
   // Tạo sản phẩm mới từ dữ liệu nhận được
   const product = new Product(productData);
@@ -60,10 +89,7 @@ export const createProduct = CatchAsync(async (req, res, next) => {
     );
   }
 
-  // Cập nhật số lượng sản phẩm của người dùng
-  // const user = await User.findById(req.user.id);
-  // user.numProducts += 1;
-  // await user.save();
+
 
   // Trả về phản hồi thành công
   res.status(201).json({
@@ -71,9 +97,11 @@ export const createProduct = CatchAsync(async (req, res, next) => {
     product,
   });
 });
+
 export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Sao chép req.query và loại bỏ các trường không cần thiết
   const queryObj = { ...req.query, isDeleted: false };
+  console.log(queryObj);
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
   excludedFields.forEach((el) => delete queryObj[el]);
 
@@ -217,5 +245,58 @@ export const restoreProduct = CatchAsync(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Sản phẩm đã được khôi phục",
+  });
+});
+export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
+  // Sao chép req.query và loại bỏ các trường không cần thiết
+  const queryObj = { ...req.query };
+
+  // Loại bỏ các trường không cần thiết
+  const excludedFields = ["page", "sort", "limit", "fields", "id"];
+  excludedFields.forEach((el) => delete queryObj[el]);
+
+  // Thêm điều kiện cho isDeleted (bao gồm cả true và false)
+  console.log(queryObj);
+
+  // Xử lý toán tử tìm kiếm theo biểu thức chính quy
+  if (req.query.title) {
+    queryObj.title = { $regex: req.query.title, $options: "i" };
+  }
+
+  // Chuyển đổi các toán tử thành cú pháp MongoDB (vd: gte -> $gte)
+  let queryString = JSON.stringify(queryObj);
+  queryString = queryString.replace(
+    /\b(gte|gt|lte|lt|in|ne)\b/g,
+    (value) => `$${value}`
+  );
+
+  // Tạo truy vấn cơ bản
+  let query = Product.find(JSON.parse(queryString));
+
+  // Xử lý sắp xếp
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" "); // Chuyển "price,rating" thành "price rating"
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort("-createdAt"); // Mặc định sắp xếp theo createdAt giảm dần
+  }
+
+  const countproduct = await Product.countDocuments(query);
+
+  // Giới hạn trường dữ liệu trả về từ truy vấn
+  if (req.query.fields) {
+    const fields = req.query.fields.replace(/,/g, " "); // Chuyển danh sách trường từ dạng "name,price" thành "name price"
+    query = query.select(fields);
+  }
+
+  // Thực hiện truy vấn
+  const products = await query;
+
+  // Phản hồi kết quả
+  res.status(201).json({
+    success: true,
+    productLength: products.length,
+    products,
+    countproduct,
   });
 });

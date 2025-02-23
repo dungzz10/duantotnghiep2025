@@ -236,9 +236,8 @@ export const logout = CatchAsync(async (req, res, next) => {
 
 //  get all user
 export const getUser = CatchAsync(async (req, res, next) => {
-  const user = await User.find({})
-    .select("+active")
-    
+  const user = await User.find({}).select("+active");
+
   res.status(200).json({
     success: true,
     user,
@@ -303,3 +302,86 @@ export const loadAdmin = CatchAsync(async (req, res, next) => {
     admin,
   });
 });
+
+export const updateUsertest = CatchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+  const { name, email, role, active } = req.body;
+
+  // Find the user by userId
+  let user = await User.findById(userId);
+  if (!user) {
+    return next(new HandelError("User not found", 404));
+  }
+
+  if (role) {
+    if (!["user", "admin"].includes(role)) {
+      return next(new HandelError("Invalid role", 400));
+    }
+    user.role = role;
+  }
+
+  if (active !== undefined) {
+    user.active = active;
+  }
+
+  if (name) {
+    user.name = name;
+  }
+
+  if (email) {
+    user.email = email;
+    ded;
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "User updated successfully",
+    user,
+  });
+});
+export const updateUser = CatchAsync(async (req, res, next) => {
+  const { userId } = req.params;
+  const { name, email, role, active } = req.body;
+
+  // Tìm người dùng yêu cầu thay đổi
+  let user = await User.findById(userId);
+  if (!user) {
+    return next(new HandelError("User not found", 404));
+  }
+
+  // Kiểm tra xem người yêu cầu có phải là superadmin không
+  if (req.user.role !== "superadmin") {
+    return next(new HandelError("Only superadmin moi co the gan quyen ", 400));
+  }
+
+  // Nếu có quyền superadmin, có thể phân quyền admin
+  if (role) {
+    if (!["user", "admin"].includes(role)) {
+      return next(new HandelError("Invalid role", 400));
+    }
+    user.role = role;
+  }
+
+  if (active !== undefined) {
+    user.active = active;
+  }
+
+  if (name) {
+    user.name = name;
+  }
+
+  if (email) {
+    user.email = email;
+  }
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "User updated successfully",
+    user,
+  });
+});
+
