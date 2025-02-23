@@ -136,7 +136,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "listuseradmin", element: <ListUserAdmin /> },
           { path: "adduseradmin", element: <SignupAdmin /> },
-          { path: "edit/:id", element: <UppdateUserAdmin /> },
+          { path: "edit/:userId", element: <UppdateUserAdmin /> },
 
         ],
       },

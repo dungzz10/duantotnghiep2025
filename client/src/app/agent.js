@@ -2,6 +2,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { getAllProduct } from "../../../server/controllers/productControll";
 import { getAllCategory } from "../../../server/controllers/category";
+import { getOneUser } from "../../../server/controllers/userControll";
 
 axios.defaults.baseURL = "http://localhost:5000/api/v1";
 axios.defaults.withCredentials = true; // Cho phép gửi cookie cùng request
@@ -174,9 +175,28 @@ const Admin = {
       throw error;
     }
   },
+  getOneUser: async (userId) => {
+    try {
+      const res = await request.get(`/user/${userId}`);
+      console.log(res)
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  uppdateUser: async (userId, body) => {
+    try {
+      const res = await request.post(`/user/uppdate/${userId}`, body);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   addProduct: async (body) => {
     try {
-      const res = await request.post("/product/", body)
+      const res = await request.post("/product/", body);
       return res;
     } catch (error) {
       throw error;
