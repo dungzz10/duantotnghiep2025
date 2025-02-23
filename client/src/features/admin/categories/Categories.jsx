@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Outlet } from "react-router-dom";
 
-const Categories = () => {
+const CategoriesAdmin = () => {
   return (
     <>
       <div className="flex">
@@ -21,4 +21,4 @@ const Categories = () => {
     </>
   );
 };
-export default Categories;
+export default CategoriesAdmin;

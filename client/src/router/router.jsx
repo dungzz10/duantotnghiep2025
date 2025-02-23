@@ -36,6 +36,7 @@ import Categories from "../components/Categories";
 import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
+import CategoriesAdmin from "../features/admin/categories/Categories";
 
 export const router = createBrowserRouter([
   {
@@ -135,7 +136,7 @@ export const router = createBrowserRouter([
       { path: "orders", element: <Order /> },
       {
         path: "categories",
-        element: <Categories />,
+        element: <CategoriesAdmin />,
         children: [
           { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
           // { path: "addcategoriesadmin", element: <add /> },
