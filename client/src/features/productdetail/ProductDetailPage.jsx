@@ -7,7 +7,7 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
 
-  // Move all hooks and memoized values before any conditional returns
+  
   const colorVariants = useMemo(() => {
     if (!data?.product?.variants) return {};
 
