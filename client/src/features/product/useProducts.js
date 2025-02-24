@@ -5,7 +5,7 @@ export const useAllProducts = (filterData) => {
   console.log("filterData", filterData);
   const { data, fetchNextPage, hasNextPage, isLoading, isError } =
     useInfiniteQuery({
-      queryKey: ["get-all-products", filterData],
+      queryKey: ["products", filterData],
       queryFn: ({ pageParam = 1 }) => productsApi(pageParam, filterData),
       getNextPageParam: (lastPage, allPages) => {
         //  console.log("lastPage", lastPage);
