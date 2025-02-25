@@ -16,6 +16,8 @@ const menuItems = [
   { key: "/admin/categories", icon: <ShoppingCartOutlined />, label: "Danh mục" },
   { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
   { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
+  { key: "/admin/banners", icon: <ShopOutlined />, label: "Banners" },
+
 ];
 
 const Sidebar = () => {
