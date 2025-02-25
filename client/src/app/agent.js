@@ -61,8 +61,10 @@ const Account = {
   login: async (body) => {
     try {
       const res = await request.post("/user/signin", body);
+      // console.log("res", res);
       if (res.token) {
-        localStorage.setItem("token", res.token); // ✅ Lưu token vào localStorage
+        localStorage.setItem("token", res.token); 
+        localStorage.setItem("user", JSON.stringify(res.yesUser));
       }
       return res;
     } catch (error) {

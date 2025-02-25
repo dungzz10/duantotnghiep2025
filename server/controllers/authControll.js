@@ -70,6 +70,7 @@ export const signin = CatchAsync(async (req, res, next) => {
       const token = sentJwtToken(yesUser._id);
       return res.status(200).cookie("cookie", token, cookieOptions).json({
         success: true,
+        yesUser,
         token,
       });
     } else {
