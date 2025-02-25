@@ -35,6 +35,7 @@ import ProductsAdmin from "../features/admin/products/addProductadmin/Productsad
 import ListproductAdmin from "../features/admin/products/listProductadmin/ListproductAdmin";
 import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
 import SignupAdmin from "../features/signup/SignupAdmin";
+import ListBanner from "../features/admin/banners/listBannerAdmin/ListBanner";
 
 export const router = createBrowserRouter([
   {
@@ -160,6 +161,8 @@ export const router = createBrowserRouter([
           { path: "update/:id", element: <UppdateProductAdmin /> },
         ],
       },
+      //----------------------banner router----------------
+      { path: "banners", element: <ListBanner /> },
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },
