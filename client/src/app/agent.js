@@ -90,8 +90,10 @@ const Account = {
     try {
       const res = await request.post("/user/logout");
       console.log("Logout Success:", res);
+      localStorage.removeItem("user")
       return res;
-      // localStorage.removeItem("token"); // ✅ Xóa token khi logout
+      // localStorage.removeItem("token"); // 
+     
     } catch (error) {
       console.error("Logout failed:", error);
       throw error;

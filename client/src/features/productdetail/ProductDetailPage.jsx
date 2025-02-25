@@ -7,22 +7,14 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
 
+  // Cập nhật logic xử lý variants
   const colorVariants = useMemo(() => {
     if (!data?.product?.variants) return {};
-    // console.log(data.product.variants);
 
     const grouped = {};
     data.product.variants.forEach((variant) => {
-      if (!grouped[variant.color]) {
-        grouped[variant.color] = [];
-      }
-      grouped[variant.color].push({
-        size: variant.size,
-        price: variant.price,
-        quantity: variant.quantity,
-      });
+      grouped[variant.color] = variant.sizes;
     });
-    // console.log(grouped);
     return grouped;
   }, [data?.product?.variants]);
 
@@ -30,26 +22,26 @@ const ProductDetailPage = () => {
     () => Object.keys(colorVariants),
     [colorVariants]
   );
-  const [selectedColor, setSelectedColor] = useState("");
 
+  const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
 
+  // Tự động chọn màu đầu tiên
   React.useEffect(() => {
-    // console.log(selectedColor)
-    // console.log(uniqueColors)
     if (uniqueColors.length > 0 && !selectedColor) {
       setSelectedColor(uniqueColors[0]);
     }
   }, [uniqueColors, selectedColor]);
 
+  // Lấy danh sách size cho màu đã chọn
   const availableSizes = useMemo(() => {
-    return colorVariants[selectedColor]?.map((variant) => variant.size) || [];
+    return colorVariants[selectedColor]?.map((size) => size.size) || [];
   }, [selectedColor, colorVariants]);
-  // console.log(selectedColor)
 
+  // Tìm variant được chọn
   const selectedVariant = useMemo(() => {
     return colorVariants[selectedColor]?.find(
-      (variant) => variant.size === selectedSize
+      (size) => size.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
 
@@ -60,19 +52,18 @@ const ProductDetailPage = () => {
     }
 
     const cartItem = {
-      id: product._id,
-      title: product.title,
-      image: product.image?.length
-        ? product.image[0].url
+      id: data.product._id,
+      title: data.product.title,
+      image: data.product.image?.length
+        ? data.product.image[0].url
         : "https://via.placeholder.com/300",
       color: selectedColor,
       size: selectedSize,
-      price: selectedVariant?.price || product.originalPrice,
+      price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
-
     const existingIndex = existingCart.findIndex(
       (item) =>
         item.id === cartItem.id &&
@@ -81,15 +72,12 @@ const ProductDetailPage = () => {
     );
 
     if (existingIndex !== -1) {
-      // Nếu sản phẩm đã có, tăng số lượng
       existingCart[existingIndex].quantity += 1;
     } else {
       existingCart.push(cartItem);
     }
-    console.log(cartItem.id)
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
-
     alert("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
   };
 
@@ -165,28 +153,30 @@ const ProductDetailPage = () => {
                 {uniqueColors.map((color, index) => (
                   <button
                     key={index}
-                    className={`border-2 ml-1 rounded-full w-6 h-6 ${
-                      (console.log(color),
-                      color.trim().toLowerCase() == "đỏ"
-                        ? "bg-red-500"
-                        : color.trim().toLowerCase() === "xanh"
-                        ? "bg-blue-500"
-                        : color.trim().toLowerCase() == "vàng"
-                        ? "bg-yellow-500"
-                        : "bg-gray-300")
-                    } ${
-                      selectedColor === color
-                        ? "border-black"
-                        : "border-gray-300"
-                    }`}
+                    className={`border-2 ml-1 rounded-full w-6 h-6 focus:outline-none
+                      ${
+                        color.toLowerCase() === "đỏ"
+                          ? "bg-red-500"
+                          : color.toLowerCase() === "xanh"
+                          ? "bg-blue-500"
+                          : color.toLowerCase() === "vàng"
+                          ? "bg-yellow-500"
+                          : "bg-gray-300"
+                      } 
+                      ${
+                        selectedColor === color
+                          ? "border-black"
+                          : "border-gray-300"
+                      }`}
                     style={{ backgroundColor: color }}
                     onClick={() => {
                       setSelectedColor(color);
-                      setSelectedSize(""); // Reset size khi đổi màu
+                      setSelectedSize("");
                     }}
                   />
                 ))}
               </div>
+
               <div className="flex ml-6 items-center">
                 <span className="mr-3">Kích cỡ:</span>
                 <select
@@ -212,10 +202,11 @@ const ProductDetailPage = () => {
             </div>
 
             {/* Thêm vào giỏ hàng */}
-            <div className="flex mt-8" onClick={handleAddToCart}>
+            <div className="flex mt-8">
               <button
-                className="text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded"
-               
+                className="text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded disabled:opacity-50"
+                onClick={handleAddToCart}
+                disabled={!selectedSize}
               >
                 Thêm vào giỏ hàng
               </button>

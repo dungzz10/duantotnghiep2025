@@ -29,6 +29,15 @@ const ProductsAdmin = () => {
   const [tags, setTags] = useState([]); // Lưu trữ các thẻ sản phẩm
   const [images, setImages] = useState([]); // Quản lý ảnh trong state của ProductsAdmin
   const [variants, setVariants] = useState([]); // Quản lý biến thể sản phẩm
+  const [currentVariant, setCurrentVariant] = useState({
+    color: "",
+    sizes: [],
+  });
+  const [currentSize, setCurrentSize] = useState({
+    size: "",
+    quantity: 0,
+    price: 0,
+  });
 
   const handleAddImages = (newImages) => {
     setImages(newImages); // Cập nhật lại ảnh sau khi thêm ảnh
@@ -105,14 +114,60 @@ const ProductsAdmin = () => {
     setTags(tags.filter((tag) => tag !== tagToDelete));
   };
 
+  const checkDuplicateVariant = (color, size) => {
+    return variants.some(
+      (variant) =>
+        variant.color === color && variant.sizes.some((s) => s.size === size)
+    );
+  };
+
+  const handleAddSize = () => {
+    if (!currentSize.size || !currentSize.quantity || !currentSize.price) {
+      message.error("Vui lòng nhập đầy đủ thông tin kích cỡ!");
+      return;
+    }
+
+    if (checkDuplicateVariant(currentVariant.color, currentSize.size)) {
+      message.error("Biến thể này đã tồn tại!");
+      return;
+    }
+
+    setCurrentVariant((prev) => ({
+      ...prev,
+      sizes: [...prev.sizes, currentSize],
+    }));
+
+    // Reset form size
+    setCurrentSize({
+      size: "",
+      quantity: 0,
+      price: 0,
+    });
+
+    form.setFieldsValue({
+      variantSize: "",
+      variantQuantity: "",
+      variantPrice: "",
+    });
+  };
+
   const handleAddVariant = () => {
-    const variantData = {
-      color: form.getFieldValue("variantColor"),
-      size: form.getFieldValue("variantSize"),
-      price: form.getFieldValue("variantPrice"),
-      quantity: form.getFieldValue("variantQuantity"),
-    };
-    setVariants([...variants, variantData]);
+    if (!currentVariant.color || currentVariant.sizes.length === 0) {
+      message.error("Vui lòng nhập đầy đủ thông tin biến thể!");
+      return;
+    }
+
+    setVariants((prev) => [...prev, currentVariant]);
+
+    // Reset current variant
+    setCurrentVariant({
+      color: "",
+      sizes: [],
+    });
+
+    form.setFieldsValue({
+      variantColor: "",
+    });
   };
 
   const handleRemoveVariant = (index) => {
@@ -269,47 +324,134 @@ const ProductsAdmin = () => {
         </Form.Item>
 
         {/* Thêm thông tin biến thể */}
-        <div className="variants-section">
-          <h3 className="font-bold text-lg">Biến thể sản phẩm</h3>
+        <div className="variants-section border p-4 rounded-lg mt-4">
+          <h3 className="font-bold text-lg mb-4">Biến thể sản phẩm</h3>
 
+          {/* Input cho màu sắc */}
           <Form.Item label="Màu sắc" name="variantColor">
-            <Input placeholder="Nhập màu sắc" />
+            <Input
+              placeholder="Nhập màu sắc"
+              onChange={(e) =>
+                setCurrentVariant((prev) => ({
+                  ...prev,
+                  color: e.target.value,
+                }))
+              }
+              value={currentVariant.color}
+            />
           </Form.Item>
 
-          <Form.Item label="Kích thước" name="variantSize">
-            <Input placeholder="Nhập kích thước" />
-          </Form.Item>
+          <div className="grid grid-cols-3 gap-4">
+            <Form.Item label="Kích thước" name="variantSize">
+              <Input
+                placeholder="Nhập kích thước"
+                onChange={(e) =>
+                  setCurrentSize((prev) => ({ ...prev, size: e.target.value }))
+                }
+                value={currentSize.size}
+              />
+            </Form.Item>
 
-          <Form.Item label="Giá" name="variantPrice">
-            <Input type="number" placeholder="Nhập giá" />
-          </Form.Item>
+            <Form.Item label="Giá" name="variantPrice">
+              <Input
+                type="number"
+                placeholder="Nhập giá"
+                onChange={(e) =>
+                  setCurrentSize((prev) => ({
+                    ...prev,
+                    price: Number(e.target.value),
+                  }))
+                }
+                value={currentSize.price}
+              />
+            </Form.Item>
 
-          <Form.Item label="Số lượng" name="variantQuantity">
-            <Input type="number" placeholder="Nhập số lượng" />
-          </Form.Item>
-
-          <Button type="dashed" onClick={handleAddVariant}>
-            Thêm biến thể
-          </Button>
-
-          {/* Hiển thị các biến thể đã thêm */}
-          <div className="variants-list mt-4">
-            {variants.map((variant, index) => (
-              <div key={index} className="variant-item flex justify-between">
-                <span>
-                  {variant.color} - {variant.size} - {variant.price} -{" "}
-                  {variant.quantity}
-                </span>
-                <Button
-                  type="link"
-                  danger
-                  onClick={() => handleRemoveVariant(index)}
-                >
-                  Xóa
-                </Button>
-              </div>
-            ))}
+            <Form.Item label="Số lượng" name="variantQuantity">
+              <Input
+                type="number"
+                placeholder="Nhập số lượng"
+                onChange={(e) =>
+                  setCurrentSize((prev) => ({
+                    ...prev,
+                    quantity: Number(e.target.value),
+                  }))
+                }
+                value={currentSize.quantity}
+              />
+            </Form.Item>
           </div>
+
+          <div className="flex gap-2">
+            <Button onClick={handleAddSize}>Thêm kích cỡ</Button>
+            <Button type="primary" onClick={handleAddVariant}>
+              Lưu biến thể
+            </Button>
+          </div>
+
+          {/* Hiển thị sizes của variant hiện tại */}
+          {currentVariant.sizes.length > 0 && (
+            <div className="mt-4">
+              <h4 className="font-semibold">
+                Kích cỡ đã thêm cho màu {currentVariant.color}:
+              </h4>
+              <div className="grid grid-cols-1 gap-2">
+                {currentVariant.sizes.map((size, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center bg-gray-50 p-2 rounded"
+                  >
+                    <span>
+                      Size: {size.size} - Giá: ${size.price} - SL:{" "}
+                      {size.quantity}
+                    </span>
+                    <Button
+                      type="text"
+                      danger
+                      onClick={() =>
+                        setCurrentVariant((prev) => ({
+                          ...prev,
+                          sizes: prev.sizes.filter((_, i) => i !== idx),
+                        }))
+                      }
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Hiển thị tất cả variants */}
+          {variants.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-semibold">Biến thể đã thêm:</h4>
+              {variants.map((variant, idx) => (
+                <div key={idx} className="mt-2 p-3 border rounded">
+                  <div className="flex justify-between items-center">
+                    <h5 className="font-medium">Màu: {variant.color}</h5>
+                    <Button
+                      type="text"
+                      danger
+                      onClick={() =>
+                        setVariants((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                  <div className="ml-4">
+                    {variant.sizes.map((size, sizeIdx) => (
+                      <div key={sizeIdx} className="text-sm text-gray-600">
+                        Size: {size.size} - Giá: ${size.price} - SL:{" "}
+                        {size.quantity}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Phí vận chuyển */}
