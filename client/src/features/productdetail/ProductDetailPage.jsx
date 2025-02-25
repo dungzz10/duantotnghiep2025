@@ -7,9 +7,9 @@ const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
 
-  
   const colorVariants = useMemo(() => {
     if (!data?.product?.variants) return {};
+    // console.log(data.product.variants);
 
     const grouped = {};
     data.product.variants.forEach((variant) => {
@@ -18,10 +18,11 @@ const ProductDetailPage = () => {
       }
       grouped[variant.color].push({
         size: variant.size,
-        price: variant.price, // Đảm bảo price được include
+        price: variant.price,
         quantity: variant.quantity,
       });
     });
+    // console.log(grouped);
     return grouped;
   }, [data?.product?.variants]);
 
@@ -30,10 +31,12 @@ const ProductDetailPage = () => {
     [colorVariants]
   );
   const [selectedColor, setSelectedColor] = useState("");
+
   const [selectedSize, setSelectedSize] = useState("");
 
-  // Initialize selectedColor when uniqueColors changes
   React.useEffect(() => {
+    // console.log(selectedColor)
+    // console.log(uniqueColors)
     if (uniqueColors.length > 0 && !selectedColor) {
       setSelectedColor(uniqueColors[0]);
     }
@@ -42,12 +45,53 @@ const ProductDetailPage = () => {
   const availableSizes = useMemo(() => {
     return colorVariants[selectedColor]?.map((variant) => variant.size) || [];
   }, [selectedColor, colorVariants]);
+  // console.log(selectedColor)
 
   const selectedVariant = useMemo(() => {
     return colorVariants[selectedColor]?.find(
       (variant) => variant.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
+
+  const handleAddToCart = () => {
+    if (!selectedSize) {
+      alert("Vui lòng chọn kích cỡ trước khi thêm vào giỏ hàng!");
+      return;
+    }
+
+    const cartItem = {
+      id: product._id,
+      title: product.title,
+      image: product.image?.length
+        ? product.image[0].url
+        : "https://via.placeholder.com/300",
+      color: selectedColor,
+      size: selectedSize,
+      price: selectedVariant?.price || product.originalPrice,
+      quantity: 1,
+    };
+
+    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    const existingIndex = existingCart.findIndex(
+      (item) =>
+        item.id === cartItem.id &&
+        item.color === cartItem.color &&
+        item.size === cartItem.size
+    );
+
+    if (existingIndex !== -1) {
+      // Nếu sản phẩm đã có, tăng số lượng
+      existingCart[existingIndex].quantity += 1;
+    } else {
+      existingCart.push(cartItem);
+    }
+    console.log(cartItem.id)
+
+    localStorage.setItem("cart", JSON.stringify(existingCart));
+
+    alert("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
+  };
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -94,9 +138,7 @@ const ProductDetailPage = () => {
             <h1 className="text-gray-900 text-3xl title-font font-medium mb-1">
               {product.title}
             </h1>
-            <h1>
-              {product.description}
-            </h1>
+            <h1>{product.description}</h1>
 
             {/* Giá sản phẩm */}
             <div className="mt-6">
@@ -123,7 +165,16 @@ const ProductDetailPage = () => {
                 {uniqueColors.map((color, index) => (
                   <button
                     key={index}
-                    className={`border-2 ml-1 rounded-full w-6 h-6 focus:outline-none ${
+                    className={`border-2 ml-1 rounded-full w-6 h-6 ${
+                      (console.log(color),
+                      color.trim().toLowerCase() == "đỏ"
+                        ? "bg-red-500"
+                        : color.trim().toLowerCase() === "xanh"
+                        ? "bg-blue-500"
+                        : color.trim().toLowerCase() == "vàng"
+                        ? "bg-yellow-500"
+                        : "bg-gray-300")
+                    } ${
                       selectedColor === color
                         ? "border-black"
                         : "border-gray-300"
@@ -161,10 +212,10 @@ const ProductDetailPage = () => {
             </div>
 
             {/* Thêm vào giỏ hàng */}
-            <div className="flex mt-8">
+            <div className="flex mt-8" onClick={handleAddToCart}>
               <button
                 className="text-white bg-red-500 border-0 py-2 px-6 focus:outline-none hover:bg-red-600 rounded"
-                disabled={!selectedSize}
+               
               >
                 Thêm vào giỏ hàng
               </button>
