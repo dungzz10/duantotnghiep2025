@@ -12,7 +12,7 @@ export const getAllBanners = async(req,res) =>{
        }
        return res.status(200).json({
             message: 'Lấy danh sách banner thành công',
-            data: banners,
+            banners: banners,
        })
     } catch (error) {
         res.status(500).json({message: error.message})
