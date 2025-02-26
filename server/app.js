@@ -12,6 +12,7 @@ import RouterBranch from "./routers/branch.js";
 import RouterAccessory from "./routers/accessory.js";
 import RouterBanner from "./routers/bannerRouter.js";
 import RouterReview from "./routers/reviewsRouter.js";
+import momoPaymentRoutes from "./routers/momoPayment.js";
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use("/api/momo", momoPaymentRoutes);
 
 app.get("/test", (req, res) => {
   res.status(200).send("Hello, welcome to Brokang Market");
