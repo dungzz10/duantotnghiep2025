@@ -172,3 +172,100 @@ export const getCustomerDetails = CatchAsync(async (req, res, next) => {
     },
   });
 });
+export const addUserAdmin = CatchAsync(async (req, res, next) => {
+  if (req.user.role !== "superadmin") {
+    return next(
+      new HandelError("Bạn không có quyền thực hiện hành động này", 403)
+    );
+  }
+
+  const { name, email, password, role } = req.body;
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    role: role || "user", // Mặc định vai trò là 'user' nếu không cung cấp
+  });
+
+  res.status(201).json({
+    success: true,
+    message: "Tạo tài khoản thành công",
+    data: user,
+  });
+});
+export const deactivateUserAdmin = CatchAsync(async (req, res, next) => {
+  if (req.user.role !== "superadmin") {
+    return next(
+      new HandelError("Bạn không có quyền thực hiện hành động này", 403)
+    );
+  }
+
+  const userId = req.params.userId;
+
+  // Kiểm tra người dùng có tồn tại không
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  // Vô hiệu hóa người dùng
+  if (user.role === "superadmin") {
+    return next(new HandelError("Không thể vô hiệu hóa superadmin", 403));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { active: false },
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Vô hiệu hóa tài khoản thành công",
+    data: updatedUser,
+  });
+});
+export const updateUserAdmin = CatchAsync(async (req, res, next) => {
+  if (req.user.role !== "superadmin") {
+    return next(
+      new HandelError("Bạn không có quyền thực hiện hành động này", 403)
+    );
+  }
+
+  const { userId } = req.params;
+
+  // Kiểm tra người dùng có tồn tại không
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  // Kiểm tra tài khoản cần cập nhật là admin
+  if (user.role !== "admin") {
+    return next(
+      new HandelError("Chỉ có tài khoản admin mới có thể được cập nhật", 403)
+    );
+  }
+
+  // Chỉ cho phép cập nhật các trường nhất định
+  const allowedFields = ["name", "email", "photo", "introduction"];
+  const updateData = {};
+
+  Object.keys(req.body).forEach((field) => {
+    if (allowedFields.includes(field)) {
+      updateData[field] = req.body[field];
+    }
+  });
+
+  const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Cập nhật tài khoản admin thành công",
+    data: updatedUser,
+  });
+});

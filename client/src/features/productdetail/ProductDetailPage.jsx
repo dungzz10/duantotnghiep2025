@@ -7,9 +7,11 @@ import ReviewCart from "../reviews/ReviewCart";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
+  
 
   // Cập nhật logic xử lý variants
   const colorVariants = useMemo(() => {
+    // console.log(data?.product);
     if (!data?.product?.variants) return {};
 
     const grouped = {};
@@ -18,6 +20,7 @@ const ProductDetailPage = () => {
     });
     return grouped;
   }, [data?.product?.variants]);
+
 
   const uniqueColors = useMemo(
     () => Object.keys(colorVariants),
