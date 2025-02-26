@@ -1,16 +1,15 @@
 import express from "express";
+import { createReview, getReviewByUserId, totalReview } from "../controllers/reviewController.js";
+
 
 
 const RouterReview = express.Router();
-//lấy tất banner
-RouterReview.get('/',getAllReviews);
-//lấy banner theo id
-RouterReview.get('/:id',getBannerById);
-//tạo mới banner
-RouterReview.post("/", createBanner);
-// Cập nhật banner
-RouterReview.put("/:id", updateBanner);
-// Xóa banner
-RouterReview.delete("/:id", removeBanner);
+//post review
+RouterReview.post('/', createReview);
+//lấy tổng reivew
+RouterReview.get('/total-reviews', totalReview);
+//lấy review by user id 
+RouterReview.get("/:userId", getReviewByUserId);
+
 
 export default RouterReview;

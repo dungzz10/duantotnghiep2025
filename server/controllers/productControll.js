@@ -2,9 +2,9 @@ import Category from "../models/categoryModel.js";
 import Product from "../models/productModel.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
-import Reviews from "../models/reviewsModel.js";
 import User from "../models/usersModel.js";
 import mongoose from "mongoose";
+import reviewModel from "../models/reviewModel.js";
 // import Category from "../models/category";
 // list san pham
 
@@ -199,16 +199,20 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
     countproduct,
   });
 });
-export const getSingleProducts = CatchAsync(async (req, res, next) => {
-  const product = await Product.findById(req.params.id);
-  if (!product) {
-    return next(new HandelError("Không tìm thấy sản phẩm", 404));
-  }
-  res.status(200).json({
-    success: true,
-    product,
-  });
-});
+export const getSingleProducts = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId).populate("user", "email username");
+    if (!product) {
+        return res.status(404).send({ message: "Product not found" })
+    }
+    const reviews = await reviewModel.find({ productId }).populate("userId", "username email");
+    res.status(200).send({ product, reviews })
+} catch (error) {
+    console.error("error fetching  product", error);
+    res.status(500).send({ message: "failed to fetch the product" })
+}
+}
 export const updateProduct = CatchAsync(async (req, res, next) => {
   const product = await Product.findByIdAndUpdate(
     { _id: req.params.id },
