@@ -8,12 +8,8 @@ import RatingStarts from "../../components/RatingStarts";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
-<<<<<<< HEAD
-  
-
-=======
   const productReviews = data?.reviews || [];
->>>>>>> f73ecab648adbea938a24de4b2dfe3fa4917bd7c
+
   // Cập nhật logic xử lý variants
   const colorVariants = useMemo(() => {
     // console.log(data?.product);
@@ -24,7 +20,6 @@ const ProductDetailPage = () => {
     });
     return grouped;
   }, [data?.product?.variants]);
-
 
   const uniqueColors = useMemo(
     () => Object.keys(colorVariants),
@@ -201,7 +196,7 @@ const ProductDetailPage = () => {
                 </select>
               </div>
             </div>
-            <RatingStarts rating={product.rating}/>
+            <RatingStarts rating={product.rating} />
             {/* Hiển thị số lượng */}
             <div className="text-gray-600">
               {selectedVariant
@@ -221,10 +216,10 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Section bình luận và đánh gía  */}
-        <section className='mt-8'>
-        <ReviewCart productReviews={productReviews}/>
+        <section className="mt-8">
+          <ReviewCart productReviews={productReviews} />
         </section>
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
           <h2 className="text-center text-[36px]">Sản phẩm liên quan</h2>
