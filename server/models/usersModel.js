@@ -38,17 +38,12 @@ const userSchema = new mongoose.Schema(
     },
     superadmin: {
       type: Boolean,
-      default: false,  
+      default: false,
     },
-
-    availableBalance: {
-      type: Number,
-      default: 0,
-    },
-
-    accountBalance: {
-      type: Number,
-      default: 0,
+    orderHistory: {
+      //  bảng order sẽ ở đây
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "Order",
     },
 
     withdrawalAccounts: [
@@ -59,6 +54,36 @@ const userSchema = new mongoose.Schema(
         swiftCode: String,
       },
     ],
+    wallet: {
+      balance: {
+        type: Number,
+        default: 0,
+      },
+      transactions: [
+        {
+          type: {
+            type: String,
+            enum: ["momo_payment", "deposit", "withdrawal"], // Added deposit and withdrawal types
+            required: true,
+          },
+          amount: {
+            type: Number,
+            required: true,
+          },
+          momoTransactionId: String,
+          status: {
+            type: String,
+            enum: ["pending", "completed", "failed"],
+            default: "pending",
+          },
+          date: {
+            type: Date,
+            default: Date.now,
+          },
+          description: String,
+        },
+      ],
+    },
 
     address: [
       {

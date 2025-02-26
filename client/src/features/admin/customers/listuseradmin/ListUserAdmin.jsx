@@ -103,6 +103,7 @@ const ListUserAdmin = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
+          <a href={`/admin/customers/detail/${record._id}`}>Xem chi tiết</a>
           <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
           <a href={`/users/delete/${record._id}`}>Delete</a>
         </Space>
