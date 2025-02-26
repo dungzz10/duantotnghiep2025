@@ -8,12 +8,13 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
     const { id } = useParams();
     const [rating, setRating] = useState(0)
     const [comment, setComment] = useState('')
+
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
         mutationFn: postReview,
         onSuccess: () => {
-            queryClient.invalidateQueries('productReviews')
+            queryClient.invalidateQueries('productReviews');
             alert("review thành công ");
             setComment("");
             setRating(0);
@@ -24,16 +25,24 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
         }
     })
 
+    const user = JSON.parse(localStorage.getItem("user"));
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!user) {
+            alert("Bạn cần đăng nhập để gửi đánh giá.");
+            return;
+        }
         const newComment = {
             comment: comment,
             rating: rating,
-            userId: user?._id,
+            userId: user._id, // Lấy user từ localStorage
             productId: id
         };
-        mutation.mutate((newComment))
-    }
+        mutation.mutate(newComment);
+    };
+
+
     const handleRating = (value) => {
         setRating(value)
     }
@@ -42,11 +51,11 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
             className={`fixed inset-0 bg-black/90 flex items-center
         justify-center z-40 px-2 ${isModalOpen ? 'block' : 'hidden'}
         `}
-        onClick={(e) => {
-            if (e.target === e.currentTarget) {
-                handleClose();
-            }
-        }} // Chỉ đóng modal nếu click vào vùng nền đen
+            onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                    handleClose();
+                }
+            }} // Chỉ đóng modal nếu click vào vùng nền đen
         >
             <div
                 className="bg-white p-6 rounded-md

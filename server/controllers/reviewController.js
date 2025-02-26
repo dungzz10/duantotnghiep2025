@@ -1,28 +1,68 @@
-import reviewsModel from "../models/reviewsModel";
+import Review from "../models/reviewModel.js";
+import Product from "../models/productModel.js";
 
-export const getAllReviews = async(req,res) =>{
+//------------------------tạo đánh giá -----------------------
+export const createReview = async (req, res) => {
     try {
-        
-    } catch (error) {
-        console.log("Lỗi ");
-        
-    }
-}
+        const { comment, rating, productId, userId } = req.body;
+        if (!comment || !rating || !productId || !userId) {
+            return res.status(400).json({ message: "Tất cả các trường đều bắt buộc" });
+        }
 
-export const createReview = async(req,res) =>{
-    try {
-        const {comment,rating,productId,userId} = req.body;
-        if(!comment || !rating || !productId || !userId){
-            return res.status(400).json({
-                message: "tất cả các trường đều bắt buộc"
-            })
-            const existingReview = await Reviews.findOne({productId, userId});
-            if(existingReview){
-                
+        const existingReview = await Review.findOne({ productId, userId });
+        //nếu user id có review
+        if (existingReview) {
+            existingReview.comment = comment;
+            existingReview.rating = rating;
+            await existingReview.save();
+        } else {
+            const newReview = new Review({ comment, rating, productId, userId });
+            await newReview.save();
+        }
+
+        const reviews = await Review.find({ productId });
+        if (reviews.length > 0) {
+            const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+            const averageRating = totalRating / reviews.length;
+            const product = await Product.findById(productId);
+            if (product) {
+                product.rating = averageRating;
+                await product.save({ validateBeforeSave: false });
+            } else {
+                return res.status(404).json({ message: "Không tìm thấy sản phẩm" });
             }
         }
+
+        return res.status(200).json({ message: "Bình luận thành công", reviews });
     } catch (error) {
-        console.log("Lỗi ");
-        
+        console.log("Lỗi:", error);
+        return res.status(500).send({ message: "Lỗi khi bình luận" });
     }
-}
+};
+
+export const totalReview = async (req, res) => {
+    try {
+        const totalReviews = await Review.countDocuments({});
+        return res.status(200).json({ message: "Tổng số review", totalReviews });
+    } catch (error) {
+        console.log("Lỗi khi lấy tổng số review:", error);
+        res.status(500).send({ message: "Lỗi" });
+    }
+};
+
+export const getReviewByUserId = async (req, res) => {
+    const { userId } = req.params;
+    if (!userId) {
+        return res.status(400).json({ message: "UserId bắt buộc có" });
+    }
+    try {
+        const reviews = await Review.find({ userId }).sort({ createdAt: -1 });
+        if (reviews.length === 0) {
+            return res.status(404).json({ message: "Không tìm thấy review" });
+        }
+        return res.status(200).send(reviews);
+    } catch (error) {
+        console.log("Lỗi khi lấy review theo user:", error);
+        res.status(500).send({ message: "Lỗi khi lấy review" });
+    }
+};

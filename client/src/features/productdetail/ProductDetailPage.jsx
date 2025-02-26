@@ -3,14 +3,17 @@ import { Link } from "react-router-dom";
 import usegetoneproduct from "./usegetproduct";
 import { useParams } from "react-router-dom";
 import ReviewCart from "../reviews/ReviewCart";
+import RatingStarts from "../../components/RatingStarts";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
-
+  const productReviews = data?.reviews || [];
   const colorVariants = useMemo(() => {
     if (!data?.product?.variants) return {};
     // console.log(data.product.variants);
+    console.log(productReviews);
+    
 
     const grouped = {};
     data.product.variants.forEach((variant) => {
@@ -204,7 +207,7 @@ const ProductDetailPage = () => {
                 </select>
               </div>
             </div>
-
+            <RatingStarts rating={product.rating}/>
             {/* Hiển thị số lượng */}
             <div className="text-gray-600">
               {selectedVariant
@@ -226,7 +229,7 @@ const ProductDetailPage = () => {
         
         {/* Section bình luận và đánh gía  */}
         <section className='mt-8'>
-        <ReviewCart/>
+        <ReviewCart productReviews={productReviews}/>
         </section>
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
           <h2 className="text-center text-[36px]">Sản phẩm liên quan</h2>
