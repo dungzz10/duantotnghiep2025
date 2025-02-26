@@ -9,7 +9,7 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
     const [rating, setRating] = useState(0)
     const [comment, setComment] = useState('')
     const queryClient = useQueryClient();
-
+    const user = JSON.parse(localStorage.getItem("user"));
     const mutation = useMutation({
         mutationFn: postReview,
         onSuccess: () => {

@@ -54,8 +54,9 @@ userRouter.put(
 userRouter.post("/admin/signin", signinAdmin);
 
 // Add logoutAdmin and loadAdmin routes for admin
-userRouter.post("/admin/logout", isAuththenticated, logoutAdmin); // Đăng xuất admin
-userRouter.get("/admin/loadadmin", isAuththenticated, loadAdmin); // Tải thông tin admin
+userRouter.post("/admin/logout", isAuththenticated, logoutAdmin); 
+userRouter.get("/admin/loadadmin", isAuththenticated, loadAdmin); 
+userRouter
 
 // Group MoMo payment routes
 userRouter.post("/payment/momo/create", isAuththenticated, createMomoPayment);
