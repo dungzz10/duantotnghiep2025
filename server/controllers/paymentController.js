@@ -6,183 +6,110 @@ import HandelError from "../utils/Error.js"; // Xử lý lỗi
 
 // Tạo yêu cầu thanh toán MoMo
 export const createMomoPayment = CatchAsync(async (req, res, next) => {
-  const { amount } = req.body; // Lấy số tiền từ body của yêu cầu
+  const { amount } = req.body;
 
-  if (!amount || amount < 50000) {
-    return next(new HandelError("Amount must be at least 50000 VND", 400)); // Trả lỗi nếu không hợp lệ
+  // Validate amount
+  if (!amount || amount < 1000) {
+    return next(new HandelError("Số tiền phải lớn hơn 1000 VND", 400));
   }
 
-  const userId = req.user.id; // Lấy userId từ req.user
-  const requestId = `${Date.now()}_${userId}`; // Tạo requestId từ thời gian và userId
-  const orderId = requestId; // Đặt orderId bằng requestId
+  const userId = req.user.id;
+  const requestId = `REQ_${Date.now()}_${userId}`;
+  const orderId = `ORDER_${Date.now()}_${userId}`;
 
-  // Tạo chuỗi rawSignature để xác thực yêu cầu
-  const rawSignature =
-    `accessKey=${momoConfig.accessKey}` +
-    `&amount=${amount}` +
-    `&extraData=${momoConfig.extraData}` +
-    `&ipnUrl=${momoConfig.ipnUrl}` +
-    `&orderId=${orderId}` +
-    `&orderInfo=${momoConfig.orderInfo}` +
-    `&partnerCode=${momoConfig.partnerCode}` +
-    `&redirectUrl=${momoConfig.redirectUrl}` +
-    `&requestId=${requestId}` +
-    `&requestType=${momoConfig.requestType}`;
+  // Tạo chuỗi rawSignature
+  const rawSignature = [
+    `accessKey=${momoConfig.accessKey}`,
+    `amount=${amount}`,
+    `extraData=${momoConfig.extraData}`,
+    `ipnUrl=${momoConfig.ipnUrl}`,
+    `orderId=${orderId}`,
+    `orderInfo=${momoConfig.orderInfo}`,
+    `partnerCode=${momoConfig.partnerCode}`,
+    `redirectUrl=${momoConfig.redirectUrl}`,
+    `requestId=${requestId}`,
+    `requestType=${momoConfig.requestType}`,
+  ].join("&");
 
-  // Tạo chữ ký HMAC-SHA256 từ rawSignature
   const signature = crypto
     .createHmac("sha256", momoConfig.secretKey)
     .update(rawSignature)
     .digest("hex");
-  // console.log("abc",rawSignature)
-  // console.log(signature)
-  // Xây dựng requestBody gửi cho MoMo
+
   const requestBody = {
     partnerCode: momoConfig.partnerCode,
-    accessKey: momoConfig.accessKey,
+    partnerName: "Test",
+    storeId: "MomoTestStore",
     requestId: requestId,
     amount: amount,
     orderId: orderId,
     orderInfo: momoConfig.orderInfo,
     redirectUrl: momoConfig.redirectUrl,
     ipnUrl: momoConfig.ipnUrl,
-    extraData: momoConfig.extraData,
+    lang: "vi",
     requestType: momoConfig.requestType,
+    autoCapture: true,
+    extraData: momoConfig.extraData,
     signature: signature,
-    lang: momoConfig.lang,
   };
 
   try {
-    // Gửi yêu cầu thanh toán tới MoMo API
+    console.log("Sending request to MoMo:", requestBody);
+
     const response = await fetch(
       "https://test-payment.momo.vn/v2/gateway/api/create",
       {
         method: "POST",
         headers: {
-          "Content-Type": "application/json", // Định dạng yêu cầu là JSON
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(requestBody), // Chuyển đổi requestBody thành chuỗi JSON
+        body: JSON.stringify(requestBody),
       }
     );
 
-    const jsonResponse = await response.json(); // Chuyển đổi phản hồi từ MoMo thành JSON
-    console.log("json", jsonResponse);
+    const jsonResponse = await response.json();
+    console.log("MoMo response:", jsonResponse);
 
-    // Kiểm tra kết quả thanh toán
     if (jsonResponse.resultCode === 0) {
-      const user = await User.findById(userId); // Tìm người dùng
-      user.wallet.transactions.push({
-        // Thêm giao dịch vào ví người dùng
-        type: "momo_payment",
-        amount: amount,
-        momoTransactionId: orderId,
-        status: "pending", // Trạng thái giao dịch là "pending"
-        description: momoConfig.orderInfo,
+      // Save transaction to user's wallet
+      await User.findByIdAndUpdate(userId, {
+        $push: {
+          "wallet.transactions": {
+            type: "momo_naptien", // Changed from momo_payment to momo_naptien
+            amount: amount,
+            momoTransactionId: orderId,
+            status: "pending",
+            date: new Date(),
+            description: momoConfig.orderInfo,
+          },
+        },
       });
-      await user.save(); // Lưu thay đổi vào cơ sở dữ liệu
 
-      // Kiểm tra trạng thái thanh toán
-      const paymentStatus = await handleMomoPaymentStatus(
-        orderId,
-        amount,
-        userId
-      );
-
-      // Nếu thanh toán thành công, cập nhật trạng thái giao dịch
-
-      if (paymentStatus.success) {
-        const updatedUser = await User.findOneAndUpdate(
-          {
-            _id: userId,
-            "wallet.transactions.momoTransactionId": orderId,
-          },
-          {
-            $set: {
-              "wallet.transactions.$.status": "completed", // Cập nhật trạng thái thành "completed"
-              "wallet.transactions.$.transId": paymentStatus.transId, // Thêm mã giao dịch
-            },
-            $inc: { "wallet.balance": amount }, // Cập nhật số dư ví người dùng
-          },
-          { new: true }
-        );
-
-        return res.status(200).json({
-          success: true,
-          message: "Payment completed successfully", // Thông báo thanh toán thành công
-          balance: updatedUser.wallet.balance, // Trả về số dư ví mới
-          payUrl: jsonResponse.payUrl, // URL thanh toán MoMo
-          orderId: orderId, // ID đơn hàng
-        });
-      }
-
-      // Trả về URL thanh toán nếu chưa hoàn tất
+      // Return success response with payment links
       return res.status(200).json({
         success: true,
-        payUrl: jsonResponse.payUrl,
-        orderId: orderId,
+        message: "Payment request created successfully",
+        data: {
+          orderId: orderId,
+          amount: amount,
+          payUrl: jsonResponse.payUrl,
+        },
       });
     } else {
-      // Nếu có lỗi, ném lỗi từ MoMo
       throw new Error(
-        `MoMo Error: ${jsonResponse.message} (${jsonResponse.resultCode})`
+        `MoMo Error: ${jsonResponse.message} (Code: ${jsonResponse.resultCode})`
       );
     }
   } catch (error) {
-    console.error("Payment creation error:", error); // Ghi lỗi nếu có lỗi
+    console.error("Payment creation error:", error);
     return next(
-      new HandelError(`Payment creation failed: ${error.message}`, 500) // Trả lỗi nếu thanh toán không thành công
+      new HandelError(
+        `Payment creation failed: ${error.message}. Please try again.`,
+        500
+      )
     );
   }
 });
-
-// Kiểm tra trạng thái thanh toán
-const handleMomoPaymentStatus = async (orderId, amount, userId) => {
-  try {
-    const requestId = `${Date.now()}_status_${orderId}`; // Tạo requestId duy nhất cho việc kiểm tra trạng thái
-    const rawSignature =
-      `accessKey=${momoConfig.accessKey}` +
-      `&orderId=${orderId}` +
-      `&partnerCode=${momoConfig.partnerCode}` +
-      `&requestId=${requestId}`;
-
-    // Tạo chữ ký HMAC-SHA256 cho yêu cầu kiểm tra trạng thái
-    const signature = crypto
-      .createHmac("sha256", momoConfig.secretKey)
-      .update(rawSignature)
-      .digest("hex");
-
-    // Gửi yêu cầu kiểm tra trạng thái thanh toán
-    const response = await fetch(
-      "https://test-payment.momo.vn/v2/gateway/api/query",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json", // Định dạng yêu cầu là JSON
-        },
-        body: JSON.stringify({
-          partnerCode: momoConfig.partnerCode,
-          requestId: requestId,
-          orderId: orderId,
-          signature: signature,
-          lang: "vi", // Đặt ngôn ngữ là tiếng Việt
-        }),
-      }
-    );
-
-    const result = await response.json(); // Chuyển đổi phản hồi thành JSON
-    console.log("result", result);
-
-    // Trả về kết quả kiểm tra trạng thái
-    return {
-      success: result.resultCode === 0, // Kiểm tra nếu kết quả trả về thành công
-      transId: result.transId, // Mã giao dịch
-      message: result.message, // Thông điệp trả về từ MoMo
-    };
-  } catch (error) {
-    console.error("Error checking payment status:", error); // Ghi lỗi nếu có vấn đề khi kiểm tra
-    return { success: false, message: error.message }; // Trả về lỗi nếu không kiểm tra được
-  }
-};
 
 // Xác nhận trạng thái giao dịch
 export const verifyTransaction = CatchAsync(async (req, res, next) => {
