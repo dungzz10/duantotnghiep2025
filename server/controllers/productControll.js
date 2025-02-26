@@ -89,7 +89,19 @@ export const createProduct = CatchAsync(async (req, res, next) => {
     );
   }
 
-
+  //lấy tất cả đánh giá của  sản phẩm
+  const reviews = await Reviews.find({ productId: product._id });
+  //nếu có đánh giá tính rating trung bình 
+  if (reviews.length > 0) {
+    const totalRating = reviews.reduce(
+      (acc, review) => acc + review.rating,
+      0)
+    const averageRating = totalRating / reviews.length;
+  };
+  //cập nhật rating trung bình cho sản phẩm 
+  product.rating = averageRating;
+  await product.save();
+//chưa có bắt lỗi 
 
   // Trả về phản hồi thành công
   res.status(201).json({
