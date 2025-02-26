@@ -2,6 +2,7 @@ import Category from "../models/categoryModel.js";
 import Product from "../models/productModel.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
+import Reviews from "../models/reviewsModel.js";
 import User from "../models/usersModel.js";
 import mongoose from "mongoose";
 // import Category from "../models/category";
@@ -89,19 +90,35 @@ export const createProduct = CatchAsync(async (req, res, next) => {
     );
   }
 
-  //lấy tất cả đánh giá của  sản phẩm
-  const reviews = await Reviews.find({ productId: product._id });
-  //nếu có đánh giá tính rating trung bình 
-  if (reviews.length > 0) {
-    const totalRating = reviews.reduce(
-      (acc, review) => acc + review.rating,
-      0)
-    const averageRating = totalRating / reviews.length;
-  };
-  //cập nhật rating trung bình cho sản phẩm 
-  product.rating = averageRating;
-  await product.save();
-//chưa có bắt lỗi 
+//   //lấy tất cả đánh giá của  sản phẩm
+//   const reviews = await Reviews.find({ productId: product._id });
+//   //nếu có đánh giá tính rating trung bình 
+//   if (reviews.length > 0) {
+//     const totalRating = reviews.reduce(
+//       (acc, review) => acc + review.rating,
+//       0)
+//     const averageRating = totalRating / reviews.length;
+//   };
+//   //cập nhật rating trung bình cho sản phẩm 
+//   product.rating = averageRating;
+//   await product.save();
+// //chưa có bắt lỗi 
+// Lấy tất cả đánh giá của sản phẩm
+const reviews = await Reviews.find({ productId: product._id });
+
+// Khởi tạo rating trung bình
+let averageRating = 1;
+
+// Nếu có đánh giá thì tính toán trung bình
+if (reviews.length > 0) {
+  const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+  averageRating = totalRating / reviews.length;
+}
+
+// Cập nhật rating trung bình cho sản phẩm
+product.rating = averageRating;
+await product.save();
+
 
   // Trả về phản hồi thành công
   res.status(201).json({

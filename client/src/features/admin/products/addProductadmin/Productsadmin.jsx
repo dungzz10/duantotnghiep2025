@@ -21,6 +21,41 @@ const cld = new Cloudinary({
   },
 });
 
+const checkDuplicateVariant = (variants, currentVariant, currentSize) => {
+  // Check if color already exists
+  const existingVariant = variants.find(
+    (v) => v.color.toLowerCase() === currentVariant.color.toLowerCase()
+  );
+
+  if (existingVariant) {
+    // Check if size already exists for this color
+    const duplicateSize = existingVariant.sizes.find(
+      (s) => s.size.toLowerCase() === currentSize.size.toLowerCase()
+    );
+
+    if (duplicateSize) {
+      return {
+        isDuplicate: true,
+        message: `Biến thể màu "${currentVariant.color}" với size "${currentSize.size}" đã tồn tại!`,
+      };
+    }
+  }
+
+  // Check current variant sizes
+  const duplicateInCurrent = currentVariant.sizes.find(
+    (s) => s.size.toLowerCase() === currentSize.size.toLowerCase()
+  );
+
+  if (duplicateInCurrent) {
+    return {
+      isDuplicate: true,
+      message: `Size "${currentSize.size}" đã tồn tại trong màu "${currentVariant.color}"!`,
+    };
+  }
+
+  return { isDuplicate: false };
+};
+
 const ProductsAdmin = () => {
   const { mutate, isLoading } = useaddproductadmin();
   const { category, loading } = useCategory();
@@ -114,21 +149,26 @@ const ProductsAdmin = () => {
     setTags(tags.filter((tag) => tag !== tagToDelete));
   };
 
-  const checkDuplicateVariant = (color, size) => {
-    return variants.some(
-      (variant) =>
-        variant.color === color && variant.sizes.some((s) => s.size === size)
-    );
-  };
-
   const handleAddSize = () => {
     if (!currentSize.size || !currentSize.quantity || !currentSize.price) {
       message.error("Vui lòng nhập đầy đủ thông tin kích cỡ!");
       return;
     }
 
-    if (checkDuplicateVariant(currentVariant.color, currentSize.size)) {
-      message.error("Biến thể này đã tồn tại!");
+    if (!currentVariant.color) {
+      message.error("Vui lòng nhập màu sắc trước khi thêm kích cỡ!");
+      return;
+    }
+
+    // Check for duplicates
+    const { isDuplicate, message: errorMessage } = checkDuplicateVariant(
+      variants,
+      currentVariant,
+      currentSize
+    );
+
+    if (isDuplicate) {
+      message.error(errorMessage);
       return;
     }
 
@@ -154,6 +194,16 @@ const ProductsAdmin = () => {
   const handleAddVariant = () => {
     if (!currentVariant.color || currentVariant.sizes.length === 0) {
       message.error("Vui lòng nhập đầy đủ thông tin biến thể!");
+      return;
+    }
+
+    // Check if color already exists in variants
+    const duplicateColor = variants.find(
+      (v) => v.color.toLowerCase() === currentVariant.color.toLowerCase()
+    );
+
+    if (duplicateColor) {
+      message.error(`Màu "${currentVariant.color}" đã tồn tại!`);
       return;
     }
 

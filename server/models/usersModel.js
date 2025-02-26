@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema(
         {
           type: {
             type: String,
-            enum: ["momo_payment", "deposit", "withdrawal"], // Added deposit and withdrawal types
+            enum: ["momo_naptien", "deposit", "withdrawal", "muahang"], // Update enum to include new type
             required: true,
           },
           amount: {

@@ -14,7 +14,7 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
   if (req.body.email) {
     const emailExists = await User.findOne({
       email: req.body.email.toLowerCase(), // Chuyển email về lowercase
-      _id: { $ne: req.user.id }
+      _id: { $ne: req.user.id },
     });
 
     if (emailExists) {
@@ -50,8 +50,8 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
   // Cập nhật thông tin người dùng với validation
   const updatedUser = await User.findByIdAndUpdate(req.user.id, updateData, {
     new: true,
-    runValidators: true, 
-  }).select("-password"); 
+    runValidators: true,
+  }).select("-password");
 
   if (!updatedUser) {
     return next(new HandelError("Không tìm thấy người dùng", 404));
@@ -111,7 +111,6 @@ export const deactiveUser = CatchAsync(async (req, res, next) => {
 export const getCustomerDetails = CatchAsync(async (req, res, next) => {
   const userId = req.params.userId;
 
-  // Sửa lại phần select để tránh xung đột giữa inclusion và exclusion
   const user = await User.findById(userId)
     .select(
       "name email photo role introduction createdAt wallet address withdrawalAccounts"
@@ -122,57 +121,54 @@ export const getCustomerDetails = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Không tìm thấy thông tin khách hàng", 404));
   }
 
-  // Tính tổng số tiền đã nạp thành công
-  const totalDeposits = user.wallet.transactions
-    .filter((t) => t.status === "completed" && t.type === "momo_payment")
-    .reduce((sum, t) => sum + t.amount, 0);
+  // const totalDeposits = user.wallet.transactions
+  //   .filter((t) => t.status === "completed" && t.type === "momo_naptien")
+  //   .reduce((sum, t) => sum + t.amount, 0);
 
-  // Xử lý danh sách giao dịch để hiển thị tiếng Việt
   const transactions = user.wallet.transactions.map((t) => ({
     ...t,
-    trangThai: {
+    status: {
       pending: "Đang xử lý",
       completed: "Thành công",
       failed: "Thất bại",
     }[t.status],
-    loaiGiaoDich: {
-      momo_payment: "Nạp tiền MoMo",
+    type: {
+      momo_naptien: "Nạp tiền MoMo",
       deposit: "Nạp tiền",
-      withdrawal: "Rút tiền",
+      muahang: "Mua hàng",
     }[t.type],
   }));
 
-  // Sắp xếp giao dịch mới nhất lên đầu
   transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   res.status(200).json({
     success: true,
     data: {
-      thongTinKhachHang: {
-        hoTen: user.name,
-        email: user.email,
-        anhDaiDien: user.photo,
-        vaiTro: user.role,
-        gioiThieu: user.introduction,
-        ngayTao: user.createdAt,
+      name: user.name,
+      email: user.email,
+      photo: user.photo,
+      role: user.role,
+      introduction: user.introduction,
+      createdAt: user.createdAt,
+      wallet: {
+        balance: user.wallet.balance,
+        // totalDeposits: totalDeposits,
+        transactionCount: transactions.length,
+        transactions: transactions.map((t) => ({
+          type: t.type,
+          amount: t.amount,
+          momoTransactionId: t.momoTransactionId,
+          status: t.status,
+          description: t.description,
+          date: t.date,
+        })),
       },
-      thongTinVi: {
-        soDu: user.wallet.balance,
-        tongTienNap: totalDeposits,
-        tongGiaoDich: transactions.length,
-      },
-      lichSuGiaoDich: transactions.map((t) => ({
-        maGiaoDich: t.momoTransactionId,
-        loaiGiaoDich: t.loaiGiaoDich,
-        soTien: t.amount,
-        trangThai: t.trangThai,
-        moTa: t.description,
-        thoiGian: t.date,
-      })),
-      diaChiGiaoHang:
+      address:
         user.address?.map((a) => ({
-          diaChi: a.address,
+          address: a.address,
+          addressType: a.addressType,
         })) || [],
+      withdrawalAccounts: user.withdrawalAccounts || [],
     },
   });
 });
