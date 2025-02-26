@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import usegetoneproduct from "./usegetproduct";
 import { useParams } from "react-router-dom";
+import ReviewCart from "../reviews/ReviewCart";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -213,6 +214,11 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
+        
+        {/* Section bình luận và đánh gía  */}
+        <section className='mt-8'>
+        <ReviewCart/>
+        </section>
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
           <h2 className="text-center text-[36px]">Sản phẩm liên quan</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
