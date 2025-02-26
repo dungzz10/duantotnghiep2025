@@ -237,7 +237,7 @@ export const logout = CatchAsync(async (req, res, next) => {
 
 //  get all user
 export const getUser = CatchAsync(async (req, res, next) => {
-  const user = await User.find({}).select("+active");
+  const user = await User.find({ role: "user" }).select("+active");
 
   res.status(200).json({
     success: true,
