@@ -42,36 +42,28 @@ const productSchema = new mongoose.Schema(
       },
     ],
     category: {
-     type: mongoose.Schema.Types.ObjectId,
-     ref: "Category",
-    required: [true, "category is required"],
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: [true, "category is required"],
     },
     tag: [String],
-    // Biến thể sản phẩm
+    // Biến thể sản phẩm: mỗi màu có giá và số lượng riêng cho từng kích thước
     variants: [
       {
         color: {
           type: String,
           required: [true, "Biến thể phải có màu sắc"],
         },
-        size: {
-          type: String,
-          required: [true, "Biến thể phải có kích thước"],
-        },
-        price: {
-          type: Number,
-          required: [true, "Biến thể phải có giá"],
-        },
-        quantity: {
-          type: Number,
-          required: [true, "Biến thể phải có số lượng"],
-          min: [0, "Số lượng phải lớn hơn hoặc bằng 0"],
-        },
-        image: {
-          type: String, // URL hình ảnh riêng cho biến thể này (nếu khác hình chính)
-        },
-      },
+        sizes: [
+          {
+            size: { type: String, required: true },
+            quantity: { type: Number, required: true, min: 0 },
+            price: { type: Number, required: true },
+          }
+        ]
+      }
     ],
+ 
     condition: {
       type: String,
       enum: {
@@ -91,6 +83,7 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
+
     rating: {
       type: Number,
       default: 4.5,

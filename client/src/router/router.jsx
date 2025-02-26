@@ -36,6 +36,7 @@ import ListproductAdmin from "../features/admin/products/listProductadmin/Listpr
 import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
 import SignupAdmin from "../features/signup/SignupAdmin";
 import ListBanner from "../features/admin/banners/listBannerAdmin/ListBanner";
+import UserDetail from "../features/admin/customers/userdetail/UserDetail";
 
 export const router = createBrowserRouter([
   {
@@ -150,6 +151,7 @@ export const router = createBrowserRouter([
           { path: "listuseradmin", element: <ListUserAdmin /> },
           { path: "adduseradmin", element: <SignupAdmin /> },
           { path: "edit/:userId", element: <UppdateUserAdmin /> },
+          { path: "detail/:userId", element: <UserDetail /> },
         ],
       },
       {
