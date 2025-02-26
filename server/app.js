@@ -11,6 +11,7 @@ import globalMillwareError from "./controllers/errorControll.js";
 import RouterBranch from "./routers/branch.js";
 import RouterAccessory from "./routers/accessory.js";
 import RouterBanner from "./routers/bannerRouter.js";
+import RouterReview from "./routers/reviewsRouter.js";
 
 dotenv.config();
 
@@ -37,10 +38,12 @@ app.use("/api/v1/categories", RouterCategory);
 app.use("/api/v1/branch", RouterBranch);
 app.use("/api/v1/accessory", RouterAccessory);
 app.use("/api/v1/banners", RouterBanner);
+app.use("/api/v1/reviews", RouterReview);
+
 
 
 app.all("*", (req, res, next) => {
-  next(new HandelError(`duong dan cua ban bi loi ${req.originalUrl}`, 400));
+  next(new HandelError(`Đường dẫn của bạn bị lỗi ${req.originalUrl}`, 400));
 });
 app.use(globalMillwareError);
 export default app;
