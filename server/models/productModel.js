@@ -63,6 +63,7 @@ const productSchema = new mongoose.Schema(
         ]
       }
     ],
+ 
     condition: {
       type: String,
       enum: {
@@ -82,6 +83,7 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
+
     rating: {
       type: Number,
       default: 4.5,
