@@ -30,7 +30,8 @@
     "react-query": "^3.39.3",
     "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.0.2",
-    "react-toastify": "^11.0.3"
+    "react-toastify": "^11.0.3",
+    "sweetalert2": "^11.17.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
