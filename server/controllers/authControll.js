@@ -247,9 +247,10 @@ export const getUser = CatchAsync(async (req, res, next) => {
 export const signinAdmin = CatchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  const adminUser = await User.findOne({ email, role: "admin" }).select(
-    "+password"
-  );
+  const adminUser = await User.findOne({
+    email,
+    role: { $in: ["admin", "superadmin"] },
+  }).select("+password");
   if (!adminUser) {
     return next(new HandelError("Bạn không có quyền truy cập!", 403));
   }
@@ -289,7 +290,7 @@ export const loadAdmin = CatchAsync(async (req, res, next) => {
   const admin = await User.findById(adminId);
 
   // Kiểm tra nếu không tìm thấy người dùng admin
-  if (!admin || admin.role !== "admin") {
+  if (!admin) {
     return next(
       new HandelError(
         "Bạn không phải admin hoặc không tìm thấy người dùng!",
@@ -342,6 +343,7 @@ export const updateUsertest = CatchAsync(async (req, res, next) => {
     user,
   });
 });
+
 export const updateUser = CatchAsync(async (req, res, next) => {
   const { userId } = req.params;
   const { name, email, role, active } = req.body;
@@ -385,4 +387,28 @@ export const updateUser = CatchAsync(async (req, res, next) => {
     user,
   });
 });
+export const getAdminUsers = CatchAsync(async (req, res, next) => {
+  try {
+    // Get all users with role admin or superadmin
+    const users = await User.find({
+      role: { $in: ["admin", "superadmin"] },
+    }).select("-password"); // Exclude password field
 
+    // Group users by role for statistics
+    const stats = {
+      total: users.length,
+      admins: users.filter((user) => user.role === "admin").length,
+      superadmins: users.filter((user) => user.role === "superadmin").length,
+    };
+
+    res.status(200).json({
+      success: true,
+      data: {
+        stats,
+        users,
+      },
+    });
+  } catch (error) {
+    next(new HandelError("Lỗi khi lấy danh sách admin", 500));
+  }
+});

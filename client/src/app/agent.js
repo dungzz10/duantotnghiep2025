@@ -141,6 +141,14 @@ const Product = {
       throw error;
     }
   },
+  uppdateProduct :async (id,body) => {
+    try {
+      const res = await request.put(`/product/${id}`,body);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 const Categories = {
   getAllCategories: async () => {

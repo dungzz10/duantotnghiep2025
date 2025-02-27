@@ -17,12 +17,12 @@ const LayoutAdmin = () => {
       <AppHeafer admin={admin}></AppHeafer>
       {/* <Space className="flex flex-grow"> */}
 
-      {admin?.role === "admin" ? (
-        <SideMEnu></SideMEnu>
+      {["admin", "superadmin"].includes(admin?.role) ? (
+        <SideMEnu />
       ) : (
-        <>
-          <div className="flex h-screen">bạn cần phải đăng nhập để thực hiện hành động </div>
-        </>
+        <div className="flex h-screen">
+          bạn cần phải đăng nhập để thực hiện hành động
+        </div>
       )}
 
       {/* <PageContain></PageContain> */}

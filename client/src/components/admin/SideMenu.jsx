@@ -16,6 +16,7 @@ const menuItems = [
   { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Inventory" },
   { key: "/admin/categories", icon: <ShoppingCartOutlined />, label: "Danh mục" },
   { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
+  { key: "/admin/useradmin", icon: <UserOutlined />, label: "Admin" },
   { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
   { key: "/admin/banners", icon: <ShopOutlined />, label: "Banners" },
   { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Orders" },
