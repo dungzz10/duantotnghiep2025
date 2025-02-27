@@ -3,7 +3,9 @@ import HandelError from "../utils/Error.js";
 import CatchAsync from "../utils/CatchAsync.js";
 
 export const getOrderById = CatchAsync(async (req, res, next) => {
-  const order = await Order.findOne({ orderId: req.params.orderId });
+  const order = await Order.findOne({ orderId: req.params.orderId })
+    .populate("products.productId", "name price") // Nếu cần thông tin sản phẩm
+    .lean(); 
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
