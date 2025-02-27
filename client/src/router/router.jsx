@@ -41,6 +41,8 @@ import AddBanner from "../features/admin/banners/addBannerAdmimn/AddBanner";
 import OrderHistory from "../features/OrderHistory/OrderHistory";
 import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
 import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
+import UserAdminPage from "../features/admin/adminer/UserAdminPage";
+import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -145,6 +147,12 @@ export const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
 
       { path: "inventory", element: <Iventory /> },
+      { path: "useradmin", element: <UserAdminPage />,
+        children: [
+          {path: "listuseradmin", element: <UserAdminList />},
+        ]
+
+       },
       { path: "orders", element: <Order /> },
       {
         path: "categories",

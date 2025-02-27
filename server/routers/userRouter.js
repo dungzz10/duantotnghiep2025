@@ -12,6 +12,7 @@ import {
   logoutAdmin,
   loadAdmin,
   updateUser,
+  getAdminUsers,
 } from "../controllers/authControll.js";
 import { isAuththenticated, checkquyen } from "../middlewares/auth.js";
 import {
@@ -19,6 +20,9 @@ import {
   uppdateMe,
   deactiveUser,
   getCustomerDetails,
+  addUserAdmin,
+  deactivateUserAdmin,
+  updateUserAdmin,
 } from "../controllers/userControll.js";
 import {
   createMomoPayment,
@@ -29,6 +33,7 @@ import {
 const userRouter = express.Router();
 
 // auth router
+userRouter.get("/admin/", isAuththenticated,getAdminUsers );
 userRouter.post("/signup", signup);
 userRouter.post("/signin", signin);
 userRouter.post("/forgotpassword", forgotPassword);
@@ -55,12 +60,17 @@ userRouter.post("/admin/signin", signinAdmin);
 
 // Add logoutAdmin and loadAdmin routes for admin
 userRouter.post("/admin/logout", isAuththenticated, logoutAdmin); 
-userRouter.get("/admin/loadadmin", isAuththenticated, loadAdmin); 
-userRouter
+userRouter.get("/admin/loadadmin", isAuththenticated, loadAdmin);
+
+userRouter.post("/admin/signup", isAuththenticated, addUserAdmin);
+userRouter.put("/admin/deactive/:userId", isAuththenticated, deactivateUserAdmin);
+userRouter.put("/admin/uppdate/:userId", isAuththenticated, updateUserAdmin);
+
 
 // Group MoMo payment routes
 userRouter.post("/payment/momo/create", isAuththenticated, createMomoPayment);
 userRouter.get("/wallet/balance", isAuththenticated, getWalletBalance);
+
 
 userRouter.get(
   "/payment/verify/:orderId",
