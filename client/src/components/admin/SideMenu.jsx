@@ -6,6 +6,7 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   ShopOutlined,
+  OrderedListOutlined
 } from "@ant-design/icons";
 import { Outlet, useNavigate } from "react-router-dom";
 import PageContain from "./PageContain";
@@ -17,6 +18,7 @@ const menuItems = [
   { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
   { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
   { key: "/admin/banners", icon: <ShopOutlined />, label: "Banners" },
+  { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Orders" },
 
 ];
 
