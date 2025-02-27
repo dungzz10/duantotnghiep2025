@@ -3,6 +3,7 @@ import Banner from "../models/bannerModel.js";
 import cloudinary from "../utils/cloudinary.js";
 import multer from "multer";
 
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage }).single("image"); // Chỉ nhận 1 ảnh
 

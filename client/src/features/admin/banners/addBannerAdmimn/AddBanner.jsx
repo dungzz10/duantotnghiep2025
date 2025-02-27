@@ -1,12 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AddBanner = () => {
+
     const [title, setTitle] = useState("");
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
     const [isActive, setIsActive] = useState("true"); // Mặc định là hiển thị
     const [isLoading, setIsLoading] = useState(false);
 
+    const navigate = useNavigate()
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -39,6 +42,10 @@ const AddBanner = () => {
             setImage(null);
             setPreview(null);
             setIsActive("true");
+          
+            if (res.ok) {
+                navigate("/admin/banners"); // Chuyển hướng sau khi thêm banner thành công
+            }
         } catch (error) {
             console.error("Lỗi:", error);
         } finally {
@@ -63,7 +70,7 @@ const AddBanner = () => {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 font-medium">Ảnh Banner</label>
+                    <label className="block text-gray-700 font-medium">Ảnh Banner: (ít nhất 1920x1080).</label>
                     <input
                         type="file"
                         onChange={handleImageChange}
