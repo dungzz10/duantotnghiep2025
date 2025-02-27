@@ -1,4 +1,10 @@
-import Banner from "../models/bannerModel.js"; // Import model Banner
+ // Import model Banner
+import Banner from "../models/bannerModel.js";
+import cloudinary from "../utils/cloudinary.js";
+import multer from "multer";
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage }).single("image"); // Chỉ nhận 1 ảnh
 
 
 //lấy toàn bộ banner 
@@ -38,22 +44,34 @@ export const getBannerById = async(req,res) =>{
 
 //Thêm banner mới 
 export const createBanner = async(req,res) =>{
-    try {
-        const {error} = Banner.validate(req.body,{ abortEarly: false });
-        if(error){
-           const errors = error.details.map((err) =>err.message);
-           return res.status(400).json({
-            message:errors,
-           })
+    upload(req, res, async (err) => {
+        if (err) return res.status(400).json({ message: "Lỗi upload ảnh" });
+
+        try {
+            const { title, isActive } = req.body;
+
+            if (!req.file) {
+                return res.status(400).json({ message: "Vui lòng chọn ảnh" });
+            }
+
+            // Upload ảnh lên Cloudinary
+            const result = await cloudinary.uploader.upload_stream(
+                { folder: "banners" }, // Lưu vào thư mục "banners"
+                async (error, result) => {
+                    if (error) {
+                        return res.status(500).json({ message: "Upload ảnh thất bại" });
+                    }
+
+                    const banner = await Banner.create({ title, image: result.secure_url, isActive });
+                    return res.status(201).json({ message: "Thêm banner thành công", data: banner });
+                }
+            );
+
+            result.end(req.file.buffer); // Upload từ buffer
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
         }
-        const banner = await Banner.create(req.body);
-        return res.status(201).json({
-            message: 'Thêm banner thành công',
-            data: banner
-        })
-    } catch (error) {
-      return res.status(500).json({message: error.message})
-    }
+    });
 }
 
 //cập nhật banner theo id
