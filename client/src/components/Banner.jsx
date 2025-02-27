@@ -11,7 +11,6 @@ const Banner = () => {
     queryFn: fetchBanners
   })
   
-  console.log(data);
 
   if (isLoading) return <p className="text-center text-lg text-gray-600">Đang tải dữ liệu...</p>
   if (error) return <p className="text-center text-lg text-red-500">Lỗi tải dữ liệu</p>

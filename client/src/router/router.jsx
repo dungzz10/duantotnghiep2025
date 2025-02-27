@@ -37,6 +37,7 @@ import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/
 import SignupAdmin from "../features/signup/SignupAdmin";
 import ListBanner from "../features/admin/banners/listBannerAdmin/ListBanner";
 import UserDetail from "../features/admin/customers/userdetail/UserDetail";
+import AddBanner from "../features/admin/banners/addBannerAdmimn/AddBanner";
 
 export const router = createBrowserRouter([
   {
@@ -164,7 +165,14 @@ export const router = createBrowserRouter([
         ],
       },
       //----------------------banner router----------------
-      { path: "banners", element: <ListBanner /> },
+      {
+        path: "banners",
+        element: <ListBanner />,
+      },
+      {
+        path: "add-banner",
+        element: <AddBanner />,
+      },
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },
