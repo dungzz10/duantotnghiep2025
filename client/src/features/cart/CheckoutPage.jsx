@@ -36,6 +36,7 @@ const CheckoutPage = () => {
           body: JSON.stringify({
             amount: order.total,
             orderId: `${Date.now()}`,
+            products: order.products, 
             orderInfo: "Thanh toán MoMo",
           }),
         });

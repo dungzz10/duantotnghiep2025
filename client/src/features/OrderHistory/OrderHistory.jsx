@@ -1,72 +1,74 @@
-import React, { useState, useMemo } from "react";
-import { Table, Input, Select, Tag, Modal, Button } from "antd";
-import { SearchOutlined, EyeOutlined, DownloadOutlined } from "@ant-design/icons";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import axios from "axios";
+import { Table, Input, Select, Tag, Modal, Button, Popconfirm, message } from "antd";
+import { SearchOutlined, EyeOutlined, DownloadOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 
 const { Option } = Select;
 
-const OrderHistory = () => {
-  const generateMockOrders = () => {
-    const statuses = ["Delivered", "Processing", "Shipped"];
-    const products = [
-      { name: "Premium Headphones", price: 149.99 },
-      { name: "Wireless Mouse", price: 49.99 },
-      { name: "Gaming Keyboard", price: 159.99 },
-      { name: "4K Monitor", price: 499.99 },
-      { name: "HDMI Cable", price: 19.99 },
-      { name: "Gaming Mouse", price: 79.99 },
-      { name: "USB-C Hub", price: 39.99 },
-      { name: "Webcam HD", price: 89.99 }
-    ];
-
-    return Array.from({ length: 100 }, (_, index) => {
-      const numItems = Math.floor(Math.random() * 3) + 1;
-      const items = Array.from({ length: numItems }, () => {
-        const product = products[Math.floor(Math.random() * products.length)];
-        return {
-          name: product.name,
-          quantity: Math.floor(Math.random() * 3) + 1,
-          price: product.price
-        };
-      });
-
-      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-      const date = new Date();
-      date.setDate(date.getDate() - Math.floor(Math.random() * 30));
-
-      return {
-        id: `ORD-${(index + 1).toString().padStart(3, "0")}`,
-        date: date,
-        items: items,
-        total: total,
-        status: statuses[Math.floor(Math.random() * statuses.length)]
-      };
-    });
-  };
-
-  const [orders] = useState(generateMockOrders());
+const Order = () => {
+  const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const fetchOrders = useCallback(async () => {
+    try {
+      const response = await axios.get("/orders/"); 
+      setOrders(response.data.orders);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      message.error("Có lỗi xảy ra khi tải đơn hàng.");
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
       const matchesSearch =
-        order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.items.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.products.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus = selectedStatus === "All" || order.status === selectedStatus;
       return matchesSearch && matchesStatus;
     });
   }, [orders, searchTerm, selectedStatus]);
 
+
   const getStatusTag = status => {
     const colors = {
-      Delivered: "green",
-      Processing: "orange",
-      Shipped: "blue"
+      completed: "green",
+      pending: "orange",
+      failed: "red",
     };
     return <Tag color={colors[status] || "default"}>{status}</Tag>;
+  };
+
+  // Xử lý thay đổi trạng thái của đơn hàng
+  const handleStatusChange = async (status, orderId) => {
+    try {
+      const response = await axios.patch(`/orders/${orderId}/status`, { status });
+      message.success(`Order ${orderId} status updated to ${status}`);
+      fetchOrders(); // Refresh the orders list
+    } catch (error) {
+      console.error("Error updating order status:", error);
+      message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
+    }
+  };
+
+  // Xử lý hủy đơn hàng
+  const handleCancelOrder = async (orderId) => {
+    try {
+      await axios.delete(`/orders/${orderId}`);
+      message.success(`Order ${orderId} has been canceled.`);
+      fetchOrders(); // Refresh the orders list
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      message.error("Có lỗi xảy ra khi hủy đơn hàng.");
+    }
   };
 
   const columns = [
@@ -75,68 +77,90 @@ const OrderHistory = () => {
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: date => format(date, "MM/dd/yyyy")
+      render: date => format(date, "MM/dd/yyyy"),
     },
     {
       title: "Order Number",
-      dataIndex: "id",
-      key: "id"
+      dataIndex: "orderId",
+      key: "orderId",
     },
     {
       title: "Items",
-      dataIndex: "items",
-      key: "items",
-      render: items => (
+      dataIndex: "products",
+      key: "products",
+      render: products => (
         <ul>
-          {items.map((item, idx) => (
+          {products.map((item, idx) => (
             <li key={idx}>
-              {item.name}
-              {item.name} (x{item.quantity})
+              {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
             </li>
           ))}
         </ul>
-      )
+      ),
     },
     {
       title: "Total Amount",
-      dataIndex: "total",
-      key: "total",
-      sorter: (a, b) => a.total - b.total,
-      render: total => `$${total.toFixed(2)}`
+      dataIndex: "amount",
+      key: "amount",
+      sorter: (a, b) => a.amount - b.amount,
+      render: amount => `$${amount.toFixed(2)}`,
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
       filters: [
-        { text: "Delivered", value: "Delivered" },
-        { text: "Processing", value: "Processing" },
-        { text: "Shipped", value: "Shipped" }
+        { text: "Completed", value: "completed" },
+        { text: "Pending", value: "pending" },
+        { text: "Failed", value: "failed" },
       ],
       onFilter: (value, record) => record.status === value,
-      render: status => getStatusTag(status)
+      render: status => getStatusTag(status),
     },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <Button
-          type="link"
-          icon={<EyeOutlined />}
-          onClick={() => {
-            setSelectedOrder(record);
-            setIsModalVisible(true);
-          }}
-        >
-          View
-        </Button>
-      )
-    }
+        <div>
+          {record.status !== "completed" && (
+            <Button
+              type="link"
+              icon={<CheckOutlined />}
+              onClick={() => handleStatusChange("completed", record.orderId)}
+            >
+              Mark as Completed
+            </Button>
+          )}
+          {record.status !== "failed" && (
+            <Popconfirm
+              title="Are you sure you want to cancel this order?"
+              onConfirm={() => handleCancelOrder(record.orderId)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" icon={<CloseOutlined />}>
+                Cancel Order
+              </Button>
+            </Popconfirm>
+          )}
+          <Button
+            type="link"
+            icon={<EyeOutlined />}
+            onClick={() => {
+              setSelectedOrder(record);
+              setIsModalVisible(true);
+            }}
+          >
+            View
+          </Button>
+        </div>
+      ),
+    },
   ];
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Order History</h2>
+      <h2>Order Management</h2>
       <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
         <Input
           placeholder="Search orders..."
@@ -150,17 +174,18 @@ const OrderHistory = () => {
           style={{ width: "150px" }}
         >
           <Option value="All">All Statuses</Option>
-          <Option value="Delivered">Delivered</Option>
-          <Option value="Processing">Processing</Option>
-          <Option value="Shipped">Shipped</Option>
+          <Option value="completed">Completed</Option>
+          <Option value="pending">Pending</Option>
+          <Option value="failed">Failed</Option>
         </Select>
       </div>
 
       <Table
         columns={columns}
         dataSource={filteredOrders}
-        rowKey="id"
+        rowKey="orderId"
         pagination={{ pageSize: 10 }}
+        loading={orders.length === 0}
       />
 
       {/* Modal để hiển thị chi tiết đơn hàng */}
@@ -174,31 +199,23 @@ const OrderHistory = () => {
           </Button>,
           <Button key="download" type="primary" icon={<DownloadOutlined />}>
             Download Invoice
-          </Button>
+          </Button>,
         ]}
       >
         {selectedOrder && (
           <div>
-            <p>
-              <strong>Order Number:</strong> {selectedOrder.id}
-            </p>
-            <p>
-              <strong>Date:</strong> {format(selectedOrder.date, "MM/dd/yyyy")}
-            </p>
-            <p>
-              <strong>Status:</strong> {getStatusTag(selectedOrder.status)}
-            </p>
+            <p><strong>Order Number:</strong> {selectedOrder.orderId}</p>
+            <p><strong>Date:</strong> {format(selectedOrder.date, "MM/dd/yyyy")}</p>
+            <p><strong>Status:</strong> {getStatusTag(selectedOrder.status)}</p>
             <h4>Items:</h4>
             <ul>
-              {selectedOrder.items.map((item, idx) => (
+              {selectedOrder.products.map((item, idx) => (
                 <li key={idx}>
                   {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
                 </li>
               ))}
             </ul>
-            <p>
-              <strong>Total Amount:</strong> ${selectedOrder.total.toFixed(2)}
-            </p>
+            <p><strong>Total Amount:</strong> ${selectedOrder.amount.toFixed(2)}</p>
           </div>
         )}
       </Modal>
@@ -206,4 +223,4 @@ const OrderHistory = () => {
   );
 };
 
-export default OrderHistory;
+export default Order;

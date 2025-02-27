@@ -61,8 +61,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
     if (!response.ok || jsonResponse.resultCode !== 0) {
       return next(new HandelError(`MoMo Error: ${jsonResponse.message || response.statusText}`, 500));
     }
-
-    // Tạo đơn hàng trong MongoDB
+    
     const newOrder = await Order.create({
       userId,
       orderId,
