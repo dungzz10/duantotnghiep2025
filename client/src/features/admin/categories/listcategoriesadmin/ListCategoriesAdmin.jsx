@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Table, Space, Tag, Input, Select, Button , message , Modal} from "antd";
+import { Table, Space, Tag, Input, Select, Button, message, Modal, Image } from "antd";
 import { Link } from "react-router-dom"
 import { useCategoriesAdmin } from "./usecategoriesadmin";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
+import axios from "axios";
 const { Search } = Input;
 const { Option } = Select;
 
@@ -70,30 +71,30 @@ const ListCategoriesAdmin = () => {
     console.log(id)
     try {
       Modal.confirm({
-        title: 'Confirm',
-        content: 'Are you sure you want to delete this about?',
-        okText: 'Yes',
-        cancelText: 'No',
+        title: 'Xóa danh mục',
+        content: 'Bạn có chắc muốn xóa danh mục?',
+        okText: 'Đồng ý',
+        cancelText: 'Từ chối',
         okButtonProps: {
           className: "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" // áp dụng lớp CSS
         },
         onOk: async () => {
-          const loading = message.loading({ content: 'Loading...', duration: 0 });
+          const loading = message.loading({ content: 'Đang tải...', duration: 0 });
           setTimeout(async () => {
             if (loading) {
               loading();
             }
-            message.success('ok')
-            const response = await Categories.RemoveCategory(id)
+            // message.success('Thành công')
+            const response = await axios.delete('http://localhost:5000/api/v1/categories/'+id +'/delete')
             if (response) {
-              message.success('Deleted successfully!', 3);
+              message.success('Xóa danh mục thành công!', 3);
               const dataNew = data.filter((data) => data._id !== id);
               setFilteredCategories(dataNew);
             }
           }, 2000);
         },
         onCancel: () => {
-          message.success('Canceled!');
+          message.success('Hủy!');
         },
       });
     } catch (error) {
@@ -103,12 +104,21 @@ const ListCategoriesAdmin = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên danh mục",
       dataIndex: "name",
       key: "name",
     },
+
     {
-      title: "Actions",
+      title: "Hình ảnh",
+      key: 'image',
+      render: (_,item) =>
+        <>
+          <Image style={{ width: 50, height: 50 }} src={item.image} alt="" />
+        </>,
+    },
+    {
+      title: "Hành động",
       key: "actions",
       render: (_, item) => (
         <>
