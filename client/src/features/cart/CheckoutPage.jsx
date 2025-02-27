@@ -32,19 +32,22 @@ const CheckoutPage = () => {
         const response = await fetch("http://localhost:5000/api/momo/payment", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify({
             amount: order.total,
-            orderId: `${Date.now()}`, // Tạo orderId duy nhất
+            orderId: `${Date.now()}`,
             orderInfo: "Thanh toán MoMo",
           }),
         });
   
         const data = await response.json();
   
-        if (response.ok && data.payUrl) {
-          window.location.href = data.payUrl; // Chuyển hướng đến trang thanh toán MoMo
+        if (response.ok && data.success && data.data?.payUrl) {
+          console.log("Chuyển hướng tới MoMo:", data.data.payUrl);
+          localStorage.setItem("momoOrderId", data.data.orderId);
+          window.location.href = data.data.payUrl;
         } else {
-          alert("Thanh toán MoMo thất bại! Vui lòng thử lại.");
+          alert(`Thanh toán MoMo thất bại: ${data.message}`);
         }
       } catch (error) {
         console.error("Lỗi thanh toán MoMo:", error);
