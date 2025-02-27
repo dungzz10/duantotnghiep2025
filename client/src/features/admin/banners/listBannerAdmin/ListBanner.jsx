@@ -65,6 +65,12 @@ const ListBanner = () => {
                                 </td>
                                 <td className="px-4 py-2 text-sm text-gray-800">{banner.isActive ? 'Hiện' : 'Ẩn'}</td>
                                 <td className="px-4 py-2 text-sm text-gray-800">
+                                <Link
+                                        to={`/admin/edit-banner/${banner._id}`}
+                                        className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition"
+                                    >
+                                        Sửa
+                                    </Link>
                                     <button
                                         onClick={() => {
                                             Swal.fire({
