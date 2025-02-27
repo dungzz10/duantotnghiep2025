@@ -7,7 +7,7 @@ const PaymentSuccess = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
-    const orderId = queryParams.get("orderId"); // Lấy orderId từ URL
+    const orderId = queryParams.get("orderId");
 
     if (!orderId) return navigate("/");
 
@@ -22,18 +22,18 @@ const PaymentSuccess = () => {
         console.log("Kết quả xác nhận thanh toán:", data);
 
         if (data.success && data.status === "completed") {
-          localStorage.removeItem("cart"); // Xóa giỏ hàng nhưng giữ lại orderId
+          localStorage.removeItem("cart");
 
           alert("Thanh toán thành công! Đơn hàng đang được chuẩn bị.");
-          navigate("/");
+          navigate(`/cart?success=true`);
         } else {
           alert(`Thanh toán thất bại: ${data.message}`);
-          navigate("/");
+          navigate(`/cart?success=false`);
         }
       } catch (error) {
         console.error("Lỗi xác nhận giao dịch:", error);
         alert("Có lỗi xảy ra khi xác nhận thanh toán!");
-        navigate("/");
+        navigate("/cart");
       }
     };
 

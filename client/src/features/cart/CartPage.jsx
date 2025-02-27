@@ -40,10 +40,13 @@ const CartPage = () => {
 
     if (paymentSuccess === "true") {
       message.success("Thanh toán thành công! Đang trở về giỏ hàng...");
+      localStorage.removeItem("cart"); 
+      setCart([]);
+      navigate("/cart");
     } else if (paymentSuccess === "false") {
       message.error("Thanh toán thất bại! Vui lòng thử lại.");
     }
-  }, []);
+  }, [navigate]);
 
   const updateQuantity = (index, newQuantity) => {
     const updatedCart = cart.map((item, i) =>
