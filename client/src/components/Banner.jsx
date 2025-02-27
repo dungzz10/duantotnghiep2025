@@ -1,33 +1,60 @@
 import React from "react";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { fetchBanners } from "../features/admin/banners/listBannerAdmin/apiListBanner";
 
 const Banner = () => {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchBanners
-  })
-  
+    queryKey: ["banners"],
+    queryFn: fetchBanners,
+  });
 
-  if (isLoading) return <p className="text-center text-lg text-gray-600">Đang tải dữ liệu...</p>
-  if (error) return <p className="text-center text-lg text-red-500">Lỗi tải dữ liệu</p>
+  if (isLoading) return <p className="text-center text-lg text-gray-600">Đang tải dữ liệu...</p>;
+
+  if (error) {
+    return (
+      <div className="text-center text-lg text-red-500">
+        <p>Lỗi tải dữ liệu. Đang hiển thị banner mặc định.</p>
+        <Carousel
+          autoPlay
+          infiniteLoop
+          showThumbs={false}
+          showIndicators={false}
+          showStatus={false}
+          transitionTime={800}
+        >
+          <div className="relative">
+            <img className="w-full h-auto max-h-[400px] object-cover rounded-lg" src="./src/assets/slide-1.png" />
+          </div>
+          <div className="relative">
+            <img className="w-full h-auto max-h-[400px] object-cover rounded-lg" src="./src/assets/slide-2.png" />
+          </div>
+          <div className="relative">
+            <img className="w-full h-auto max-h-[400px] object-cover rounded-lg" src="./src/assets/slide-3.png" />
+          </div>
+        </Carousel>
+      </div>
+    );
+  }
+
   return (
     <div className="relative text-[20px] w-full max-w-[1360px] mx-auto text-white">
       <Carousel
-        autoPlay={true}
-        infiniteLoop={true}
+        autoPlay
+        infiniteLoop
         showThumbs={false}
-        showIndicators={false}
+        showIndicators={true}
         showStatus={false}
+        transitionTime={800}
       >
-        {data?.banners?.map((banner, index) => (
-          <div key={index}>
+        {data?.banners?.map((banner) => (
+          <div key={banner._id} className="relative w-full h-[40vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] max-h-[500px]">
             <img
-            className='w-full h-auto max-h-[500px] object-cover'
-            src={banner.image} alt={`Banner ${index + 1}`} />
+              className="absolute top-0 left-0 w-full h-full object-cover rounded-lg shadow-lg"
+              src={banner.image}
+              alt={banner.title}
+            />
           </div>
         ))}
       </Carousel>

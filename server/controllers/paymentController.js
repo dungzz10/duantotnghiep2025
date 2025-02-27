@@ -3,54 +3,51 @@ import { momoConfig } from "../config/momoConfig.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import User from "../models/usersModel.js";
 import HandelError from "../utils/Error.js";
+import Order from "../models/orderModel.js";
 
 const generateSignature = (params) => {
-  const rawSignature =
-    `accessKey=${params.accessKey}` +
-    `&amount=${params.amount}` +
-    `&extraData=${params.extraData}` +
-    `&ipnUrl=${params.ipnUrl}` +
-    `&orderId=${params.orderId}` +
-    `&orderInfo=${params.orderInfo}` +
-    `&partnerCode=${params.partnerCode}` +
-    `&redirectUrl=${params.redirectUrl}` +
-    `&requestId=${params.requestId}` +
-    `&requestType=${params.requestType}`;
+  const rawSignature = Object.entries(params)
+    .map(([key, value]) => `${key}=${value}`)
+    .join("&");
 
-  return crypto
-    .createHmac("sha256", momoConfig.secretKey)
+  return crypto.createHmac("sha256", momoConfig.secretKey)
     .update(rawSignature)
     .digest("hex");
 };
-// Tạo yêu cầu thanh toán MoMo
+
 export const createMomoPayment = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu MoMo:", req.body);
   try {
-    const { amount } = req.body;
-    if (!amount || amount < 1000)
-      return next(new HandelError("Thiếu dữ liệu đơn hàng", 400));
+    const { amount, products } = req.body;
 
-    const userId = req.user.id;
+    // Kiểm tra dữ liệu hợp lệ
+    if (!amount || isNaN(amount) || amount < 1000) {
+      return next(new HandelError("Số tiền không hợp lệ", 400));
+    }
+
+    const userId = req.user?.id; // Kiểm tra userId hợp lệ
+    if (!userId) {
+      return next(new HandelError("Người dùng chưa xác thực", 401));
+    }
+
     const orderId = `ORDER_${Date.now()}_${userId}`;
     const requestId = `REQ_${Date.now()}_${userId}`;
 
     const payload = {
       accessKey: momoConfig.accessKey,
       amount: amount.toString(),
-      extraData: momoConfig.extraData,
+      extraData: momoConfig.extraData || "",
       ipnUrl: momoConfig.ipnUrl,
       orderId,
-      orderInfo: momoConfig.orderInfo,
+      orderInfo: momoConfig.orderInfo || "Thanh toán qua MoMo",
       partnerCode: momoConfig.partnerCode,
       redirectUrl: momoConfig.redirectUrl,
       requestId,
-      requestType: momoConfig.requestType,
+      requestType: momoConfig.requestType || "captureWallet",
     };
 
-    // Tạo chữ ký MoMo
     payload.signature = generateSignature(payload);
 
-    // Gửi request đến MoMo
     const response = await fetch(
       "https://test-payment.momo.vn/v2/gateway/api/create",
       {
@@ -61,122 +58,93 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
     );
 
     const jsonResponse = await response.json();
-    
-    if (jsonResponse.resultCode !== 0) {
-      return next(new HandelError(`MoMo Error: ${jsonResponse.message}`, 500));
+    if (!response.ok || jsonResponse.resultCode !== 0) {
+      return next(new HandelError(`MoMo Error: ${jsonResponse.message || response.statusText}`, 500));
     }
-
-    // Lưu giao dịch vào DB
-    await User.findByIdAndUpdate(userId, {
-      $push: {
-        "wallet.transactions": {
-          type: "momo_naptien",
-          amount,
-          momoTransactionId: orderId,
-          status: "pending",
-          date: new Date(),
-          description: momoConfig.orderInfo,
-        },
-      },
+    
+    const newOrder = await Order.create({
+      userId,
+      orderId,
+      amount,
+      products,
+      status: "pending",
+      paymentMethod: "MoMo",
+      date: new Date(),
     });
+
+    console.log("Đơn hàng đã được lưu vào DB:", newOrder);
 
     return res.status(200).json({
       success: true,
       message: "Payment request created",
-      data: {
-        orderId,
-        amount,
-        payUrl: jsonResponse.payUrl,
-      },
+      data: { orderId, amount, payUrl: jsonResponse.payUrl },
     });
   } catch (error) {
-    return next(
-      new HandelError(`Payment creation failed: ${error.message}`, 500)
-    );
+    return next(new HandelError(`Payment creation failed: ${error.message}`, 500));
   }
 });
 
-// Xác nhận trạng thái giao dịch
+
 export const verifyTransaction = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
-  const user = await User.findOne({
-    "wallet.transactions.momoTransactionId": orderId,
-  });
-  if (!user) return next(new HandelError("Transaction not found", 404));
-
-  const transaction = user.wallet.transactions.find(
-    (t) => t.momoTransactionId === orderId
-  );
-  const requestId = `${Date.now()}_verify_${orderId}`;
-  const signature = generateSignature({
-    accessKey: momoConfig.accessKey,
-    orderId,
-    partnerCode: momoConfig.partnerCode,
-    requestId,
-  });
-
+  console.log("Verify Transaction Order ID:", orderId);
   try {
-    const response = await fetch(
-      "https://test-payment.momo.vn/v2/gateway/api/query",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          partnerCode: momoConfig.partnerCode,
-          requestId,
-          orderId,
-          signature,
-          lang: "vi",
-        }),
-      }
-    );
+    const user = await User.findOne({ "ATM.transactions.momoTransactionId": orderId });
+    if (!user) return next(new HandelError("Transaction not found", 404));
+
+    const transaction = user.ATM.transactions.find(t => t.momoTransactionId === orderId);
+    if (!transaction) return next(new HandelError("Transaction data missing", 404));
+
+    const requestId = `REQ_VERIFY_${Date.now()}_${orderId}`;
+    const signature = generateSignature({
+      accessKey: momoConfig.accessKey,
+      orderId,
+      partnerCode: momoConfig.partnerCode,
+      requestId,
+    });
+
+    const response = await fetch("https://test-payment.momo.vn/v2/gateway/api/query", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ partnerCode: momoConfig.partnerCode, requestId, orderId, signature, lang: "vi" }),
+    });
 
     const result = await response.json();
+    console.log("MoMo API Response:", result);
     if (result.resultCode === 0 && transaction.status === "pending") {
+      console.log("Transaction completed, updating user data.");
       await User.updateOne(
-        { _id: user._id, "wallet.transactions.momoTransactionId": orderId },
-        {
-          $set: {
-            "wallet.transactions.$.status": "completed",
-            "wallet.transactions.$.transId": result.transId,
-          },
-          $inc: { "wallet.balance": transaction.amount },
-        }
+        { _id: user._id, "ATM.transactions.momoTransactionId": orderId },
+        { $set: { "ATM.transactions.$.status": "completed", "ATM.transactions.$.transId": result.transId }, $inc: { "ATM.balance": transaction.amount } }
       );
-      return res
-        .status(200)
-        .json({
-          success: true,
-          status: "completed",
-          message: "Payment completed",
-        });
+      return res.status(200).json({ success: true, status: "completed", message: "Payment completed" });
     }
 
     await User.updateOne(
-      { _id: user._id, "wallet.transactions.momoTransactionId": orderId },
+      { _id: user._id, "ATM.transactions.momoTransactionId": orderId },
       {
-        $set: {
-          "wallet.transactions.$.status": "failed",
-          "wallet.transactions.$.message": result.message,
-        },
+        $set: { "ATM.transactions.$.status": "completed", "ATM.transactions.$.transId": result.transId },
+        $inc: { "ATM.balance": transaction.amount }
       }
     );
-    return res
-      .status(200)
-      .json({ success: false, status: "failed", message: result.message });
+    return res.status(200).json({ success: false, status: "failed", message: result.message });
   } catch (error) {
-    return next(new HandelError("Error verifying transaction status", 500));
+    console.error("Error verifying transaction:", error);
+    return next(new HandelError(`Error verifying transaction: ${error.message}`, 500));
   }
 });
 
-// Lấy số dư ví người dùng
 export const getWalletBalance = CatchAsync(async (req, res, next) => {
-  const user = await User.findById(req.user.id).select("wallet");
-  if (!user) return next(new HandelError("User not found", 404));
+  try {
+    const user = await User.findById(req.user.id).select("ATM");
+    if (!user) return next(new HandelError("User not found", 404));
 
-  res.status(200).json({
-    success: true,
-    balance: user.wallet.balance,
-    transactions: user.wallet.transactions,
-  });
+    res.status(200).json({
+      success: true,
+      balance: user.ATM.balance,
+      transactions: user.ATM.transactions,
+    });
+  } catch (error) {
+    return next(new HandelError("Lỗi lấy số dư tài khoản", 500));
+  }
 });
