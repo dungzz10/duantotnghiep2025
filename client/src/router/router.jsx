@@ -37,7 +37,8 @@ import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/
 import SignupAdmin from "../features/signup/SignupAdmin";
 import ListBanner from "../features/admin/banners/listBannerAdmin/ListBanner";
 import UserDetail from "../features/admin/customers/userdetail/UserDetail";
-
+import OrderHistory from "../features/OrderHistory/OrderHistory";
+import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -92,6 +93,14 @@ export const router = createBrowserRouter([
       {
         path: "/cart/emptycart",
         element: <EmptyCart />,
+      },
+      {
+        path: "/momo-success",
+        element: <PaymentSuccess />,
+      },
+      {
+        path: "/order",
+        element: <OrderHistory />,
       },
       {
         path: "/user/profile",
