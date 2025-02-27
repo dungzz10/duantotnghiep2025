@@ -1,15 +1,36 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-const AddBanner = () => {
+const EditBanner = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
 
     const [title, setTitle] = useState("");
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
-    const [isActive, setIsActive] = useState("true"); // Mặc định là hiển thị
+    const [isActive, setIsActive] = useState("true");
     const [isLoading, setIsLoading] = useState(false);
 
-    const navigate = useNavigate()
+    // Lấy dữ liệu banner hiện tại
+    useEffect(() => {
+        const fetchBanner = async () => {
+            try {
+                const res = await fetch(`http://localhost:5000/api/v1/banners/${id}`);
+                const data = await res.json();
+
+                if (res.ok) {
+                    setTitle(data.title ?? "");
+                    setPreview(data.image ?? null);
+                    setIsActive(data.isActive ? "true" : "false");
+                }
+            } catch (error) {
+                console.error("Lỗi khi lấy banner:", error);
+            }
+        };
+        fetchBanner();
+    }, [id]);
+
+    // Xử lý chọn ảnh
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -18,33 +39,30 @@ const AddBanner = () => {
         }
     };
 
+    // Gửi yêu cầu cập nhật
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!image) {
-            alert("Vui lòng chọn ảnh!");
+        if (!title) {
+            alert("Tiêu đề không được để trống!");
             return;
         }
 
         setIsLoading(true);
         const formData = new FormData();
         formData.append("title", title);
-        formData.append("image", image);
-        formData.append("isActive", isActive === "true"); // Chuyển đổi thành boolean
+        if (image) formData.append("image", image);
+        formData.append("isActive", isActive === "true");
 
         try {
-            const res = await fetch("http://localhost:5000/api/v1/banners", {
-                method: "POST",
+            const res = await fetch(`http://localhost:5000/api/v1/banners/${id}`, {
+                method: "PATCH",
                 body: formData,
             });
             const data = await res.json();
             alert(data.message);
-            setTitle("");
-            setImage(null);
-            setPreview(null);
-            setIsActive("true");
-          
+
             if (res.ok) {
-                navigate("/admin/banners"); // Chuyển hướng sau khi thêm banner thành công
+                navigate("/admin/banners");
             }
         } catch (error) {
             console.error("Lỗi:", error);
@@ -55,13 +73,13 @@ const AddBanner = () => {
 
     return (
         <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
-            <h2 className="text-xl font-semibold mb-4">Thêm Banner</h2>
+            <h2 className="text-xl font-semibold mb-4">Cập Nhật Banner</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-gray-700 font-medium">Tiêu đề</label>
                     <input
                         type="text"
-                        value={title}
+                        value={title ?? ""}
                         onChange={(e) => setTitle(e.target.value)}
                         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Nhập tiêu đề..."
@@ -70,13 +88,12 @@ const AddBanner = () => {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 font-medium">Ảnh Banner: (ít nhất 1920x1080).</label>
+                    <label className="block text-gray-700 font-medium">Ảnh Banner</label>
                     <input
                         type="file"
                         onChange={handleImageChange}
                         className="w-full border px-3 py-2 rounded-lg"
                         accept="image/*"
-                        required
                     />
                 </div>
 
@@ -101,14 +118,14 @@ const AddBanner = () => {
 
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-200"
+                    className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition duration-200"
                     disabled={isLoading}
                 >
-                    {isLoading ? "Đang tải lên..." : "Thêm Banner"}
+                    {isLoading ? "Đang cập nhật..." : "Cập nhật Banner"}
                 </button>
             </form>
         </div>
     );
 };
 
-export default AddBanner;
+export default EditBanner;
