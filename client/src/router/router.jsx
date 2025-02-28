@@ -43,6 +43,7 @@ import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
 import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
 import UserAdminPage from "../features/admin/adminer/UserAdminPage";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
+import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -159,7 +160,7 @@ export const router = createBrowserRouter([
         element: <CategoriesAdmin />,
         children: [
           { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
-          // { path: "addcategoriesadmin", element: <add /> },
+          { path: "addcategoriesadmin", element: <AddCategoriesAdmin /> },
           { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
         ],
       },
