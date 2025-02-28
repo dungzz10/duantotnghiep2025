@@ -67,6 +67,7 @@ const UppdateProductAdmin = () => {
   const [form] = Form.useForm();
   const [tags, setTags] = useState([]); // Lưu trữ các thẻ sản phẩm
   const [images, setImages] = useState([]); // Quản lý ảnh trong state của ProductsAdmin
+  console.log("images", images);
   const [variants, setVariants] = useState([]); // Quản lý biến thể sản phẩm
   const [currentVariant, setCurrentVariant] = useState({
     color: "",
@@ -92,6 +93,7 @@ const UppdateProductAdmin = () => {
         shippingFee: product.shippingFee,
       });
 
+      // Keep original image structure
       setImages(product.image || []);
       setTags(product.tag || []);
       setVariants(product.variants || []);
@@ -102,6 +104,7 @@ const UppdateProductAdmin = () => {
     setImages(newImages); // Cập nhật lại ảnh sau khi thêm ảnh
   };
 
+  // Update cloudinaryUpload to return object with url and public_id
   const cloudinaryUpload = async (uploadOptions) => {
     const { files, uploadPreset, width, height } = uploadOptions;
 
@@ -109,11 +112,10 @@ const UppdateProductAdmin = () => {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("upload_preset", uploadPreset);
-
       return { formData };
     });
 
-    const imgObj = await Promise.all(
+    const imgObjects = await Promise.all(
       newImages?.map(async (img) => {
         const response = await fetch(
           "https://api.cloudinary.com/v1_1/dsenpijts/image/upload",
@@ -125,37 +127,44 @@ const UppdateProductAdmin = () => {
 
         const data = await response.json();
 
-        return cld
-          .image(data.public_id)
-          .resize(Resize.scale().width(width).height(height))
-          .quality("auto")
-          .format("auto")
-          .toURL();
+        // Return object with url and public_id
+        return {
+          url: cld
+            .image(data.public_id)
+            .resize(Resize.scale().width(width).height(height))
+            .quality("auto")
+            .format("auto")
+            .toURL(),
+          public_id: data.public_id,
+        };
       })
     );
 
-    return imgObj;
+    return imgObjects;
   };
 
+  // Update handleUpload to work with image objects
   const handleUpload = async ({ file }) => {
     try {
-      const imgObj = await cloudinaryUpload({
+      const imgObjects = await cloudinaryUpload({
         files: [file],
         uploadPreset: "upploads",
         width: 500,
         height: 500,
       });
 
-      const newImages = [...images, ...imgObj];
-      setImages(newImages);
-      handleAddImages(newImages);
+      setImages((prev) => [...prev, ...imgObjects]);
     } catch (error) {
+      console.error("Upload error:", error);
       message.error("Upload failed");
     }
   };
 
-  const handleDelete = (image) => {
-    const newImages = images.filter((img) => img !== image);
+  // Update handleDelete to work with image objects
+  const handleDelete = (imageToDelete) => {
+    const newImages = images.filter(
+      (img) => img.public_id !== imageToDelete.public_id
+    );
     setImages(newImages);
     handleAddImages(newImages);
   };
@@ -257,20 +266,16 @@ const UppdateProductAdmin = () => {
       variantQuantity,
       ...productData
     } = values;
+
+    // Ensure images are in correct format
     productData.id = id;
     productData.variants = variants;
-    productData.image = images;
+    productData.image = images; // Already in correct format as array of URLs
     productData.tag = tags;
-    console.log(productData);
-    const updateData = {
-      ...productData,
-      variants,
-      image: images,
-      tag: tags,
-    };
+
+    console.log("Updating product with data:", productData);
 
     mutate({ id: productData.id, ...productData });
-    message.success("Sản phẩm đã được thêm thành công!");
   };
   if (loading) return <p>Loading...</p>;
   if (isLoading) return <p>Loading...</p>;
@@ -288,12 +293,13 @@ const UppdateProductAdmin = () => {
         <Form.Item label="Hình ảnh sản phẩm" name="image">
           <div className="flex flex-wrap gap-2">
             {images.map((image, index) => (
+              // console.log("image", image),
               <div
                 className="relative w-28 h-28 800px:w-36 800px:h-36 group"
                 key={index}
               >
                 <img
-                  src={image}
+                  src={image.url}
                   alt={`uploaded-${index}`}
                   className="object-cover w-full h-full rounded-md"
                 />
