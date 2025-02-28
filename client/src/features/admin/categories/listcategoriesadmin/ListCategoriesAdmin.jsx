@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Space, Tag, Input, Select, Button , message , Modal} from "antd";
-import { Link } from "react-router-dom"
+import { Table, Space, Tag, Input, Select, Button, message, Modal, Image } from "antd";
+import { Link } from "react-router-dom";
 import { useCategoriesAdmin } from "./usecategoriesadmin";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons"
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import axios from "axios";
+
 const { Search } = Input;
 const { Option } = Select;
 
 const ListCategoriesAdmin = () => {
   const { data, isLoading } = useCategoriesAdmin();
-  // console.log(data.data)
   const [filteredCategories, setFilteredCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState(null);
@@ -22,93 +23,82 @@ const ListCategoriesAdmin = () => {
 
   if (isLoading) return <div>Loading...</div>;
 
-  const Categories = data?.data || [];
-
-  // Xử lý tìm kiếm
   const handleSearch = (value) => {
     setSearchTerm(value.toLowerCase());
-    filterData(value, roleFilter, activeFilter);
+    filterData(value.toLowerCase(), roleFilter, activeFilter);
   };
 
-  // Xử lý lọc theo vai trò
-  const handleRoleFilter = (value) => {
-    setRoleFilter(value);
-    filterData(searchTerm, value, activeFilter);
-  };
-
-  // Xử lý lọc theo trạng thái hoạt động
-  const handleActiveFilter = (value) => {
-    setActiveFilter(value);
-    filterData(searchTerm, roleFilter, value);
-  };
-
-  // Hàm lọc dữ liệu
   const filterData = (search, role, active) => {
-    let filtered = Categories;
+    let filtered = data?.data || [];
 
     if (search) {
-      filtered = filtered.filter(
-        (Categories) =>
-          Categories.name.toLowerCase().includes(search) ||
-          Categories.email.toLowerCase().includes(search)
+      filtered = filtered.filter((category) =>
+        category.name.toLowerCase().includes(search)
       );
     }
 
     if (role) {
-      filtered = filtered.filter((Categories) => Categories.role === role);
+      filtered = filtered.filter((category) => category.role === role);
     }
 
     if (active !== null) {
-      filtered = filtered.filter((Categories) => Categories.active === active);
+      filtered = filtered.filter((category) => category.active === active);
     }
 
     setFilteredCategories(filtered);
   };
 
+  const handleRoleFilter = (value) => {
+    setRoleFilter(value);
+    filterData(searchTerm, value, activeFilter);
+  };
+
+  const handleActiveFilter = (value) => {
+    setActiveFilter(value);
+    filterData(searchTerm, roleFilter, value);
+  };
 
   const HandleRemoveCategory = async (id) => {
-    console.log(id)
-    try {
-      Modal.confirm({
-        title: 'Confirm',
-        content: 'Are you sure you want to delete this about?',
-        okText: 'Yes',
-        cancelText: 'No',
-        okButtonProps: {
-          className: "bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded" // áp dụng lớp CSS
-        },
-        onOk: async () => {
-          const loading = message.loading({ content: 'Loading...', duration: 0 });
-          setTimeout(async () => {
-            if (loading) {
-              loading();
-            }
-            message.success('ok')
-            const response = await Categories.RemoveCategory(id)
-            if (response) {
-              message.success('Deleted successfully!', 3);
-              const dataNew = data.filter((data) => data._id !== id);
-              setFilteredCategories(dataNew);
-            }
-          }, 2000);
-        },
-        onCancel: () => {
-          message.success('Canceled!');
-        },
-      });
-    } catch (error) {
-      message.error('lỗi', 5);
-    }
+    Modal.confirm({
+      title: 'Xóa danh mục',
+      content: 'Bạn có chắc muốn xóa danh mục?',
+      okText: 'Đồng ý',
+      cancelText: 'Từ chối',
+      onOk: async () => {
+        const loading = message.loading({ content: 'Đang tải...', duration: 0 });
+        try {
+          await axios.delete(`http://localhost:5000/api/v1/categories/${id}/delete`);
+          message.success('Xóa danh mục thành công!', 3);
+  
+          // Update the state to remove the deleted category
+          setFilteredCategories((prevCategories) =>
+            prevCategories.filter((category) => category._id !== id)
+          );
+        } catch (error) {
+          message.error('Lỗi khi xóa danh mục', 5);
+        } finally {
+          loading();
+        }
+      },
+      onCancel: () => {
+        message.success('Hủy!');
+      },
+    });
   };
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên danh mục",
       dataIndex: "name",
       key: "name",
     },
     {
-      title: "Actions",
+      title: "Hình ảnh",
+      key: 'image',
+      render: (_, item) => <Image style={{ width: 50, height: 50 }} src={item.image} alt="" />,
+    },
+    {
+      title: "Hành động",
       key: "actions",
       render: (_, item) => (
         <>
@@ -127,42 +117,14 @@ const ListCategoriesAdmin = () => {
 
   return (
     <div>
-      <h2>Categories List</h2>
-
-      {/* Thanh tìm kiếm và bộ lọc */}
       <div style={{ marginBottom: 16, display: "flex", gap: "10px" }}>
-        {/* Ô tìm kiếm */}
         <Search
-          placeholder="Tìm kiếm theo tên hoặc email"
+          placeholder="Tìm kiếm theo tên"
           allowClear
           onSearch={handleSearch}
           style={{ width: 300 }}
         />
-
-        {/* Bộ lọc theo vai trò */}
-        <Select
-          placeholder="Lọc theo vai trò"
-          allowClear
-          onChange={handleRoleFilter}
-          style={{ width: 200 }}
-        >
-          <Option value="admin">Admin</Option>
-          <Option value="Categories">Categories</Option>
-        </Select>
-
-        {/* Bộ lọc theo trạng thái hoạt động */}
-        <Select
-          placeholder="Lọc theo trạng thái"
-          allowClear
-          onChange={handleActiveFilter}
-          style={{ width: 200 }}
-        >
-          <Option value={true}>Active</Option>
-          <Option value={false}>Inactive</Option>
-        </Select>
       </div>
-
-      {/* Bảng danh sách người dùng */}
       <Table columns={columns} dataSource={filteredCategories} rowKey="_id" />
     </div>
   );
