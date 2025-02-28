@@ -1,12 +1,27 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
-import { Table, Input, Select, Tag, Modal, Button, Popconfirm, message } from "antd";
-import { SearchOutlined, EyeOutlined, DownloadOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Input,
+  Select,
+  Tag,
+  Modal,
+  Button,
+  Popconfirm,
+  message,
+} from "antd";
+import {
+  SearchOutlined,
+  EyeOutlined,
+  EditOutlined,
+  CheckOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
 import { format } from "date-fns";
 
 const { Option } = Select;
 
-const Order = () => {
+const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -15,7 +30,7 @@ const Order = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await axios.get("/orders/"); 
+      const response = await axios.get("/orders/");
       setOrders(response.data.orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -28,43 +43,45 @@ const Order = () => {
   }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
+    return orders.filter((order) => {
       const matchesSearch =
         order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.products.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus = selectedStatus === "All" || order.status === selectedStatus;
+        order.products.some((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      const matchesStatus =
+        selectedStatus === "All" || order.orderStatus === selectedStatus;
       return matchesSearch && matchesStatus;
     });
   }, [orders, searchTerm, selectedStatus]);
 
-
-  const getStatusTag = status => {
+  const getStatusTag = (orderStatus) => {
     const colors = {
-      completed: "green",
+      delivered: "green",
       pending: "orange",
-      failed: "red",
+      processing: "orange",
+      shipped: "orange",
+      cancelled: "red",
     };
-    return <Tag color={colors[status] || "default"}>{status}</Tag>;
+    return <Tag color={colors[orderStatus] || "default"}>{orderStatus}</Tag>;
   };
 
-  // Xử lý thay đổi trạng thái của đơn hàng
-  const handleStatusChange = async (status, orderId) => {
+  const handleStatusChange = async (orderStatus, orderId) => {
     try {
-      const response = await axios.patch(`/orders/${orderId}/status`, { status });
-      message.success(`Order ${orderId} status updated to ${status}`);
+      await axios.patch(`/orders/${orderId}/orderStatus`, { orderStatus });
+      message.success(`Order ${orderId} orderStatus updated to ${orderStatus}`);
       fetchOrders(); // Refresh the orders list
     } catch (error) {
-      console.error("Error updating order status:", error);
+      console.error("Error updating orderStatus:", error);
       message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
     }
   };
 
-  // Xử lý hủy đơn hàng
   const handleCancelOrder = async (orderId) => {
     try {
       await axios.delete(`/orders/${orderId}`);
-      message.success(`Order ${orderId} has been canceled.`);
-      fetchOrders(); // Refresh the orders list
+      message.success(`Đơn ${orderId} đã được xoá.`);
+      fetchOrders();
     } catch (error) {
       console.error("Error canceling order:", error);
       message.error("Có lỗi xảy ra khi hủy đơn hàng.");
@@ -77,7 +94,10 @@ const Order = () => {
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: date => format(date, "MM/dd/yyyy"),
+      render: (date) => {
+        console.log("Giá trị date:", date);
+        return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
+      },
     },
     {
       title: "Order Number",
@@ -85,37 +105,42 @@ const Order = () => {
       key: "orderId",
     },
     {
-      title: "Items",
+      title: "Product",
       dataIndex: "products",
       key: "products",
-      render: products => (
-        <ul>
-          {products.map((item, idx) => (
-            <li key={idx}>
-              {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
-            </li>
-          ))}
-        </ul>
-      ),
+      render: (products) =>
+        Array.isArray(products) && products.length > 0 ? (
+          <ul>
+            {products.map((item, idx) => (
+              <li key={idx}>
+                {item.productId?.name || item.name || "Unknown"} (x
+                {item.quantity}) - $
+                {(item.productId?.price || item.price || 0).toFixed(2)}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span>No products</span>
+        ),
     },
     {
       title: "Total Amount",
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
-      render: amount => `$${amount.toFixed(2)}`,
+      render: (amount) => `$${amount}`,
     },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "orderStatus",
+      key: "orderStatus",
       filters: [
         { text: "Completed", value: "completed" },
         { text: "Pending", value: "pending" },
         { text: "Failed", value: "failed" },
       ],
-      onFilter: (value, record) => record.status === value,
-      render: status => getStatusTag(status),
+      onFilter: (value, record) => record.orderStatus === value,
+      render: (status) => getStatusTag(status),
     },
     {
       title: "Actions",
@@ -165,12 +190,12 @@ const Order = () => {
         <Input
           placeholder="Search orders..."
           prefix={<SearchOutlined />}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: "250px" }}
         />
         <Select
           defaultValue="All"
-          onChange={value => setSelectedStatus(value)}
+          onChange={(value) => setSelectedStatus(value)}
           style={{ width: "150px" }}
         >
           <Option value="All">All Statuses</Option>
@@ -197,25 +222,33 @@ const Order = () => {
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Close
           </Button>,
-          <Button key="download" type="primary" icon={<DownloadOutlined />}>
-            Download Invoice
-          </Button>,
+           <Button key="edit" type="primary" icon={<EditOutlined />}>
+           Edit
+         </Button>,
         ]}
       >
         {selectedOrder && (
           <div>
-            <p><strong>Order Number:</strong> {selectedOrder.orderId}</p>
-            <p><strong>Date:</strong> {format(selectedOrder.date, "MM/dd/yyyy")}</p>
-            <p><strong>Status:</strong> {getStatusTag(selectedOrder.status)}</p>
+            <p>
+              <strong>Order Number:</strong> {selectedOrder.orderId}
+            </p>
+            <p>
+              <strong>Date:</strong> {format(selectedOrder.date, "MM/dd/yyyy")}
+            </p>
+            <p>
+            <strong>Status:</strong> {getStatusTag(selectedOrder.orderStatus)}
+            </p>
             <h4>Items:</h4>
             <ul>
               {selectedOrder.products.map((item, idx) => (
                 <li key={idx}>
-                  {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
+                  {item.name} (x{item.quantity}) - ${item.price}
                 </li>
               ))}
             </ul>
-            <p><strong>Total Amount:</strong> ${selectedOrder.amount.toFixed(2)}</p>
+            <p>
+              <strong>Total Amount:</strong> ${selectedOrder.amount}
+            </p>
           </div>
         )}
       </Modal>
@@ -223,4 +256,4 @@ const Order = () => {
   );
 };
 
-export default Order;
+export default OrderHistory;

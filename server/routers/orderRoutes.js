@@ -1,14 +1,13 @@
 import express from "express";
-import { createOrder, getOrderById, getAllOrders } from "../controllers/orderController.js";
+import { createCODOrder, getOrderById, getAllOrders,updateOrder,deleteOrder } from "../controllers/orderController.js";
 import { isAuththenticated } from "../middlewares/auth.js";
 
-const router = express.Router();
+const orderRoutes = express.Router();
 
-// Lấy danh sách đơn hàng của người dùng
-router.get("/", isAuththenticated, getAllOrders);
 
-router.post("/",isAuththenticated, createOrder);
-// Lấy đơn hàng theo ID
-router.get("/:orderId", isAuththenticated, getOrderById);
-
-export default router;
+orderRoutes.get("/", isAuththenticated, getAllOrders);
+orderRoutes.post("/create",isAuththenticated, createCODOrder);
+orderRoutes.get("/:orderId", isAuththenticated, getOrderById);
+orderRoutes.patch("/orderStatus/:orderId", isAuththenticated, updateOrder);
+orderRoutes.delete("/:orderId", isAuththenticated, deleteOrder);
+export default orderRoutes;

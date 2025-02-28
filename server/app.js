@@ -13,7 +13,7 @@ import RouterAccessory from "./routers/accessory.js";
 import RouterBanner from "./routers/bannerRouter.js";
 import RouterReview from "./routers/reviewsRouter.js";
 import momoRoutes from "./routers/momoPayment.js";
-import Order from "./routers/orderRoutes.js";
+import orderRoutes from "./routers/orderRoutes.js";
 
 
 dotenv.config();
@@ -35,7 +35,7 @@ app.get("/test", (req, res) => {
   res.status(200).send("Hello, welcome to Brokang Market");
 });
 app.use("/api/momo", momoRoutes);
-app.use("/api/v1/orders", Order);
+app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/contact", RouterContact);
