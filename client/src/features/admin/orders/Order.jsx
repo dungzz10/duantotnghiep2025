@@ -1,7 +1,20 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
-import { Table, Input, Select, Tag, Modal, Button, Popconfirm, message } from "antd";
-import { SearchOutlined, EyeOutlined, EditOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";  // Thêm EditOutlined
+import {
+  Table,
+  Input,
+  Select,
+  Tag,
+  Modal,
+  Button,
+  Popconfirm,
+  message,
+} from "antd";
+import {
+  SearchOutlined,
+  EyeOutlined,
+  CloseOutlined,
+} from "@ant-design/icons"; // Thêm EditOutlined
 import { format } from "date-fns";
 
 const { Option } = Select;
@@ -12,7 +25,8 @@ const Order = () => {
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-
+  const [editingStatus, setEditingStatus] = useState(selectedOrder?.orderStatus || "pending");
+  
   const fetchOrders = useCallback(async () => {
     try {
       const response = await axios.get("/orders/");
@@ -28,115 +42,118 @@ const Order = () => {
   }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter(order => {
+    return orders.filter((order) => {
       const matchesSearch =
         order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.products.some(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus = selectedStatus === "All" || order.status === selectedStatus;
+        order.products.some((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      const matchesStatus =
+        selectedStatus === "All" || order.orderStatus === selectedStatus;
       return matchesSearch && matchesStatus;
     });
   }, [orders, searchTerm, selectedStatus]);
 
-  const getStatusTag = status => {
+  const getStatusTag = (orderStatus) => {
     const colors = {
-      completed: "green",
+      delivered: "green",
       pending: "orange",
-      failed: "red",
+      processing: "orange",
+      shipped: "blue",
+      cancelled: "red",
     };
-    return <Tag color={colors[status] || "default"}>{status}</Tag>;
+    return <Tag color={colors[orderStatus] || "default"}>{orderStatus}</Tag>;
   };
 
-  const handleStatusChange = async (status, orderId) => {
-    try {
-      await axios.patch(`/orders/${orderId}/status`, { status });
-      message.success(`Order ${orderId} status updated to ${status}`);
-      fetchOrders(); // Refresh the orders list
-    } catch (error) {
-      console.error("Error updating order status:", error);
-      message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
-    }
-  };
 
   const handleCancelOrder = async (orderId) => {
     try {
       await axios.delete(`/orders/${orderId}`);
-      message.success(`Order ${orderId} has been canceled.`);
+      message.success(`Đơn ${orderId} đã được xoá.`);
       fetchOrders();
     } catch (error) {
       console.error("Error canceling order:", error);
       message.error("Có lỗi xảy ra khi hủy đơn hàng.");
     }
   };
-
+  const handleUpdateStatus = async () => {
+    try {
+        await axios.patch(`/orders/orderStatus/${selectedOrder._id}`, { orderStatus: editingStatus });
+        fetchOrders();
+        setIsModalVisible(false);
+    } catch (error) {
+        console.error("Error updating status:", error);
+    }
+};
   const columns = [
-    {
-      title: "Order Date",
-      dataIndex: "date",
-      key: "date",
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: date => format(date, "MM/dd/yyyy"),
-    },
     {
       title: "ID",
       dataIndex: "orderId",
       key: "orderId",
     },
     {
-      title: "Items",
+      title: "Product",
       dataIndex: "products",
       key: "products",
-      render: products => (
-        <ul>
-          {products.map((item, idx) => (
-            <li key={idx}>
-              {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
-            </li>
-          ))}
-        </ul>
-      ),
+      render: (products) =>
+        Array.isArray(products) && products.length > 0 ? (
+          <ul>
+            {products.map((item, idx) => (
+              <li key={idx}>
+                {item.productId?.name || item.name || "Unknown"} (x
+                {item.quantity}) - ${item.productId?.price || item.price || 0}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <span>No products</span>
+        ),
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "products",
+      key: "products",
+      render: (products) => 
+        products.reduce((total, item) => total + item.quantity, 0),
     },
     {
       title: "Total Amount",
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
-      render: amount => `$${amount.toFixed(2)}`,
+      render: (amount) => `${amount}`,
     },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
-      filters: [
-        { text: "Completed", value: "completed" },
-        { text: "Pending", value: "pending" },
-        { text: "Failed", value: "failed" },
-      ],
-      onFilter: (value, record) => record.status === value,
-      render: status => getStatusTag(status),
+      dataIndex: "orderStatus",
+      key: "orderStatus",
+      onFilter: (value, record) => record.orderStatus === value,
+      render: (status) => getStatusTag(status),
+    },
+    {
+      title: "Order Date",
+      dataIndex: "date",
+      key: "date",
+      sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (date) => {
+        console.log("Giá trị date:", date);
+        return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
+      },
     },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <div>
-          {record.status !== "completed" && (
-            <Button
-              type="link"
-              icon={<CheckOutlined />}
-              onClick={() => handleStatusChange("completed", record.orderId)}
-            >
-              Mark as Completed
-            </Button>
-          )}
           {record.status !== "failed" && (
             <Popconfirm
-              title="Are you sure you want to cancel this order?"
+              title="Xoá đơn ?"
               onConfirm={() => handleCancelOrder(record.orderId)}
               okText="Yes"
               cancelText="No"
             >
               <Button type="link" icon={<CloseOutlined />}>
-                Cancel Order
+                Huỷ đơn
               </Button>
             </Popconfirm>
           )}
@@ -148,7 +165,7 @@ const Order = () => {
               setIsModalVisible(true);
             }}
           >
-            View
+            Xem
           </Button>
         </div>
       ),
@@ -157,23 +174,26 @@ const Order = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Order Management</h2>
+      <h2>Quản lý đơn hàng</h2>
       <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
         <Input
           placeholder="Search orders..."
           prefix={<SearchOutlined />}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
           style={{ width: "250px" }}
         />
         <Select
           defaultValue="All"
-          onChange={value => setSelectedStatus(value)}
+          onChange={(value) => setSelectedStatus(value)}
           style={{ width: "150px" }}
         >
           <Option value="All">All Statuses</Option>
-          <Option value="completed">Completed</Option>
+
           <Option value="pending">Pending</Option>
-          <Option value="failed">Failed</Option>
+          <Option value="processing">Processing</Option>
+          <Option value="shipped">Shipped</Option>
+          <Option value="delivered">Delivered</Option>
+          <Option value="cancelled">Cancelled</Option>
         </Select>
       </div>
 
@@ -186,35 +206,41 @@ const Order = () => {
 
       {/* Modal để hiển thị chi tiết đơn hàng */}
       <Modal
-        title="Order Details"
-        visible={isModalVisible}
-        onCancel={() => setIsModalVisible(false)}
-        footer={[
-          <Button key="close" onClick={() => setIsModalVisible(false)}>
-            Close
-          </Button>,
-          <Button key="edit" type="primary" icon={<EditOutlined />}>
-            Edit
-          </Button>,
-        ]}
-      >
-        {selectedOrder && (
-          <div>
-            <p><strong>Order Number:</strong> {selectedOrder.orderId}</p>
-            <p><strong>Date:</strong> {format(selectedOrder.date, "MM/dd/yyyy")}</p>
-            <p><strong>Status:</strong> {getStatusTag(selectedOrder.status)}</p>
-            <h4><strong>Items: </strong> </h4>
-            <ul>
-              {selectedOrder.products.map((item, idx) => (
-                <li key={idx}>
-                  {item.name} (x{item.quantity}) - ${item.price.toFixed(2)}
-                </li>
-              ))}
-            </ul>
-            <p><strong>Total Amount:</strong> ${selectedOrder.amount.toFixed(2)}</p>
-          </div>
-        )}
-      </Modal>
+            title="Chi tiết đơn hàng"
+            visible={isModalVisible}
+            onCancel={() => setIsModalVisible(false)}
+            footer={[
+              <Button key="save" type="primary" onClick={handleUpdateStatus}>Lưu</Button>,
+                <Button key="close" onClick={() => setIsModalVisible(false)}>Đóng</Button>
+            ]}
+            width={900}
+        >
+            {selectedOrder && (
+                <div>
+                    <p><strong>ID:</strong> {selectedOrder._id}</p>
+                    <p><strong>Date:</strong> {format(new Date(selectedOrder.date), "MM/dd/yyyy")}</p>
+                    <p><strong>Status:</strong> 
+                        <Select defaultValue={editingStatus} onChange={setEditingStatus} style={{ width: 200, marginLeft: 10 }}>
+                            <Option value="pending">Pending</Option>
+                            <Option value="processing">Processing</Option>
+                            <Option value="shipped">Shipped</Option>
+                            <Option value="delivered">Delivered</Option>
+                            <Option value="cancelled">Cancelled</Option>
+                        </Select>
+                    </p>
+                    <h4><strong>Products:</strong></h4>
+                    <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+                        {selectedOrder.products.map((item, idx) => (
+                            <div key={idx} style={{ display: "flex", gap: "20px", marginBottom: "15px", alignItems: "center" }}>
+                                <img src={item.image} alt={item.name} style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "10px" }} />
+                                <span style={{ fontSize: "16px" }}>{item.name} (x{item.quantity}) - ${item.price}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <p><strong>Tổng tiền:</strong> ${selectedOrder.amount}</p>
+                </div>
+            )}
+        </Modal>
     </div>
   );
 };

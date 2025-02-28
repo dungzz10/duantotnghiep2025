@@ -22,20 +22,68 @@ const orderSchema = new mongoose.Schema({
         ref: "Product",
         required: true,
       },
-      name: String,
-      price: Number,
-      quantity: Number,
+      name: {
+        type: String,
+        required: true,
+      },
+      price: {
+        type: Number,
+        required: true,
+      },
+      title: String,
+      color: String,
+      size: String,
+      quantity: {
+        type: Number,
+        required: true,
+        min: [1, "Số lượng phải ít nhất là 1"],
+      },
+      totalPrice: {
+        type: Number,
+        required: true, 
+      },
+      image: String,
     },
   ],
-  status: {
+  shippingAddress: {
+    address: {
+      type: String,
+      required: true,
+    },
+    addressType: {
+      type: String,
+      default: "home",
+    },
+  },
+  shippingFee: {
+    type: Number,
+    default: 0, 
+  },
+  voucherDiscount: {
+    type: Number,
+    default: 0, 
+  },
+  finalTotal: {
+    type: Number,
+    required: true, 
+  },
+  paymentMethod: {
+    type: String,
+    enum: ["COD", "ATM_MOMO", "WALLET","MoMo"],
+    required: true,
+  },
+  paymentStatus: {
     type: String,
     enum: ["pending", "completed", "failed"],
     default: "pending",
   },
-  paymentMethod: {
+  transactionId: String, 
+  orderStatus: {
     type: String,
-    required: true,
+    enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+    default: "pending",
   },
+  deliveredAt: Date, 
   date: {
     type: Date,
     default: Date.now,

@@ -25,7 +25,22 @@ const CheckoutPage = () => {
   const handlePayment = async () => {
     if (!order) return;
 
-    const finalOrder = { ...order, paymentMethod };
+   if (!order.shippingAddress?.address) {
+  order.shippingAddress = {
+    ...order.shippingAddress,
+    address: "home",
+  };
+}
+  if (!order.total) {
+    alert("Tổng tiền không hợp lệ!");
+    return;
+  }
+
+  const finalOrder = {
+    ...order,
+    paymentMethod: paymentMethod, // Đảm bảo gửi đúng giá trị hợp lệ
+    finalTotal: order.total, // Bổ sung finalTotal
+  };
 
     if (paymentMethod === "ATM_MOMO") {
       try {
@@ -43,6 +58,17 @@ const CheckoutPage = () => {
             amount: amount,
             orderId: `ORDER_${Date.now()}`,
             orderInfo: `Thanh toán đơn hàng #${Date.now()}`,
+            shippingAddress: order.shippingAddress,
+            products: order.products.map((product) => ({
+              productId: product.productId || product.id || "", 
+              name: product.name || product.title || "Không có tên",
+              price: product.price || 0,
+              quantity: product.quantity || 1,
+              totalPrice: product.totalPrice || product.price * product.quantity || 0,
+              image: product.image || "",
+              color: product.color || "Unknown",
+              size: product.size || "Unknown",
+            })),
           }),
         });
 
