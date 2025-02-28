@@ -4,7 +4,7 @@ import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
 import User from "../models/usersModel.js";
 import mongoose from "mongoose";
-import reviewModel from "../models/reviewModel.js";
+import Reviews from "../models/reviewModel.js";
 // import Category from "../models/category";
 // list san pham
 
@@ -206,7 +206,7 @@ export const getSingleProducts = async (req, res) => {
     if (!product) {
         return res.status(404).send({ message: "Product not found" })
     }
-    const reviews = await reviewModel.find({ productId }).populate("userId", "username email");
+    const reviews = await Reviews.find({ productId }).populate("userId", "username email");
     res.status(200).send({ product, reviews })
 } catch (error) {
     console.error("error fetching  product", error);
