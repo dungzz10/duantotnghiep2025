@@ -12,6 +12,7 @@ const OrderHistory = () => {
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [viewCancelled, setViewCancelled] = useState(false);
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -30,20 +31,33 @@ const OrderHistory = () => {
     fetchOrders();
   }, [fetchOrders]);
 
+  const handleCancelOrder = async (id) => {
+    try {
+      await axios.patch(`/orders/orderStatus/${id}`, {
+        orderStatus: "cancelled",
+      });
+      message.success(`Đơn ${id} đã được hủy.`);
+      fetchOrders();
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error canceling order:", error);
+      message.error("Có lỗi xảy ra khi hủy đơn hàng.");
+    }
+  };
+
   const filteredOrders = useMemo(() => {
-    return orders
-      .filter((order) => {
-        const matchesSearch =
-          order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    return orders.filter(
+      (order) =>
+        (viewCancelled
+          ? order.orderStatus === "cancelled"
+          : order.orderStatus !== "cancelled") &&
+        (selectedStatus === "All" || order.orderStatus === selectedStatus) &&
+        (order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
           order.products.some((item) =>
             item.name.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        const matchesStatus =
-          selectedStatus === "All" || order.orderStatus === selectedStatus;
-        return matchesSearch && matchesStatus;
-      })
-      .map((order, index) => ({ ...order, idx: index + 1 }));
-  }, [orders, searchTerm, selectedStatus]);
+          ))
+    );
+  }, [orders, viewCancelled, selectedStatus, searchTerm]);
 
   const getStatusTag = (orderStatus) => {
     const colors = {
@@ -58,11 +72,7 @@ const OrderHistory = () => {
 
   const columns = [
     { title: "#", dataIndex: "idx", key: "idx" },
-    {
-      title: "ID",
-      dataIndex: "_id",
-      key: "_id",
-    },
+    { title: "ID", dataIndex: "_id", key: "_id" },
     {
       title: "Total Amount",
       dataIndex: "amount",
@@ -81,10 +91,7 @@ const OrderHistory = () => {
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (date) => {
-        console.log("Giá trị date:", date);
-        return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
-      },
+      render: (date) => (date ? format(new Date(date), "MM/dd/yyyy") : "N/A"),
     },
     {
       title: "Actions",
@@ -107,36 +114,48 @@ const OrderHistory = () => {
   return (
     <div style={{ padding: "20px" }}>
       <h2>Order History</h2>
-      <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
-        <Input
-          placeholder="Search orders..."
-          prefix={<SearchOutlined />}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{ width: "250px" }}
-        />
-        <Select
-          defaultValue="All"
-          onChange={(value) => setSelectedStatus(value)}
-          style={{ width: "150px" }}
-        >
-          <Option value="All">All Statuses</Option>
-          <Option value="pending">Pending</Option>
-          <Option value="processing">Processing</Option>
-          <Option value="shipped">Shipped</Option>
-          <Option value="delivered">Delivered</Option>
-          <Option value="cancelled">Cancelled</Option>
-        </Select>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "16px",
+        }}
+      >
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <Input
+            placeholder="Search orders..."
+            prefix={<SearchOutlined />}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: "250px" }}
+          />
+          {!viewCancelled && (
+            <Select
+              defaultValue="All"
+              onChange={(value) => setSelectedStatus(value)}
+              style={{ width: "150px" }}
+            >
+              <Option value="All">All Statuses</Option>
+              <Option value="pending">Pending</Option>
+              <Option value="processing">Processing</Option>
+              <Option value="shipped">Shipped</Option>
+              <Option value="delivered">Delivered</Option>
+              <Option value="cancelled">Cancelled</Option>
+            </Select>
+          )}
+        </div>
+        <Button type="white" onClick={() => setViewCancelled(!viewCancelled)}>
+          {viewCancelled ? "Chi tiết đơn" : "Đơn đã huỷ "}
+        </Button>
       </div>
 
       <Table
         columns={columns}
         dataSource={filteredOrders}
         rowKey="orderId"
-        pagination={{ pageSize: 10 }}
-        loading={orders.length === 0}
+        pagination={{ pageSize: 5 }}
       />
 
-      {/* Modal để hiển thị chi tiết đơn hàng */}
       <Modal
         title="Order Details"
         visible={isModalVisible}
@@ -145,6 +164,15 @@ const OrderHistory = () => {
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Close
           </Button>,
+          selectedOrder && selectedOrder.orderStatus !== "cancelled" && (
+            <Button
+              key="cancel"
+              type="danger"
+              onClick={() => handleCancelOrder(selectedOrder._id)}
+            >
+              Hủy đơn
+            </Button>
+          ),
         ]}
       >
         {selectedOrder && (
