@@ -28,6 +28,7 @@ import {
   createMomoPayment,
   verifyTransaction,
   getWalletBalance,
+  createWalletDeposit,
 } from "../controllers/paymentController.js";
 
 const userRouter = express.Router();
@@ -68,7 +69,7 @@ userRouter.put("/admin/uppdate/:userId", isAuththenticated, updateUserAdmin);
 
 
 // Group MoMo payment routes
-userRouter.post("/payment/momo/create", isAuththenticated, createMomoPayment);
+userRouter.post("/payment/wallet/deposit", isAuththenticated, createWalletDeposit);
 userRouter.get("/wallet/balance", isAuththenticated, getWalletBalance);
 
 
