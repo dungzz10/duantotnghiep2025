@@ -63,7 +63,7 @@ const Account = {
       const res = await request.post("/user/signin", body);
       // console.log("res", res);
       if (res.token) {
-        localStorage.setItem("token", res.token); 
+        localStorage.setItem("token", res.token);
         localStorage.setItem("user", JSON.stringify(res.yesUser));
       }
       return res;
@@ -90,10 +90,9 @@ const Account = {
     try {
       const res = await request.post("/user/logout");
       console.log("Logout Success:", res);
-      localStorage.removeItem("user")
+      localStorage.removeItem("user");
       return res;
-      // localStorage.removeItem("token"); // 
-     
+      // localStorage.removeItem("token"); //
     } catch (error) {
       console.error("Logout failed:", error);
       throw error;
@@ -122,6 +121,12 @@ const Account = {
   },
 
   me: () => request.get("/user/me"),
+  deactiveUser: (id) => {
+    try {
+      const res = request.put(`/user/deactive/${id}`);
+      return res
+    } catch (error) {}
+  },
 };
 const Product = {
   getAllProducts: async (body) => {
@@ -141,14 +146,14 @@ const Product = {
       throw error;
     }
   },
-  uppdateProduct :async (id,body) => {
+  uppdateProduct: async (id, body) => {
     try {
-      const res = await request.put(`/product/${id}`,body);
+      const res = await request.put(`/product/${id}`, body);
       return res;
     } catch (error) {
       throw error;
     }
-  }
+  },
 };
 const Categories = {
   getAllCategories: async () => {

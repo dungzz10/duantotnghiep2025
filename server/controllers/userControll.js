@@ -1,6 +1,7 @@
 import User from "../models/usersModel.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
+import Order from "../models/orderModel.js";
 // uppdate user
 export const uppdateMe = CatchAsync(async (req, res, next) => {
   // Kiểm tra nếu client cố gắng thay đổi mật khẩu
@@ -86,6 +87,7 @@ export const getOneUser = CatchAsync(async (req, res, next) => {
 // deaxtive user
 export const deactiveUser = CatchAsync(async (req, res, next) => {
   const userId = req.params.userId;
+
   console.log("Deactivating user with ID:", userId);
 
   // Cập nhật trạng thái của người dùng
@@ -111,6 +113,7 @@ export const deactiveUser = CatchAsync(async (req, res, next) => {
 export const getCustomerDetails = CatchAsync(async (req, res, next) => {
   const userId = req.params.userId;
 
+  // Lấy thông tin chi tiết của người dùng
   const user = await User.findById(userId)
     .select(
       "name email photo role introduction createdAt wallet address withdrawalAccounts"
@@ -121,26 +124,59 @@ export const getCustomerDetails = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Không tìm thấy thông tin khách hàng", 404));
   }
 
-  // const totalDeposits = user.wallet.transactions
-  //   .filter((t) => t.status === "completed" && t.type === "momo_naptien")
-  //   .reduce((sum, t) => sum + t.amount, 0);
+  // Lấy danh sách đơn hàng của người dùng
+  const orders = await Order.find({ userId })
+    .populate({
+      path: "products.productId",
+      select: "title image price category condition",
+    })
+    .sort({ date: -1 })
+    .lean();
 
-  const transactions = user.wallet.transactions.map((t) => ({
-    ...t,
-    status: {
-      pending: "Đang xử lý",
-      completed: "Thành công",
-      failed: "Thất bại",
-    }[t.status],
-    type: {
-      momo_naptien: "Nạp tiền MoMo",
-      deposit: "Nạp tiền",
-      muahang: "Mua hàng",
-    }[t.type],
-  }));
+  // Kiểm tra và chuyển đổi dữ liệu giao dịch
+  const transactions =
+    user.wallet?.transactions?.map((t) => ({
+      ...t,
+      status:
+        {
+          pending: "Đang xử lý",
+          completed: "Thành công",
+          failed: "Thất bại",
+        }[t.status] || t.status,
+      type:
+        {
+          momo_naptien: "Nạp tiền MoMo",
+          deposit: "Nạp tiền",
+          muahang: "Mua hàng",
+        }[t.type] || t.type,
+    })) || [];
 
+  // Sắp xếp giao dịch theo thời gian mới nhất
   transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
 
+  // Chuyển đổi dữ liệu đơn hàng
+  const transformedOrders = orders.map((order) => ({
+    orderId: order.orderId,
+    date: order.date,
+    status: order.orderStatus,
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
+    amount: order.amount,
+    shippingFee: order.shippingFee,
+    finalTotal: order.finalTotal,
+    products: order.products.map((product) => ({
+      productId: product.productId?._id,
+      title: product.productId?.title,
+      image: product.productId?.image,
+      price: product.price,
+      quantity: product.quantity,
+      color: product.color,
+      size: product.size,
+      totalPrice: product.totalPrice,
+    })),
+  }));
+
+  // Trả về kết quả với kiểm tra null
   res.status(200).json({
     success: true,
     data: {
@@ -151,17 +187,9 @@ export const getCustomerDetails = CatchAsync(async (req, res, next) => {
       introduction: user.introduction,
       createdAt: user.createdAt,
       wallet: {
-        balance: user.wallet.balance,
-        // totalDeposits: totalDeposits,
+        balance: user.wallet?.balance || 0,
         transactionCount: transactions.length,
-        transactions: transactions.map((t) => ({
-          type: t.type,
-          amount: t.amount,
-          momoTransactionId: t.momoTransactionId,
-          status: t.status,
-          description: t.description,
-          date: t.date,
-        })),
+        transactions: transactions,
       },
       address:
         user.address?.map((a) => ({
@@ -169,6 +197,10 @@ export const getCustomerDetails = CatchAsync(async (req, res, next) => {
           addressType: a.addressType,
         })) || [],
       withdrawalAccounts: user.withdrawalAccounts || [],
+      orders: {
+        total: transformedOrders.length,
+        items: transformedOrders,
+      },
     },
   });
 });
