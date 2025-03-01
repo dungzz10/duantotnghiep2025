@@ -64,6 +64,7 @@ const ProductsAdmin = () => {
   const [tags, setTags] = useState([]); // Lưu trữ các thẻ sản phẩm
   const [images, setImages] = useState([]); // Quản lý ảnh trong state của ProductsAdmin
   const [variants, setVariants] = useState([]); // Quản lý biến thể sản phẩm
+  console.log("variants", variants);
   const [currentVariant, setCurrentVariant] = useState({
     color: "",
     sizes: [],
