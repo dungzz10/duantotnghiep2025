@@ -5,6 +5,13 @@ import crypto from "crypto";
 
 const userSchema = new mongoose.Schema(
   {
+    favourites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
+
     name: {
       type: String,
       required: [true, "fullname is required"],
