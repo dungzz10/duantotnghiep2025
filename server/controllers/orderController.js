@@ -4,7 +4,15 @@ import CatchAsync from "../utils/CatchAsync.js";
 import mongoose from "mongoose";
 
 export const getAllOrders = CatchAsync(async (req, res, next) => {
-  const orders = await Order.find()
+  const { id: userId, role } = req.user;
+
+  if (!userId) {
+    return next(new HandelError("Người dùng chưa đăng nhập", 401));
+  }
+
+  const filter = role === "admin" ? {} : { userId };
+  const orders = await Order.find(filter)
+  .populate("userId", "name")
   .populate({
     path: "products.productId",
     select: "name price image",
@@ -40,7 +48,6 @@ export const getOrderById = CatchAsync(async (req, res, next) => {
 
   res.status(200).json({ success: true, order });
 });
-
 
 export const createCODOrder = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu thanh toán COD:", req.body);

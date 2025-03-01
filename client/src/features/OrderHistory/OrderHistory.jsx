@@ -15,7 +15,10 @@ const OrderHistory = () => {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await axios.get("/orders/");
+      const token = localStorage.getItem("token");
+      const response = await axios.get("/orders/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOrders(response.data.orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -28,17 +31,18 @@ const OrderHistory = () => {
   }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      const matchesSearch =
-        order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.products.some((item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      const matchesStatus =
-        selectedStatus === "All" || order.orderStatus === selectedStatus;
-      return matchesSearch && matchesStatus;
-    })
-    .map((order, index) => ({ ...order, idx: index + 1 }));
+    return orders
+      .filter((order) => {
+        const matchesSearch =
+          order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          order.products.some((item) =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        const matchesStatus =
+          selectedStatus === "All" || order.orderStatus === selectedStatus;
+        return matchesSearch && matchesStatus;
+      })
+      .map((order, index) => ({ ...order, idx: index + 1 }));
   }, [orders, searchTerm, selectedStatus]);
 
   const getStatusTag = (orderStatus) => {
@@ -73,11 +77,14 @@ const OrderHistory = () => {
       render: (status) => getStatusTag(status),
     },
     {
-      title: "Order Date",
+      title: "Ngày đặt",
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (date) => (date ? format(new Date(date), "MM/dd/yyyy") : "N/A"),
+      render: (date) => {
+        console.log("Giá trị date:", date);
+        return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
+      },
     },
     {
       title: "Actions",
