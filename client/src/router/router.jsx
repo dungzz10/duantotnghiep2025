@@ -41,11 +41,9 @@ import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
 import UserAdminPage from "../features/admin/adminer/UserAdminPage";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
-<<<<<<< HEAD
 import FavouritePage from "../features/favourite/FavouritePage";
-=======
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
->>>>>>> 2345b179fa7fe8f1fc8714322f57232e20a01646
+
 export const router = createBrowserRouter([
   {
     path: "/",

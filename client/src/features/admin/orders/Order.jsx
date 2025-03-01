@@ -10,11 +10,7 @@ import {
   Popconfirm,
   message,
 } from "antd";
-import {
-  SearchOutlined,
-  EyeOutlined,
-  CloseOutlined,
-} from "@ant-design/icons"; // Thêm EditOutlined
+import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons"; // Thêm EditOutlined
 import { format } from "date-fns";
 
 const { Option } = Select;
@@ -25,16 +21,21 @@ const Order = () => {
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingStatus, setEditingStatus] = useState(selectedOrder?.orderStatus || "pending");
-  
+  const [editingStatus, setEditingStatus] = useState(
+    selectedOrder?.orderStatus || "pending"
+  );
+
   const fetchOrders = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
-      const userInfo = JSON.parse(localStorage.getItem("userInfo")); 
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       const isAdmin = userInfo?.role === "admin";
-      const response = await axios.get(`/orders/?adminView=${isAdmin ? "false" : "true"}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `/orders/?adminView=${isAdmin ? "false" : "true"}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setOrders(response.data.orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -47,18 +48,22 @@ const Order = () => {
   }, [fetchOrders]);
 
   const filteredOrders = useMemo(() => {
-    return orders.filter((order) => {
-      const matchesSearch =
-        order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (order.userId?.name && order.userId.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        order.products.some((item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      const matchesStatus =
-        selectedStatus === "All" || order.orderStatus === selectedStatus;
-      return matchesSearch && matchesStatus;
-    })
-    .map((order, index) => ({ ...order, idx: index + 1 }));
+    return orders
+      .filter((order) => {
+        const matchesSearch =
+          order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (order.userId?.name &&
+            order.userId.name
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          order.products.some((item) =>
+            item.name.toLowerCase().includes(searchTerm.toLowerCase())
+          );
+        const matchesStatus =
+          selectedStatus === "All" || order.orderStatus === selectedStatus;
+        return matchesSearch && matchesStatus;
+      })
+      .map((order, index) => ({ ...order, idx: index + 1 }));
   }, [orders, searchTerm, selectedStatus]);
 
   const getStatusTag = (orderStatus) => {
@@ -72,7 +77,6 @@ const Order = () => {
     return <Tag color={colors[orderStatus] || "default"}>{orderStatus}</Tag>;
   };
 
-
   const handleCancelOrder = async (orderId) => {
     try {
       await axios.delete(`/orders/${orderId}`);
@@ -85,13 +89,15 @@ const Order = () => {
   };
   const handleUpdateStatus = async () => {
     try {
-        await axios.patch(`/orders/orderStatus/${selectedOrder._id}`, { orderStatus: editingStatus });
-        fetchOrders();
-        setIsModalVisible(false);
+      await axios.patch(`/orders/orderStatus/${selectedOrder._id}`, {
+        orderStatus: editingStatus,
+      });
+      fetchOrders();
+      setIsModalVisible(false);
     } catch (error) {
-        console.error("Error updating status:", error);
+      console.error("Error updating status:", error);
     }
-};
+  };
   const columns = [
     { title: "#", dataIndex: "idx", key: "idx" },
     {
@@ -104,12 +110,12 @@ const Order = () => {
       dataIndex: "userId",
       key: "userId",
       render: (user) => user?.name || "Unknown",
-    },    
+    },
     {
       title: "Số lượng",
       dataIndex: "products",
       key: "products",
-      render: (products) => 
+      render: (products) =>
         products.reduce((total, item) => total + item.quantity, 0),
     },
     {
@@ -141,10 +147,10 @@ const Order = () => {
       key: "actions",
       render: (_, record) => (
         <div>
-          {record.status !== "failed" && (
+          {record.orderStatus !== "cancelled" && (
             <Popconfirm
               title="Xoá đơn ?"
-              onConfirm={() => handleCancelOrder(record.orderId)}
+              onConfirm={() => handleCancelOrder(record._id)}
               okText="Yes"
               cancelText="No"
             >
@@ -158,6 +164,7 @@ const Order = () => {
             icon={<EyeOutlined />}
             onClick={() => {
               setSelectedOrder(record);
+              setEditingStatus(record.orderStatus);
               setIsModalVisible(true);
             }}
           >
@@ -202,41 +209,88 @@ const Order = () => {
 
       {/* Modal để hiển thị chi tiết đơn hàng */}
       <Modal
-            title="Chi tiết đơn hàng"
-            visible={isModalVisible}
-            onCancel={() => setIsModalVisible(false)}
-            footer={[
-              <Button key="save" type="primary" onClick={handleUpdateStatus}>Lưu</Button>,
-                <Button key="close" onClick={() => setIsModalVisible(false)}>Đóng</Button>
-            ]}
-            width={900}
-        >
-            {selectedOrder && (
-                <div>
-                    <p><strong>ID:</strong> {selectedOrder._id}</p>
-                    <p><strong>Date:</strong> {format(new Date(selectedOrder.date), "MM/dd/yyyy")}</p>
-                    <p><strong>Status:</strong> 
-                        <Select defaultValue={editingStatus} onChange={setEditingStatus} style={{ width: 200, marginLeft: 10 }}>
-                            <Option value="pending">Pending</Option>
-                            <Option value="processing">Processing</Option>
-                            <Option value="shipped">Shipped</Option>
-                            <Option value="delivered">Delivered</Option>
-                            <Option value="cancelled">Cancelled</Option>
-                        </Select>
-                    </p>
-                    <h4><strong>Products:</strong></h4>
-                    <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-                        {selectedOrder.products.map((item, idx) => (
-                            <div key={idx} style={{ display: "flex", gap: "20px", marginBottom: "15px", alignItems: "center" }}>
-                                <img src={item.image} alt={item.name} style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "10px" }} />
-                                <span style={{ fontSize: "16px" }}>{item.name} (x{item.quantity}) - {item.price} VNĐ - {item.size} - {item.color}</span>
-                            </div>
-                        ))}
-                    </div>
-                    <p><strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ</p>
+        title="Chi tiết đơn hàng"
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={
+          selectedOrder?.orderStatus !== "cancelled"
+            ? [
+                <Button key="save" type="primary" onClick={handleUpdateStatus}>
+                  Lưu
+                </Button>,
+                <Button key="close" onClick={() => setIsModalVisible(false)}>
+                  Đóng
+                </Button>,
+              ]
+            : [
+                <Button key="close" onClick={() => setIsModalVisible(false)}>
+                  Đóng
+                </Button>,
+              ]
+        }
+        width={900}
+      >
+        {selectedOrder && (
+          <div>
+            <p>
+              <strong>ID:</strong> {selectedOrder._id}
+            </p>
+            <p>
+              <strong>Date:</strong>{" "}
+              {format(new Date(selectedOrder.date), "MM/dd/yyyy")}
+            </p>
+            <p>
+              <strong>Status:</strong>
+              <Select
+                value={editingStatus}
+                onChange={setEditingStatus}
+                disabled={selectedOrder.orderStatus === "cancelled"}
+                style={{ width: 200, marginLeft: 10 }}
+              >
+                <Option value="pending">Pending</Option>
+                <Option value="processing">Processing</Option>
+                <Option value="shipped">Shipped</Option>
+                <Option value="delivered">Delivered</Option>
+                <Option value="cancelled">Cancelled</Option>
+              </Select>
+            </p>
+            <h4>
+              <strong>Products:</strong>
+            </h4>
+            <div style={{ maxHeight: "500px", overflowY: "auto" }}>
+              {selectedOrder.products.map((item, idx) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: "flex",
+                    gap: "20px",
+                    marginBottom: "15px",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                      borderRadius: "10px",
+                    }}
+                  />
+                  <span style={{ fontSize: "16px" }}>
+                    {item.name} (x{item.quantity}) - {item.price} VNĐ -{" "}
+                    {item.size} - {item.color}
+                  </span>
                 </div>
-            )}
-        </Modal>
+              ))}
+            </div>
+            <p>
+              <strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ
+            </p>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
