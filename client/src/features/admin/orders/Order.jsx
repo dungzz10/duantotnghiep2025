@@ -50,6 +50,7 @@ const Order = () => {
     return orders.filter((order) => {
       const matchesSearch =
         order.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (order.userId?.name && order.userId.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
         order.products.some((item) =>
           item.name.toLowerCase().includes(searchTerm.toLowerCase())
         );
