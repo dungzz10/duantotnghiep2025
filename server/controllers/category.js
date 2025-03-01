@@ -72,6 +72,7 @@ export const createCategory = async function (req, res) {
         message: "danh mục đã tồn tại",
       });
     }
+    console.log(req.body);
     const category = await Category.create(req.body);
     if (!category) {
       return res.status(404).json({

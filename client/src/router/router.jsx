@@ -23,10 +23,8 @@ import ResetPassword from "../features/resetpassword/ResetPassword";
 import Register from "../features/signup/Register";
 import LayoutAdmin from "../layouts/LayoutAdmin";
 import LayoutClient from "../layouts/LayoutClient";
-
 import CategoriesAdmin from "../features/admin/categories/Categories";
 import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
-import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdmin";
 import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
 import LoginAdmin from "../features/admin/login/LoginAdmin";
@@ -44,6 +42,7 @@ import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
 import UserAdminPage from "../features/admin/adminer/UserAdminPage";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
+import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -161,7 +160,7 @@ export const router = createBrowserRouter([
         children: [
           { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
           { path: "addcategoriesadmin", element: <AddCategoriesAdmin /> },
-          { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
+          { path: ":id/update", element: <UppdateCategoriesAdmin /> },
         ],
       },
       {

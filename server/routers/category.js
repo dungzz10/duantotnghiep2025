@@ -7,8 +7,8 @@ const RouterCategory = express.Router();
 RouterCategory.get("/", getAllCategory);
  RouterCategory.get("/getall", getAllCategorynoProduct);
 RouterCategory.get("/:id", getOneCategory);
-RouterCategory.post("/create", isAuththenticated, createCategory);
-RouterCategory.put("/:id/edit", isAuththenticated, updateCategory);
+RouterCategory.post("/create", createCategory);
+RouterCategory.put("/:id/edit", updateCategory);
 RouterCategory.delete("/:id/delete", removeCategory);
 
-export default RouterCategory; 
+export default RouterCategory;
