@@ -10,8 +10,12 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
   if (!userId) {
     return next(new HandelError("Người dùng chưa đăng nhập", 401));
   }
+  let filter = { userId };
 
-  const filter = role === "admin" || role === "superadmin" ? {} : { userId };
+  if ((role === "admin" || role === "superadmin") && req.query.adminView === "true") {
+    filter = {};
+  }
+  
 
   const orders = await Order.find(filter)
     .populate("userId", "name")

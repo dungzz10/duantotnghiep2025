@@ -29,7 +29,12 @@ const Order = () => {
   
   const fetchOrders = useCallback(async () => {
     try {
-      const response = await axios.get("/orders/");
+      const token = localStorage.getItem("token");
+      const userInfo = JSON.parse(localStorage.getItem("userInfo")); 
+      const isAdmin = userInfo?.role === "admin";
+      const response = await axios.get(`/orders/?adminView=${isAdmin ? "false" : "true"}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setOrders(response.data.orders);
     } catch (error) {
       console.error("Error fetching orders:", error);
