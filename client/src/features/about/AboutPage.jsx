@@ -112,9 +112,9 @@ const AboutPage = () => {
           </div>
           <div className="overflow-hidden">
             <img
-              src="https://lh3.googleusercontent.com/6euB1qM538WNYNFPEl1w1sNM00sTlgr0KBRqk_CeOlMFGOqq2yEBqe49HIldpfv8oVypbiwsdoQ6VMUsamiyGr_JibvyKUon85vMJtAxihuOC80xF_6le7hsx3ptiYce1N5pEGDCRNDL9I2X4kZ5AXY"
+              src="https://www.chuphinhsanpham.vn/wp-content/uploads/2021/06/chup-hinh-giay-dincox-shoes-c-photo-studio-5.jpg"
               alt
-              classname="hover:scale-125 duration-1000 "
+              classname="hover:scale-125 duration-1000 h-30 "
             />
           </div>
         </div>

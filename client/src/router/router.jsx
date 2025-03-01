@@ -2,7 +2,6 @@ import { createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "../features/404/NotFoundPage";
 import HomePage from "../features/HomePage";
 import AboutPage from "../features/about/AboutPage";
-import AccessoryPage from "../features/accessory/AccessoryPage";
 import Customer from "../features/admin/customers/customer";
 import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
@@ -44,6 +43,7 @@ import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
 import UserAdminPage from "../features/admin/adminer/UserAdminPage";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
+import FavouritePage from "../features/favourite/FavouritePage";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -59,8 +59,8 @@ export const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "/accessory",
-        element: <AccessoryPage />,
+        path: "/favourite ",
+        element: <FavouritePage />,
       },
       {
         path: "/product/sale",
@@ -148,12 +148,11 @@ export const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
 
       { path: "inventory", element: <Iventory /> },
-      { path: "useradmin", element: <UserAdminPage />,
-        children: [
-          {path: "listuseradmin", element: <UserAdminList />},
-        ]
-
-       },
+      {
+        path: "useradmin",
+        element: <UserAdminPage />,
+        children: [{ path: "listuseradmin", element: <UserAdminList /> }],
+      },
       { path: "orders", element: <Order /> },
       {
         path: "categories",
