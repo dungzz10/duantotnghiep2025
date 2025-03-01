@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Table, Space, Tag, Input, Select } from "antd";
+import { Table, Space, Tag, Input, Select, Modal, message, Switch } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import usedeactiveuser from "./usedectiveuser";
 import { useUserAdmin } from "./useuseradmin";
 
 const { Search } = Input;
 const { Option } = Select;
+const { confirm } = Modal;
 
 const ListUserAdmin = () => {
   const { data, isLoading } = useUserAdmin();
+  const { mutate, isLoading: isLoadingdeactive } = usedeactiveuser();
   console.log(data);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -64,6 +68,25 @@ const ListUserAdmin = () => {
     setFilteredUsers(filtered);
   };
 
+  // Hàm xử lý xóa người dùng
+  const handleDelete = (userId, userName) => {
+    confirm({
+      title: "Xác nhận xóa người dùng",
+      icon: <ExclamationCircleOutlined />,
+      content: `Bạn có chắc chắn muốn xóa người dùng "${userName}" không?`,
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
+      onOk() {
+        console.log("Xóa người dùng:", userId);
+        message.success(`Đã xóa người dùng ${userName}`);
+      },
+      onCancel() {
+        console.log("Hủy xóa");
+      },
+    });
+  };
+
   const columns = [
     {
       title: "Name",
@@ -87,11 +110,38 @@ const ListUserAdmin = () => {
       title: "Active",
       dataIndex: "active",
       key: "active",
-      render: (active) => (
-        <Tag color={active ? "green" : "volcano"}>
-          {active ? "Active" : "Inactive"}
-        </Tag>
-      ),
+      render: (active, record) => {
+        const handleStatusChange = () => {
+          Modal.confirm({
+            title: `${active ? "Vô hiệu hóa" : "Kích hoạt"} tài khoản`,
+            icon: <ExclamationCircleOutlined />,
+            content: `Bạn có chắc chắn muốn ${
+              active ? "vô hiệu hóa" : "kích hoạt"
+            } tài khoản của "${record.name}"?`,
+            okText: "Xác nhận",
+            okType: active ? "danger" : "primary",
+            cancelText: "Hủy",
+            onOk() {
+              console.log("id1", record._id);
+
+              mutate(record._id);
+            },
+          });
+        };
+
+        return (
+          <Space>
+            <Tag color={active ? "green" : "volcano"}>
+              {active ? "Active" : "Inactive"}
+            </Tag>
+            <Switch
+              checked={active}
+              onChange={handleStatusChange}
+              loading={isLoadingdeactive}
+            />
+          </Space>
+        );
+      },
     },
     {
       title: "Balance",
@@ -104,8 +154,13 @@ const ListUserAdmin = () => {
       render: (_, record) => (
         <Space size="middle">
           <a href={`/admin/customers/detail/${record._id}`}>Xem chi tiết</a>
-          <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
-          <a href={`/users/delete/${record._id}`}>Delete</a>
+          {/* <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
+          <a
+            onClick={() => handleDelete(record._id, record.name)}
+            style={{ color: "#ff4d4f" }}
+          >
+            Delete
+          </a> */}
         </Space>
       ),
     },
