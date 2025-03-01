@@ -1,22 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
-import {
-  Table,
-  Input,
-  Select,
-  Tag,
-  Modal,
-  Button,
-  Popconfirm,
-  message,
-} from "antd";
-import {
-  SearchOutlined,
-  EyeOutlined,
-  EditOutlined,
-  CheckOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
+import { Table, Input, Select, Tag, Modal, Button, message } from "antd";
+import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 
 const { Option } = Select;
@@ -52,7 +37,8 @@ const OrderHistory = () => {
       const matchesStatus =
         selectedStatus === "All" || order.orderStatus === selectedStatus;
       return matchesSearch && matchesStatus;
-    });
+    })
+    .map((order, index) => ({ ...order, idx: index + 1 }));
   }, [orders, searchTerm, selectedStatus]);
 
   const getStatusTag = (orderStatus) => {
@@ -66,62 +52,12 @@ const OrderHistory = () => {
     return <Tag color={colors[orderStatus] || "default"}>{orderStatus}</Tag>;
   };
 
-  const handleStatusChange = async (orderStatus, orderId) => {
-    try {
-      await axios.patch(`/orders/${orderId}/orderStatus`, { orderStatus });
-      message.success(`Order ${orderId} orderStatus updated to ${orderStatus}`);
-      fetchOrders(); // Refresh the orders list
-    } catch (error) {
-      console.error("Error updating orderStatus:", error);
-      message.error("Có lỗi xảy ra khi cập nhật trạng thái.");
-    }
-  };
-
-  const handleCancelOrder = async (orderId) => {
-    try {
-      await axios.delete(`/orders/${orderId}`);
-      message.success(`Đơn ${orderId} đã được xoá.`);
-      fetchOrders();
-    } catch (error) {
-      console.error("Error canceling order:", error);
-      message.error("Có lỗi xảy ra khi hủy đơn hàng.");
-    }
-  };
-
   const columns = [
+    { title: "#", dataIndex: "idx", key: "idx" },
     {
-      title: "Order Date",
-      dataIndex: "date",
-      key: "date",
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
-      render: (date) => {
-        console.log("Giá trị date:", date);
-        return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
-      },
-    },
-    {
-      title: "Order Number",
-      dataIndex: "orderId",
-      key: "orderId",
-    },
-    {
-      title: "Product",
-      dataIndex: "products",
-      key: "products",
-      render: (products) =>
-        Array.isArray(products) && products.length > 0 ? (
-          <ul>
-            {products.map((item, idx) => (
-              <li key={idx}>
-                {item.productId?.name || item.name || "Unknown"} (x
-                {item.quantity}) - $
-                {(item.productId?.price || item.price || 0).toFixed(2)}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <span>No products</span>
-        ),
+      title: "ID",
+      dataIndex: "_id",
+      key: "_id",
     },
     {
       title: "Total Amount",
@@ -134,58 +70,36 @@ const OrderHistory = () => {
       title: "Status",
       dataIndex: "orderStatus",
       key: "orderStatus",
-      filters: [
-        { text: "Completed", value: "completed" },
-        { text: "Pending", value: "pending" },
-        { text: "Failed", value: "failed" },
-      ],
-      onFilter: (value, record) => record.orderStatus === value,
       render: (status) => getStatusTag(status),
+    },
+    {
+      title: "Order Date",
+      dataIndex: "date",
+      key: "date",
+      sorter: (a, b) => new Date(a.date) - new Date(b.date),
+      render: (date) => (date ? format(new Date(date), "MM/dd/yyyy") : "N/A"),
     },
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
-        <div>
-          {record.status !== "completed" && (
-            <Button
-              type="link"
-              icon={<CheckOutlined />}
-              onClick={() => handleStatusChange("completed", record.orderId)}
-            >
-              Mark as Completed
-            </Button>
-          )}
-          {record.status !== "failed" && (
-            <Popconfirm
-              title="Are you sure you want to cancel this order?"
-              onConfirm={() => handleCancelOrder(record.orderId)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="link" icon={<CloseOutlined />}>
-                Cancel Order
-              </Button>
-            </Popconfirm>
-          )}
-          <Button
-            type="link"
-            icon={<EyeOutlined />}
-            onClick={() => {
-              setSelectedOrder(record);
-              setIsModalVisible(true);
-            }}
-          >
-            View
-          </Button>
-        </div>
+        <Button
+          type="link"
+          icon={<EyeOutlined />}
+          onClick={() => {
+            setSelectedOrder(record);
+            setIsModalVisible(true);
+          }}
+        >
+          View Details
+        </Button>
       ),
     },
   ];
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Order Management</h2>
+      <h2>Order History</h2>
       <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
         <Input
           placeholder="Search orders..."
@@ -199,9 +113,11 @@ const OrderHistory = () => {
           style={{ width: "150px" }}
         >
           <Option value="All">All Statuses</Option>
-          <Option value="completed">Completed</Option>
           <Option value="pending">Pending</Option>
-          <Option value="failed">Failed</Option>
+          <Option value="processing">Processing</Option>
+          <Option value="shipped">Shipped</Option>
+          <Option value="delivered">Delivered</Option>
+          <Option value="cancelled">Cancelled</Option>
         </Select>
       </div>
 
@@ -222,9 +138,6 @@ const OrderHistory = () => {
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Close
           </Button>,
-           <Button key="edit" type="primary" icon={<EditOutlined />}>
-           Edit
-         </Button>,
         ]}
       >
         {selectedOrder && (
@@ -233,21 +146,45 @@ const OrderHistory = () => {
               <strong>Order Number:</strong> {selectedOrder.orderId}
             </p>
             <p>
-              <strong>Date:</strong> {format(selectedOrder.date, "MM/dd/yyyy")}
+              <strong>Date:</strong>{" "}
+              {format(new Date(selectedOrder.date), "MM/dd/yyyy")}
             </p>
             <p>
-            <strong>Status:</strong> {getStatusTag(selectedOrder.orderStatus)}
+              <strong>Status:</strong> {getStatusTag(selectedOrder.orderStatus)}
             </p>
-            <h4>Items:</h4>
-            <ul>
+            <h4>
+              <strong>Products:</strong>
+            </h4>
+            <div style={{ maxHeight: "500px", overflowY: "auto" }}>
               {selectedOrder.products.map((item, idx) => (
-                <li key={idx}>
-                  {item.name} (x{item.quantity}) - ${item.price}
-                </li>
+                <div
+                  key={idx}
+                  style={{
+                    display: "flex",
+                    gap: "20px",
+                    marginBottom: "15px",
+                    alignItems: "center",
+                  }}
+                >
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      objectFit: "cover",
+                      borderRadius: "10px",
+                    }}
+                  />
+                  <span style={{ fontSize: "16px" }}>
+                    {item.name} (x{item.quantity}) - {item.price} VNĐ -{" "}
+                    {item.size} - {item.color}
+                  </span>
+                </div>
               ))}
-            </ul>
+            </div>
             <p>
-              <strong>Total Amount:</strong> ${selectedOrder.amount}
+              <strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ
             </p>
           </div>
         )}
