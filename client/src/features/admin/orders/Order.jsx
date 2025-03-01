@@ -79,8 +79,10 @@ const Order = () => {
 
   const handleCancelOrder = async (orderId) => {
     try {
-      await axios.delete(`/orders/${orderId}`);
-      message.success(`Đơn ${orderId} đã được xoá.`);
+      await axios.patch(`/orders/orderStatus/${orderId}`, {
+        orderStatus: "cancelled",
+      });
+      message.success(`Đơn ${orderId} đã được hủy.`);
       fetchOrders();
     } catch (error) {
       console.error("Error canceling order:", error);
@@ -204,7 +206,7 @@ const Order = () => {
         columns={columns}
         dataSource={filteredOrders}
         rowKey="orderId"
-        pagination={{ pageSize: 10 }}
+        pagination={{ pageSize: 6 }}
       />
 
       {/* Modal để hiển thị chi tiết đơn hàng */}
