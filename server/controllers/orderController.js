@@ -3,6 +3,14 @@ import HandelError from "../utils/Error.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import mongoose from "mongoose";
 
+const validStatuses = [
+  "pending",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+];
+
 export const getAllOrders = CatchAsync(async (req, res, next) => {
   const { id: userId, role } = req.user;
   console.log("id", userId);
@@ -28,6 +36,11 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
   if (!orders || orders.length === 0) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
+  orders.sort((a, b) => {
+    const indexA = validStatuses.indexOf(a.orderStatus);
+    const indexB = validStatuses.indexOf(b.orderStatus);
+    return indexA - indexB;
+  });
 
   res.status(200).json({ success: true, orders });
 });
@@ -113,29 +126,33 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
   const { orderStatus } = req.body;
 
-  const validStatuses = [
-    "pending",
-    "processing",
-    "shipped",
-    "delivered",
-    "cancelled",
-  ];
-  if (orderStatus && !validStatuses.includes(orderStatus)) {
+  if (!validStatuses.includes(orderStatus)) {
     return next(new HandelError("Trạng thái đơn hàng không hợp lệ", 400));
   }
 
-  const order = await Order.findByIdAndUpdate(
-    orderId,
-    { orderStatus },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
+  const order = await Order.findById(orderId);
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
+
+  const currentStatusIndex = validStatuses.indexOf(order.orderStatus);
+  const newStatusIndex = validStatuses.indexOf(orderStatus);
+
+  if (currentStatusIndex === -1 || newStatusIndex === -1) {
+    return next(new HandelError("Trạng thái đơn hàng không hợp lệ", 400));
+  }
+
+  if (newStatusIndex < currentStatusIndex) {
+    return next(new HandelError("Không thể cập nhật trạng thái ngược lại", 400));
+  }
+
+  if (order.orderStatus === "cancelled") {
+    return next(new HandelError("Đơn hàng đã bị hủy và không thể cập nhật", 400));
+  }
+
+  order.orderStatus = orderStatus;
+  await order.save();
 
   res.status(200).json({
     success: true,
