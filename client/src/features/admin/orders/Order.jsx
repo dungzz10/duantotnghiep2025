@@ -94,23 +94,11 @@ const Order = () => {
       key: "_id",
     },
     {
-      title: "Product",
-      dataIndex: "products",
-      key: "products",
-      render: (products) =>
-        Array.isArray(products) && products.length > 0 ? (
-          <ul>
-            {products.map((item, idx) => (
-              <li key={idx}>
-                {item.productId?.name || item.name || "Unknown"} (x
-                {item.quantity}) - {item.productId?.price || item.price || 0} VNĐ
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <span>No products</span>
-        ),
-    },
+      title: "Tên khách hàng",
+      dataIndex: "userId",
+      key: "userId",
+      render: (user) => user?.name || "Unknown",
+    },    
     {
       title: "Số lượng",
       dataIndex: "products",
@@ -119,21 +107,21 @@ const Order = () => {
         products.reduce((total, item) => total + item.quantity, 0),
     },
     {
-      title: "Total Amount",
+      title: "Tổng tiền",
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
       render: (amount) => `${amount} VNĐ`,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "orderStatus",
       key: "orderStatus",
       onFilter: (value, record) => record.orderStatus === value,
       render: (status) => getStatusTag(status),
     },
     {
-      title: "Order Date",
+      title: "Ngày đặt",
       dataIndex: "date",
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
@@ -143,7 +131,7 @@ const Order = () => {
       },
     },
     {
-      title: "Actions",
+      title: "Hành động",
       key: "actions",
       render: (_, record) => (
         <div>
