@@ -51,7 +51,8 @@ const Order = () => {
       const matchesStatus =
         selectedStatus === "All" || order.orderStatus === selectedStatus;
       return matchesSearch && matchesStatus;
-    });
+    })
+    .map((order, index) => ({ ...order, idx: index + 1 }));
   }, [orders, searchTerm, selectedStatus]);
 
   const getStatusTag = (orderStatus) => {
@@ -86,10 +87,11 @@ const Order = () => {
     }
 };
   const columns = [
+    { title: "#", dataIndex: "idx", key: "idx" },
     {
       title: "ID",
-      dataIndex: "orderId",
-      key: "orderId",
+      dataIndex: "_id",
+      key: "_id",
     },
     {
       title: "Product",
@@ -101,7 +103,7 @@ const Order = () => {
             {products.map((item, idx) => (
               <li key={idx}>
                 {item.productId?.name || item.name || "Unknown"} (x
-                {item.quantity}) - ${item.productId?.price || item.price || 0}
+                {item.quantity}) - {item.productId?.price || item.price || 0} VNĐ
               </li>
             ))}
           </ul>
@@ -121,7 +123,7 @@ const Order = () => {
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
-      render: (amount) => `${amount}`,
+      render: (amount) => `${amount} VNĐ`,
     },
     {
       title: "Status",
@@ -233,11 +235,11 @@ const Order = () => {
                         {selectedOrder.products.map((item, idx) => (
                             <div key={idx} style={{ display: "flex", gap: "20px", marginBottom: "15px", alignItems: "center" }}>
                                 <img src={item.image} alt={item.name} style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "10px" }} />
-                                <span style={{ fontSize: "16px" }}>{item.name} (x{item.quantity}) - ${item.price}</span>
+                                <span style={{ fontSize: "16px" }}>{item.name} (x{item.quantity}) - {item.price} VNĐ - {item.size} - {item.color}</span>
                             </div>
                         ))}
                     </div>
-                    <p><strong>Tổng tiền:</strong> ${selectedOrder.amount}</p>
+                    <p><strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ</p>
                 </div>
             )}
         </Modal>
