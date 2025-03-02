@@ -6,9 +6,9 @@ import {
   updateProduct,
   softDeleteProduct,
   restoreProduct,
-  getAllProductsisDelete,
-  updateWarehouseStock,
-  updateProductVariants,
+  getAllProductsisDelete
+  // updateWarehouseStock,
+  // updateProductVariants,
 } from "../controllers/productControll.js";
 import { isAuththenticated } from "../middlewares/auth.js";
 
