@@ -6,7 +6,8 @@ import {
   updateProduct,
   softDeleteProduct,
   restoreProduct,
-  getAllProductsisDelete,
+  getAllProductsisDelete
+
 } from "../controllers/productControll.js";
 import { isAuththenticated } from "../middlewares/auth.js";
 
@@ -20,6 +21,7 @@ productRouter.put("/:id", isAuththenticated, updateProduct);
 productRouter.put("/delete/:id", isAuththenticated, softDeleteProduct);
 productRouter.put("/khoiphuc/:id", isAuththenticated, restoreProduct);
 // productRouter.post(":id", createProduct);
+
 
 // Quản lý biến thể và kho hàng
 productRouter.post("/:productId/variants", isAuththenticated, addVariant);
@@ -38,5 +40,6 @@ productRouter.put(
   isAuththenticated,
   updateInventory
 );
+
 
 export default productRouter;

@@ -4,7 +4,7 @@ import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
 import User from "../models/usersModel.js";
 import mongoose from "mongoose";
-import Reviews from "../models/reviewModel.js";
+import reviewModel from "../models/reviewModel.js";
 // import Category from "../models/category";
 // list san pham
 
@@ -90,34 +90,35 @@ export const createProduct = CatchAsync(async (req, res, next) => {
     );
   }
 
-  //   //lấy tất cả đánh giá của  sản phẩm
-  //   const reviews = await Reviews.find({ productId: product._id });
-  //   //nếu có đánh giá tính rating trung bình
-  //   if (reviews.length > 0) {
-  //     const totalRating = reviews.reduce(
-  //       (acc, review) => acc + review.rating,
-  //       0)
-  //     const averageRating = totalRating / reviews.length;
-  //   };
-  //   //cập nhật rating trung bình cho sản phẩm
-  //   product.rating = averageRating;
-  //   await product.save();
-  // //chưa có bắt lỗi
-  // Lấy tất cả đánh giá của sản phẩm
-  const reviews = await Reviews.find({ productId: product._id });
+//   //lấy tất cả đánh giá của  sản phẩm
+//   const reviews = await Reviews.find({ productId: product._id });
+//   //nếu có đánh giá tính rating trung bình 
+//   if (reviews.length > 0) {
+//     const totalRating = reviews.reduce(
+//       (acc, review) => acc + review.rating,
+//       0)
+//     const averageRating = totalRating / reviews.length;
+//   };
+//   //cập nhật rating trung bình cho sản phẩm 
+//   product.rating = averageRating;
+//   await product.save();
+// //chưa có bắt lỗi 
+// Lấy tất cả đánh giá của sản phẩm
+const reviews = await Reviews.find({ productId: product._id });
 
-  // Khởi tạo rating trung bình
-  let averageRating = 1;
+// Khởi tạo rating trung bình
+let averageRating = 1;
 
-  // Nếu có đánh giá thì tính toán trung bình
-  if (reviews.length > 0) {
-    const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
-    averageRating = totalRating / reviews.length;
-  }
+// Nếu có đánh giá thì tính toán trung bình
+if (reviews.length > 0) {
+  const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
+  averageRating = totalRating / reviews.length;
+}
 
-  // Cập nhật rating trung bình cho sản phẩm
-  product.rating = averageRating;
-  await product.save();
+// Cập nhật rating trung bình cho sản phẩm
+product.rating = averageRating;
+await product.save();
+
 
   // Trả về phản hồi thành công
   res.status(201).json({
@@ -201,23 +202,17 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
 export const getSingleProducts = async (req, res) => {
   try {
     const productId = req.params.id;
-    const product = await Product.findById(productId).populate(
-      "user",
-      "email username"
-    );
+    const product = await Product.findById(productId).populate("user", "email username");
     if (!product) {
-      return res.status(404).send({ message: "Product not found" });
+        return res.status(404).send({ message: "Product not found" })
     }
-    const reviews = await Reviews.find({ productId }).populate(
-      "userId",
-      "username email"
-    );
-    res.status(200).send({ product, reviews });
-  } catch (error) {
+    const reviews = await reviewModel.find({ productId }).populate("userId", "username email");
+    res.status(200).send({ product, reviews })
+} catch (error) {
     console.error("error fetching  product", error);
-    res.status(500).send({ message: "failed to fetch the product" });
-  }
-};
+    res.status(500).send({ message: "failed to fetch the product" })
+}
+}
 export const updateProduct = CatchAsync(async (req, res, next) => {
   const product = await Product.findByIdAndUpdate(
     { _id: req.params.id },
@@ -293,43 +288,44 @@ export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
   excludedFields.forEach((el) => delete queryObj[el]);
 
+  // Thêm điều kiện cho isDeleted (bao gồm cả true và false)
+  console.log(queryObj);
+
   // Xử lý toán tử tìm kiếm theo biểu thức chính quy
   if (req.query.title) {
     queryObj.title = { $regex: req.query.title, $options: "i" };
   }
 
-  // Chuyển đổi các toán tử thành cú pháp MongoDB
+  // Chuyển đổi các toán tử thành cú pháp MongoDB (vd: gte -> $gte)
   let queryString = JSON.stringify(queryObj);
   queryString = queryString.replace(
     /\b(gte|gt|lte|lt|in|ne)\b/g,
     (value) => `$${value}`
   );
 
-  // Tạo truy vấn cơ bản với populate cho category
-  let query = Product.find(JSON.parse(queryString)).populate({
-    path: "category",
-    select: "name -_id", // Chỉ lấy trường name, loại bỏ _id
-  });
+  // Tạo truy vấn cơ bản
+  let query = Product.find(JSON.parse(queryString));
 
   // Xử lý sắp xếp
   if (req.query.sort) {
-    const sortBy = req.query.sort.split(",").join(" ");
+    const sortBy = req.query.sort.split(",").join(" "); // Chuyển "price,rating" thành "price rating"
     query = query.sort(sortBy);
   } else {
-    query = query.sort("-createdAt");
+    query = query.sort("-createdAt"); // Mặc định sắp xếp theo createdAt giảm dần
   }
 
-  const countproduct = await Product.countDocuments(JSON.parse(queryString));
+  const countproduct = await Product.countDocuments(query);
 
-  // Giới hạn trường dữ liệu
+  // Giới hạn trường dữ liệu trả về từ truy vấn
   if (req.query.fields) {
-    const fields = req.query.fields.replace(/,/g, " ");
+    const fields = req.query.fields.replace(/,/g, " "); // Chuyển danh sách trường từ dạng "name,price" thành "name price"
     query = query.select(fields);
   }
 
   // Thực hiện truy vấn
   const products = await query;
   console.log("products", products);
+
 
   const transformedProducts = products.map((product) => {
     const plainProduct = product.toObject();
@@ -344,8 +340,8 @@ export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
   // Phản hồi kết quả
   res.status(201).json({
     success: true,
-    productLength: transformedProducts.length,
-    products: transformedProducts,
+    productLength: products.length,
+    products,
     countproduct,
   });
 });
