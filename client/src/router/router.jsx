@@ -43,6 +43,7 @@ import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
+import Warehouse from "../features/admin/warehouse/Warehouse";
 
 export const router = createBrowserRouter([
   {
@@ -163,6 +164,7 @@ export const router = createBrowserRouter([
           { path: ":id/update", element: <UppdateCategoriesAdmin /> },
         ],
       },
+      { path: "warehouse", element: <Warehouse /> },
       {
         path: "customers",
         element: <Customer />,

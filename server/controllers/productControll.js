@@ -350,3 +350,49 @@ export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
     countproduct,
   });
 });
+
+
+
+
+
+// Function to update warehouse stock
+export const updateWarehouseStock = CatchAsync(async (req, res, next) => {
+  const { productId, stock } = req.body;
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return next(new HandelError("Product not found", 404));
+  }
+
+  product.warehouseStock = stock;
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Warehouse stock updated successfully",
+    product,
+  });
+});
+
+
+
+// // Function to update product variants
+// export const updateProductVariants = CatchAsync(async (req, res, next) => {
+//   const { productId } = req.params;
+//   const { variants } = req.body;
+//   console.log(productId, variants);
+
+//   const product = await Product.findById(productId);
+//   if (!product) {
+//     return next(new HandelError("Product not found", 404));
+//   }
+
+//   product.variants = variants;
+//   await product.save();
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Product variants updated successfully",
+//     product,
+//   });
+// });
