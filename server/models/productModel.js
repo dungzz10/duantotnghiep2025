@@ -63,7 +63,6 @@ const productSchema = new mongoose.Schema(
         ]
       }
     ],
- 
     condition: {
       type: String,
       enum: {
@@ -83,7 +82,6 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
-
     rating: {
       type: Number,
       default: 4.5,
@@ -94,6 +92,10 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    // warehouseStock: {
+    //   type: Number,
+    //   default: 0,
+    // },
   },
   {
     timestamps: true,
