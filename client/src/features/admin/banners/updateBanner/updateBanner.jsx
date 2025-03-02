@@ -93,7 +93,7 @@ const EditBanner = () => {
                 </div>
 
                 <div>
-                    <label className="block text-gray-700 font-medium">Ảnh Banner</label>
+                <label className="block text-gray-700 font-medium">Ảnh Banner: (kích thước ít nhất 1920x1080).</label>
                     <input
                         type="file"
                         onChange={handleImageChange}
