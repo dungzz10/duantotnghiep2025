@@ -1,6 +1,7 @@
 import Review from "../models/reviewModel.js";
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
+import { checkDeliveredOrder } from "./orderController.js";
 
 //------------------------tạo đánh giá -----------------------
 export const createReview = async (req, res) => {
@@ -10,18 +11,14 @@ export const createReview = async (req, res) => {
             return res.status(400).json({ message: "Tất cả các trường đều bắt buộc" });
         }
 
-        // Kiểm tra xem user đã có đơn hàng 'delivered' với sản phẩm này chưa
-        const hasDeliveredOrder = await Order.findOne({
-            userId,
-            'products.productId': productId,
-            paymentStatus: 'delivered'
-        })
-
-        if(!hasDeliveredOrder ){
+        // Kiểm tra đơn hàng đã được giao hay chưa
+        const delivered = await checkDeliveredOrder({ query: { orderId } });
+        if (!delivered) {
             return res.status(403).json({
-                message: "Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng đã được giao"
-            })
+                message: "Bạn chỉ có thể đánh giá sau khi đơn hàng được giao"
+            });
         }
+
         // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
         const existingReview = await Review.findOne({productId,userId}) 
         //nếu user id có review

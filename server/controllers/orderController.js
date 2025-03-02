@@ -11,6 +11,30 @@ const validStatuses = [
   "cancelled",
 ];
 
+// Kiểm tra xem đơn hàng đã được giao hay chưa
+export const checkDeliveredOrder = async (req, res) => {
+  const { orderId } = req.query;
+  if (!orderId) {
+      return res.status(400).json({ message: "Thiếu orderId" });
+  }
+
+  try {
+      const order = await Order.findOne({
+          _id: orderId,
+          orderStatus: 'delivered'
+      });
+
+      if (!order) {
+          return res.status(404).json({ message: "Đơn hàng chưa được giao hoặc không tồn tại" });
+      }
+
+      return res.status(200).json({ message: "Đơn hàng đã được giao" });
+  } catch (error) {
+      console.error("Lỗi kiểm tra đơn hàng đã giao:", error);
+      return res.status(500).json({ message: "Lỗi server" });
+  }
+};
+
 export const getAllOrders = CatchAsync(async (req, res, next) => {
   const { id: userId, role } = req.user;
   console.log("id", userId);
