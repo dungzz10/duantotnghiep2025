@@ -3,8 +3,11 @@ import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { checkDeliveredOrder, postReview } from "./useReview";
 import { Filter } from "bad-words";
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2'
 
 const PostAReview = ({ isModalOpen, handleClose }) => {
+  const navigate = useNavigate()
   const { id } = useParams();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -12,7 +15,7 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
   const queryClient = useQueryClient();
   //tạo bộ lọc từ cấm 
   const filter = new Filter();
-  filter.addWords("ngu", "dốt", "khùng","điên", "bực","ghét");
+  filter.addWords("ngu", "dốt", "khùng", "điên", "bực", "ghét");
   // Hàm kiểm tra link trong bình luận
   const containsLink = (text) => {
     const urlRegex = /https?:\/\/[^\s]+|www\.[^\s]+/gi; // Regex phát hiện link
@@ -43,10 +46,17 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
     }
     const hasDeliveredOrder = await checkDeliveredOrder(user._id, id);
     if (!hasDeliveredOrder) {
-      alert("Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng đã được giao.");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Bạn chỉ được đánh giá khi đã mua thành công sản phẩm này!",
+      }).then(() => {
+        handleClose(); // Đóng modal
+        navigate(`/products/${id}`);
+      });
       return;
     }
-
+    
     if (filter.isProfane(comment)) {
       alert(`Bình luận của bạn có từ ngữ: (${comment}) bị cấm  `);
       return;
@@ -85,7 +95,7 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
         className="bg-white p-6 rounded-md
              shadow-lg w-96 z-50"
       >
-        <h2 className="text-lg font-medium mb-4">Thêm bình luận :</h2>
+        <h2 className="text-lg font-medium mb-4">Thêm đánh giá :</h2>
         <div className="flex items-center mb-4">
           {[1, 2, 3, 4, 5].map((star) => (
             <span
