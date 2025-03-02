@@ -1,7 +1,8 @@
 // import React, { useEffect, useState } from "react";
 // import { api } from "../../axios/api";
-//import React from "react";
+import React from "react";
 const FavouritePage = () => {
+  
   //   const [accessories, setAccessories] = useState([]);
 
   //   useEffect(() => {
@@ -15,6 +16,7 @@ const FavouritePage = () => {
   //   }, []);
 
   return (
+    <>
     <main>
       <section className="container max-w-screen-xl m-auto mt-16">
         <div className="flex justify-between items-center mb-4">
@@ -148,6 +150,7 @@ const FavouritePage = () => {
         </div>
       </section>
     </main>
+    </>
   );
 };
 
