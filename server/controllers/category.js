@@ -40,7 +40,7 @@ export const getAllCategorynoProduct = async (req, res) => {
 };
 export const getOneCategory = async function (req, res) {
   try {
-    const category = await Category.findById(req.params.id)
+    const category = await Category.findById(req.params.id);
     if (!category) {
       return res.json({
         message: "Không có danh mục nào",
@@ -66,6 +66,7 @@ export const createCategory = async function (req, res) {
       });
     }
     const { name } = req.body;
+    console.log("name", name);
     const categoryExists = await Category.findOne({ name });
     if (categoryExists) {
       return res.status(404).json({
@@ -89,56 +90,70 @@ export const createCategory = async function (req, res) {
     });
   }
 };
-export const updateCategory = async function (req, res) {
+export const updateCategory = async (req, res) => {
   try {
-    const { name } = req.body;
-    const categoryExists = await Category.findOne({ name });
-    if (categoryExists) {
+    const { id } = req.params;
+    const { name, image } = req.body;
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      { name, image },
+      { new: true } // This returns the updated document
+    );
+
+    if (!updatedCategory) {
       return res.status(404).json({
-        message: "danh mục đã tồn tại",
+        success: false,
+        message: "Không tìm thấy danh mục",
       });
     }
-    const category = await Category.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!category) {
-      return res.status(404).json({
-        message: "Cập nhật danh mục không thành công",
-      });
-    }
-    return res.status(200).json({
+
+    res.status(200).json({
+      success: true,
       message: "Cập nhật danh mục thành công",
-      data: category,
+      data: updatedCategory,
     });
   } catch (error) {
-    return res.status(500).json({
-      message: error.message,
+    res.status(500).json({
+      success: false,
+      message: "Lỗi khi cập nhật danh mục",
+      error: error.message,
     });
   }
 };
-export const removeCategory = async function (req, res) {
+export const removeCategory = async (req, res) => {
   try {
-    // Xoá danh mục và sản phẩm liên quan
-    const categories = await Category.findByIdAndDelete(req.params.id);
-    if (!categories) {
+    const { id } = req.params;
+
+    // Find all products with this category
+    const productsToDelete = await Product.find({ category: id });
+
+    // Delete all products first
+    await Product.deleteMany({ category: id });
+
+    // Then delete the category
+    const deletedCategory = await Category.findByIdAndDelete(id);
+
+    if (!deletedCategory) {
       return res.status(404).json({
-        message: "Xóa danh mục thất bại",
+        success: false,
+        message: "Không tìm thấy danh mục",
       });
-    } else {
-      const product = await Product.deleteMany({ CategoryId: req.params.id });
-      if (!product) {
-        return res.status(404).json({
-          message: "Xóa sản phẩm liên quan thất bại",
-        });
-      } else {
-        return res.status(200).json({
-          message: "Đã xoá danh mục và sản phẩm liên quan thành công!",
-        });
-      }
     }
+
+    res.status(200).json({
+      success: true,
+      message: `Đã xóa danh mục và ${productsToDelete.length} sản phẩm liên quan`,
+      data: {
+        category: deletedCategory,
+        deletedProductsCount: productsToDelete.length,
+      },
+    });
   } catch (error) {
-    return res.status(500).json({
-      message: error.message,
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server khi xóa danh mục",
+      error: error.message,
     });
   }
 };

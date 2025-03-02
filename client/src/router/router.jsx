@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "../features/404/NotFoundPage";
 import HomePage from "../features/HomePage";
 import AboutPage from "../features/about/AboutPage";
-import AccessoryPage from "../features/accessory/AccessoryPage";
+
 import Customer from "../features/admin/customers/customer";
 import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
@@ -45,7 +45,8 @@ import UserAdminPage from "../features/admin/adminer/UserAdminPage";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
-import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
+import ProductDetailAdmin from "../features/admin/products/productdetail/ProductDetailAdmin";
+
 import Warehouse from "../features/admin/warehouse/Warehouse";
 
 export const router = createBrowserRouter([
@@ -149,7 +150,6 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-     
       { path: "dashboard", element: <Dashboard /> },
 
       { path: "inventory", element: <Iventory /> },
@@ -159,7 +159,7 @@ export const router = createBrowserRouter([
         element: <CategoriesAdmin />,
         children: [
           { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
-          // { path: "addcategoriesadmin", element: <add /> },
+          { path: "addcategoriesadmin", element: <AddCategoriesAdmin /> },
           { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
         ],
       },
@@ -174,6 +174,11 @@ export const router = createBrowserRouter([
           { path: "detail/:userId", element: <UserDetail /> },
         ],
       },
+      { path: "useradmin", element: <UserAdminPage />,
+        children :[
+          { path: "listuseradmin", element: <UserAdminList/> },
+        ]
+       },
       {
         path: "products",
         element: <ProductAdminPage />,

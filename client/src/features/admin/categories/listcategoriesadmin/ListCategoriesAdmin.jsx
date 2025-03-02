@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Space, Tag, Input, Select, Button, message, Modal, Image } from "antd";
+import {
+  Table,
+  Space,
+  Tag,
+  Input,
+  Select,
+  Button,
+  message,
+  Modal,
+  Image,
+} from "antd";
 import { Link } from "react-router-dom";
 import { useCategoriesAdmin } from "./usecategoriesadmin";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -60,28 +70,37 @@ const ListCategoriesAdmin = () => {
 
   const HandleRemoveCategory = async (id) => {
     Modal.confirm({
-      title: 'Xóa danh mục',
-      content: 'Bạn có chắc muốn xóa danh mục?',
-      okText: 'Đồng ý',
-      cancelText: 'Từ chối',
+      title: "Xác nhận xóa danh mục",
+      content:
+        "Khi xóa danh mục, tất cả sản phẩm thuộc danh mục này cũng sẽ bị xóa. Bạn có chắc chắn muốn xóa?",
+      okText: "Đồng ý",
+      okType: "danger",
+      cancelText: "Hủy",
       onOk: async () => {
-        const loading = message.loading({ content: 'Đang tải...', duration: 0 });
+        const loading = message.loading({
+          content: "Đang xóa...",
+          duration: 0,
+        });
         try {
-          await axios.delete(`http://localhost:5000/api/v1/categories/${id}/delete`);
-          message.success('Xóa danh mục thành công!', 3);
-  
-          // Update the state to remove the deleted category
-          setFilteredCategories((prevCategories) =>
-            prevCategories.filter((category) => category._id !== id)
+          const response = await axios.delete(
+            `http://localhost:5000/api/v1/categories/${id}/delete`
           );
+          if (response.status === 200) {
+            message.success(
+              "Xóa danh mục và các sản phẩm liên quan thành công!"
+            );
+            // Refresh the categories list
+            setFilteredCategories((prevCategories) =>
+              prevCategories.filter((category) => category._id !== id)
+            );
+          }
         } catch (error) {
-          message.error('Lỗi khi xóa danh mục', 5);
+          message.error(
+            error.response?.data?.message || "Lỗi khi xóa danh mục và sản phẩm"
+          );
         } finally {
           loading();
         }
-      },
-      onCancel: () => {
-        message.success('Hủy!');
       },
     });
   };
@@ -94,20 +113,26 @@ const ListCategoriesAdmin = () => {
     },
     {
       title: "Hình ảnh",
-      key: 'image',
-      render: (_, item) => <Image style={{ width: 50, height: 50 }} src={item.image} alt="" />,
+      key: "image",
+      render: (_, item) => (
+        <Image style={{ width: 50, height: 50 }} src={item.image} alt="" />
+      ),
     },
     {
       title: "Hành động",
       key: "actions",
       render: (_, item) => (
         <>
-          <Link to={`/admin/categories/${item._id}/update`}>
-            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"><EditOutlined /></button>
+          <Link to={`/admin/categories/edit/${item._id}`}>
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+              <EditOutlined />
+            </button>
           </Link>
-          <button type="button"
+          <button
+            type="button"
             onClick={() => HandleRemoveCategory(item._id)}
-            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+            className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+          >
             <DeleteOutlined />
           </button>
         </>

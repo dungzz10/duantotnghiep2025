@@ -1,17 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { Resize } from "@cloudinary/url-gen/actions";
-import {
-  Button, Form, Input, Row, Col, Upload, message,
-} from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { UploadOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { Button, Form, Input, Row, Col, Upload, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { UploadOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 const AddCategoriesAdmin = () => {
-  const navigate = useNavigate()
-  const [imageUrl, setImageUrl] = useState('');
-  console.log(imageUrl)
+  const navigate = useNavigate();
+  const [imageUrl, setImageUrl] = useState("");
+  console.log(imageUrl);
   const cld = new Cloudinary({
     cloud: {
       cloudName: "dsenpijts",
@@ -22,27 +20,29 @@ const AddCategoriesAdmin = () => {
   const onFinish = async (values) => {
     const payload = {
       name: values.name,
-      image: imageUrl, // Include the image URL in the payload
+      image: imageUrl,
     };
-    
 
     try {
-      const response = await axios.post('http://localhost:5000/api/v1/categories/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/categories/create",
+        payload, // Send payload directly
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token if required
+          },
+        }
+      );
 
-      if (response.ok) {
-        message.success('Danh mục đã được thêm thành công!');
-        navigate('/admin/categories/listcategoriesadmin')
-      } else {
-        message.error('Đã xảy ra lỗi khi thêm danh mục.');
+      if (response.status === 200) {
+        message.success("Danh mục đã được thêm thành công!");
+        navigate("/admin/categories/listcategoriesadmin");
       }
     } catch (error) {
-      message.error('Đã xảy ra lỗi khi kết nối với API.');
+      message.error(
+        error.response?.data?.message || "Đã xảy ra lỗi khi thêm danh mục."
+      );
     }
   };
 
@@ -105,16 +105,20 @@ const AddCategoriesAdmin = () => {
           <Form.Item
             label="Tên danh mục"
             name="name"
-            rules={[{ message: 'Không được bỏ trống!', required: true, min: 3 }]}
+            rules={[
+              { message: "Không được bỏ trống!", required: true, min: 3 },
+            ]}
           >
-            <Input className='w-[450px]' />
+            <Input className="w-[450px]" />
           </Form.Item>
         </Col>
         <Col span={12}>
           <Form.Item
             label="Upload Ảnh"
             name="image"
-            rules={[{ required: true, message: 'Vui lòng tải lên một bức ảnh!' }]}
+            rules={[
+              { required: true, message: "Vui lòng tải lên một bức ảnh!" },
+            ]}
           >
             <Upload
               name="image"
