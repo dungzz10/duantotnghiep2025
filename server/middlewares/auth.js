@@ -21,7 +21,7 @@ export const isAuththenticated = CatchAsync(async (req, res, next) => {
 
   // decoded { id: '676eba983d3a8217bc99938f', iat: 1736764357, exp: 1736767957 }
   const user = await User.findById(decoded.id);
-  // console.log(user)
+  // console.log(user, 1234567);
   if (!user) {
     return next(new HandelError("User khong ton tai ", 404));
   }
