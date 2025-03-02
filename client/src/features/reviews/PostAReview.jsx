@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { postReview } from "./useReview";
+import { Filter } from "bad-words";
 
 const PostAReview = ({ isModalOpen, handleClose }) => {
   const { id } = useParams();
@@ -9,6 +10,14 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
   const [comment, setComment] = useState("");
 
   const queryClient = useQueryClient();
+  //tạo bộ lọc từ cấm 
+  const filter = new Filter();
+  filter.addWords("ngu", "dốt", "khùng","điên", "bực","ghét");
+  // Hàm kiểm tra link trong bình luận
+  const containsLink = (text) => {
+    const urlRegex = /https?:\/\/[^\s]+|www\.[^\s]+/gi; // Regex phát hiện link
+    return urlRegex.test(text);
+  };
 
   const mutation = useMutation({
     mutationFn: postReview,
@@ -32,6 +41,18 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
       alert("Bạn cần đăng nhập để gửi đánh giá.");
       return;
     }
+
+    if (filter.isProfane(comment)) {
+      alert(`Bình luận của bạn có từ ngữ: (${comment}) bị cấm  `);
+      return;
+    }
+
+    // Kiểm tra link trong bình luận
+    if (containsLink(comment)) {
+      alert("Bình luận của bạn không được chứa link.");
+      return;
+    }
+
     const newComment = {
       comment: comment,
       rating: rating,
