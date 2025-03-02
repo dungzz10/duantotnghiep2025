@@ -16,12 +16,11 @@ const EditBanner = () => {
         const fetchBanner = async () => {
             try {
                 const res = await fetch(`http://localhost:5000/api/v1/banners/${id}`);
-                const data = await res.json();
-
+                const banner = await res.json();                        
                 if (res.ok) {
-                    setTitle(data.title ?? "");
-                    setPreview(data.image ?? null);
-                    setIsActive(data.isActive ? "true" : "false");
+                    setTitle(banner.data.title ?? ""); // Giá trị cũ của title
+                    setPreview(banner.data.image ?? null); // Giá trị cũ của image (URL ảnh)
+                    setIsActive(banner.data.isActive ? "true" : "false"); // Giá trị cũ của isActive
                 }
             } catch (error) {
                 console.error("Lỗi khi lấy banner:", error);
@@ -29,13 +28,14 @@ const EditBanner = () => {
         };
         fetchBanner();
     }, [id]);
+    
 
     // Xử lý chọn ảnh
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setImage(file);
-            setPreview(URL.createObjectURL(file));
+            setImage(file); // Lưu file ảnh mới
+            setPreview(URL.createObjectURL(file)); // Hiển thị preview ảnh mới
         }
     };
 
@@ -50,7 +50,12 @@ const EditBanner = () => {
         setIsLoading(true);
         const formData = new FormData();
         formData.append("title", title);
-        if (image) formData.append("image", image);
+        if (image) {
+            formData.append("image", image); // Chỉ thêm ảnh nếu người dùng chọn ảnh mới
+        } else if (preview) {
+            // Nếu không có ảnh mới, sử dụng ảnh cũ (nếu có)
+            formData.append("image", preview);
+        }
         formData.append("isActive", isActive === "true");
 
         try {
@@ -79,7 +84,7 @@ const EditBanner = () => {
                     <label className="block text-gray-700 font-medium">Tiêu đề</label>
                     <input
                         type="text"
-                        value={title ?? ""}
+                        value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                         placeholder="Nhập tiêu đề..."
@@ -97,11 +102,13 @@ const EditBanner = () => {
                     />
                 </div>
 
-                {preview && (
+                {preview ? (
                     <div className="mt-3">
-                        <p className="text-gray-600">Xem trước:</p>
+                        <p className="text-gray-600">Ảnh hiện tại:</p>
                         <img src={preview} alt="Preview" className="w-full h-40 object-cover rounded-lg" />
                     </div>
+                ) : (
+                    <p className="text-gray-600 mt-3">Chưa có ảnh</p>
                 )}
 
                 <div>

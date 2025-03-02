@@ -198,6 +198,10 @@ export const router = createBrowserRouter([
         path: "add-banner",
         element: <AddBanner />,
       },
+      {
+        path: "edit-banner/:id",
+        element: <EditBanner />,
+      },
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },
