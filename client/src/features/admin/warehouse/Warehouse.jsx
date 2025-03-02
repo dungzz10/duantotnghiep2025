@@ -18,6 +18,8 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
+const { Search } = Input;
+
 const fetchProducts = async () => {
   const { data } = await axios.get(
     "http://localhost:5000/api/v1/product/getall/"
@@ -26,17 +28,27 @@ const fetchProducts = async () => {
 };
 
 const Warehouse = () => {
-  const handleDeleteProduct = async (id) => {
-    try {
-      await axios.put(`http://localhost:5000/api/v1/product/delete/${id}`);
+  const deleteProductMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await axios.put(
+        `http://localhost:5000/api/v1/product/delete/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
       message.success("Sản phẩm đã được xóa");
-
-      fetchProducts();
-    } catch (error) {
-      console.log(error);
+      queryClient.invalidateQueries(["products"]); // This will trigger a re-fetch
+    },
+    onError: (error) => {
+      console.error(error);
       message.error("Có lỗi xảy ra khi xóa sản phẩm");
-    }
+    },
+  });
+
+  const handleDeleteProduct = async (id) => {
+    deleteProductMutation.mutate(id);
   };
+
   const [visible, setVisible] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [variantModal, setVariantModal] = useState(false);
@@ -44,6 +56,7 @@ const Warehouse = () => {
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
   const queryClient = useQueryClient();
+  const [searchText, setSearchText] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -150,6 +163,14 @@ const Warehouse = () => {
     setEditingVariant(null);
     editForm.resetFields();
   };
+
+  const handleSearch = (value) => {
+    setSearchText(value);
+  };
+
+  const filteredProducts = data?.products?.filter((product) =>
+    product.title.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   // Variant Modal
   const VariantForm = () => {
@@ -335,8 +356,12 @@ const Warehouse = () => {
           <Popconfirm
             title="Bạn có chắc chắn muốn xóa sản phẩm này?"
             onConfirm={() => handleDeleteProduct(record._id)}
+            okText="Đồng ý"
+            cancelText="Hủy"
           >
-            <Button danger>Xóa</Button>
+            <Button danger loading={deleteProductMutation.isLoading}>
+              Xóa
+            </Button>
           </Popconfirm>
           <Button onClick={() => handleViewDetails(record)}>
             Xem chi tiết
@@ -496,9 +521,19 @@ const Warehouse = () => {
 
   return (
     <div>
+      <div style={{ marginBottom: 16 }}>
+        <Search
+          placeholder="Tìm kiếm theo tên sản phẩm"
+          onSearch={handleSearch}
+          onChange={(e) => handleSearch(e.target.value)}
+          style={{ width: 300 }}
+          allowClear
+        />
+      </div>
+
       <Table
         columns={columns}
-        dataSource={data?.products}
+        dataSource={filteredProducts}
         loading={isLoading}
         rowKey="_id"
         pagination={{ pageSize: 4 }}
