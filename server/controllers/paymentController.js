@@ -19,7 +19,7 @@ const generateSignature = (params) => {
 export const createMomoPayment = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu MoMo:", req.body);
   try {
-    const { amount, products, finalTotal } = req.body;
+    const { amount, products, finalTotal, paymentType } = req.body;
     const total = finalTotal || amount;
     if (!total || isNaN(total) || total < 1000) {
       return next(new HandelError("Số tiền thanh toán không hợp lệ", 400));
@@ -35,6 +35,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
 
     const orderId = `ORDER_${Date.now()}_${userId}`;
     const requestId = `REQ_${Date.now()}_${userId}`;
+    const requestType = paymentType === "atm" ? "payWithATM" : "captureWallet";
 
     const payload = {
       accessKey: momoConfig.accessKey,
@@ -46,7 +47,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
       partnerCode: momoConfig.partnerCode,
       redirectUrl: momoConfig.redirectUrl,
       requestId,
-      requestType: momoConfig.requestType || "captureWallet",
+      requestType,
     };
 
     payload.signature = generateSignature(payload);
@@ -117,15 +118,22 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
   console.log("Verify Transaction Order ID:", orderId);
   try {
     const user = await User.findOne({
-      "wallet.transactions.momoTransactionId": orderId,
+      $or: [
+        { "wallet.transactions.momoTransactionId": orderId },
+        { "ATM.transactions.momoTransactionId": orderId },
+      ],
     });
     console.log("User found:", user);
 
     if (!user) return next(new HandelError("Transaction not found", 404));
 
-    const transaction = user.wallet.transactions.find(
+    const walletTransaction = user.wallet?.transactions?.find(
       (t) => t.momoTransactionId === orderId
     );
+    const atmTransaction = user.ATM?.transactions?.find(
+      (t) => t.momoTransactionId === orderId
+    );
+    const transaction = walletTransaction || atmTransaction;
     if (!transaction)
       return next(new HandelError("Transaction data missing", 404));
 
@@ -154,29 +162,28 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
 
     const result = await response.json();
     console.log("MoMo API Response:", result);
+    
     if (result.resultCode === 0 && transaction.status === "pending") {
       console.log("Transaction completed, updating user data.");
-      // Update transaction status and increase wallet balance for deposits
+      
       if (transaction.type === "momo_naptien") {
         await User.updateOne(
           { _id: user._id, "wallet.transactions.momoTransactionId": orderId },
           {
-            $set: {
-              "wallet.transactions.$.status": "completed",
-            },
-            $inc: {
-              "wallet.balance": transaction.amount,
-            },
+            $set: { "wallet.transactions.$.status": "completed" },
+            $inc: { "wallet.balance": transaction.amount },
           }
         );
       } else {
-        // Handle regular purchase transactions
         await User.updateOne(
-          { _id: user._id, "wallet.transactions.momoTransactionId": orderId },
+          { _id: user._id, "ATM.transactions.momoTransactionId": orderId },
           {
             $set: {
-              "wallet.transactions.$.status": "completed",
+              "ATM.transactions.$.status": "completed",
+              "ATM.transactions.$.transId": result.transId,
+              "orderStatus": "completed",
             },
+            $inc: { "ATM.balance": transaction.amount },
           }
         );
       }
@@ -184,30 +191,22 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
       return res.status(200).json({
         success: true,
         status: "completed",
+        orderStatus: "completed",
         message: "Payment completed",
       });
     }
 
-    await User.updateOne(
-      { _id: user._id, "ATM.transactions.momoTransactionId": orderId },
-      {
-        $set: {
-          "ATM.transactions.$.status": "completed",
-          "ATM.transactions.$.transId": result.transId,
-        },
-        $inc: { "ATM.balance": transaction.amount },
-      }
-    );
-    return res
-      .status(200)
-      .json({ success: false, status: "failed", message: result.message });
+    return res.status(200).json({
+      success: false,
+      status: "failed",
+      message: result.message,
+    });
   } catch (error) {
     console.error("Error verifying transaction:", error);
-    return next(
-      new HandelError(`Error verifying transaction: ${error.message}`, 500)
-    );
+    return next(new HandelError(`Error verifying transaction: ${error.message}`, 500));
   }
 });
+
 
 export const getWalletBalance = CatchAsync(async (req, res, next) => {
   try {

@@ -11,6 +11,31 @@ const validStatuses = [
   "cancelled",
 ];
 
+export const getNewOrders = CatchAsync(async (req, res, next) => {
+  try {
+    const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+
+    const orders = await Order.find({
+      orderStatus: "pending",
+      date: { $gte: threeMinutesAgo },
+    })
+      .sort({ date: -1 })
+      .limit(7)
+      .select("_id orderStatus userId date")
+      .populate("userId", "name")
+      .lean();
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).json({ success: false, message: "Không có đơn hàng mới trong 3 phút gần đây." });
+    }
+
+    res.status(200).json({ success: true, newOrders: orders });
+  } catch (error) {
+    console.error("Lỗi khi lấy đơn hàng mới:", error);
+    res.status(500).json({ success: false, message: "Lỗi server khi lấy đơn hàng mới." });
+  }
+});
+
 // Kiểm tra xem đơn hàng đã được giao hay chưa
 export const checkDeliveredOrder = async (req, res) => {
   const { orderId } = req.query;
@@ -37,7 +62,6 @@ export const checkDeliveredOrder = async (req, res) => {
 
 export const getAllOrders = CatchAsync(async (req, res, next) => {
   const { id: userId, role } = req.user;
-  console.log("id", userId);
 
   if (!userId) {
     return next(new HandelError("Người dùng chưa đăng nhập", 401));
@@ -48,7 +72,6 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
     filter = {};
   }
   
-
   const orders = await Order.find(filter)
     .populate("userId", "name")
     .populate({
@@ -61,9 +84,7 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
   orders.sort((a, b) => {
-    const indexA = validStatuses.indexOf(a.orderStatus);
-    const indexB = validStatuses.indexOf(b.orderStatus);
-    return indexA - indexB;
+    return validStatuses.indexOf(a.orderStatus) - validStatuses.indexOf(b.orderStatus);
   });
 
   res.status(200).json({ success: true, orders });
@@ -173,6 +194,10 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
 
   if (order.orderStatus === "cancelled") {
     return next(new HandelError("Đơn hàng đã bị hủy và không thể cập nhật", 400));
+  }
+  
+  if (order.orderStatus === "delivered" && !["returned", "refunded"].includes(orderStatus)) {
+    return next(new HandelError("Đơn hàng đã giao, chỉ có thể cập nhật thành trạng thái hoàn tiền", 400));
   }
 
   order.orderStatus = orderStatus;

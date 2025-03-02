@@ -140,7 +140,6 @@ const Order = () => {
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (date) => {
-        console.log("Giá trị date:", date);
         return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
       },
     },
