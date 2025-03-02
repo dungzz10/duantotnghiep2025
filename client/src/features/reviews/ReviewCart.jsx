@@ -23,7 +23,7 @@ const ReviewCart = ({ productReviews }) => {
                 {
                     reviews.length > 0 ?
                         (<div>
-                            <h3 className="text-lg font-medium">Tất cả bình luận:</h3>
+                            <h3 className="text-lg font-medium">Tất cả đánh giá:</h3>
                             <div>
                                 {
                                     reviews.map((review, index) => (
@@ -57,7 +57,7 @@ const ReviewCart = ({ productReviews }) => {
                 <button
                     onClick={handleOpenReviewModal}
                     className="px-6 py-3 bg-primary text-white rounded-md mt-9">
-                    Thêm bình luận </button>
+                    Thêm đánh giá </button>
             </div>
 
             {/* Nút tắt model khi bấm thêm review và add review */}
