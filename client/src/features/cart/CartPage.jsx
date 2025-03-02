@@ -7,7 +7,8 @@ import {
   Row,
   Col,
   Image,
-  Checkbox,message
+  Checkbox,
+  message,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import EmptyCart from "./EmptyCart";
@@ -40,7 +41,7 @@ const CartPage = () => {
 
     if (paymentSuccess === "true") {
       message.success("Thanh toán thành công! Đang trở về giỏ hàng...");
-      localStorage.removeItem("cart"); 
+      localStorage.removeItem("cart");
       setCart([]);
       navigate("/cart");
     } else if (paymentSuccess === "false") {
@@ -82,23 +83,48 @@ const CartPage = () => {
     localStorage.setItem("cart", JSON.stringify(updatedCart));
   };
   const selectedProducts = cart.filter((_, index) => selectedItems[index]);
-  const totalPrice = cart.reduce(
-    (sum, item, index) =>
-      sum + (selectedItems[index] ? item.price * item.quantity : 0),
-    0
-  );
+
+  const shippingFee = 30000;
+  const totalPrice =
+    cart.reduce(
+      (sum, item, index) =>
+        sum + (selectedItems[index] ? item.price * item.quantity : 0),
+      0
+    ) + (selectedProducts.length > 0 ? shippingFee : 0);
 
   const handleCheckout = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
+    const formattedProducts = selectedProducts.map(product => ({
+      productId: product.id, 
+      name: product.title,
+      price: product.price,
+      title: product.title,
+      color: product.color,
+      size: product.size,
+      quantity: product.quantity,
+      totalPrice: product.price * product.quantity,
+      image: product.image,
+    }));
+    const amount = selectedProducts.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
     const orderData = {
-      user,
-      products: selectedProducts,
+      userId: user._id,
+      products: formattedProducts, 
+      amount,
       total: totalPrice,
+      shippingFee,
+      finalTotal: totalPrice,
+      paymentMethod: "COD",
+      shippingAddress: {
+        address: "home",
+      },
     };
     localStorage.setItem("order", JSON.stringify(orderData));
     navigate("/cart/checkout");
   };
-
 
   if (cart.length === 0) {
     return <EmptyCart />;
@@ -161,7 +187,7 @@ const CartPage = () => {
                     <Title level={5}>{item.title}</Title>
                   </Col>
                   <Col span={3}>
-                    <Text >{item.price} VNĐ</Text>
+                    <Text>{item.price} VNĐ</Text>
                   </Col>
                   <Col span={4}>
                     <InputNumber
@@ -188,10 +214,31 @@ const CartPage = () => {
           </Row>
 
           <div className="flex justify-between items-center border-t pt-3">
-            <Checkbox checked={selectAll} onChange={toggleSelectAll}>Chọn Tất Cả ({cart.length})</Checkbox>
-            <Button type="text" danger onClick={deleteSelectedItems} disabled={!selectedItems.includes(true)}>Xóa</Button>
-            <Text className="font-medium">Tổng thanh toán ({selectedProducts.length} Sản phẩm): <span className="text-red-500">{totalPrice} VNĐ</span></Text>
-            <Button type="primary" size="large" className="bg-red-500 text-white rounded-lg" disabled={totalPrice === 0} onClick={handleCheckout}>
+            <Checkbox checked={selectAll} onChange={toggleSelectAll}>
+              Chọn Tất Cả ({cart.length})
+            </Checkbox>
+            <Button
+              type="text"
+              danger
+              onClick={deleteSelectedItems}
+              disabled={!selectedItems.includes(true)}
+            >
+              Xóa
+            </Button>
+            <Text className="font-medium">
+              Tổng thanh toán ({selectedProducts.length} Sản phẩm):{" "}
+              <span className="text-red-500">{totalPrice} VNĐ</span>
+            </Text>
+            <Text className="text-gray-500">
+              (Bao gồm phí vận chuyển: {shippingFee} VNĐ)
+            </Text>
+            <Button
+              type="primary"
+              size="large"
+              className="bg-red-500 text-white rounded-lg"
+              disabled={totalPrice === 0}
+              onClick={handleCheckout}
+            >
               Mua Hàng
             </Button>
           </div>
