@@ -21,5 +21,22 @@ productRouter.put("/delete/:id", isAuththenticated, softDeleteProduct);
 productRouter.put("/khoiphuc/:id", isAuththenticated, restoreProduct);
 // productRouter.post(":id", createProduct);
 
+// Quản lý biến thể và kho hàng
+productRouter.post("/:productId/variants", isAuththenticated, addVariant);
+productRouter.put(
+  "/:productId/variants/:variantId",
+  isAuththenticated,
+  updateVariant
+);
+productRouter.delete(
+  "/:productId/variants/:variantId",
+  isAuththenticated,
+  deleteVariant
+);
+productRouter.put(
+  "/:productId/variants/:variantId/sizes/:sizeId/inventory",
+  isAuththenticated,
+  updateInventory
+);
 
 export default productRouter;

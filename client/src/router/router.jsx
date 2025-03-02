@@ -43,6 +43,7 @@ import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
+import ProductDetailAdmin from "../features/admin/products/productdetail/ProductDetailAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -59,7 +60,7 @@ export const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "/favourite ",
+        path: "/favourite",
         element: <FavouritePage />,
       },
       {
@@ -180,6 +181,7 @@ export const router = createBrowserRouter([
           { path: "addproductadmin", element: <ProductsAdmin /> },
           { path: "listproductadmin", element: <ListproductAdmin /> },
           { path: "update/:id", element: <UppdateProductAdmin /> },
+          { path: "detail/:id", element: <ProductDetailAdmin /> },
         ],
       },
       //----------------------banner router----------------

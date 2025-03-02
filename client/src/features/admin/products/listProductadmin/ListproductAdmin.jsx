@@ -1,5 +1,5 @@
 import React, { useState } from "react";
- import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   Image,
@@ -16,7 +16,7 @@ import axios from "axios";
 const { Option } = Select;
 
 const fetchProducts = async (query) => {
-  // 
+  //
   // Lọc bỏ các tham số có giá trị rỗng hoặc undefined
   const filteredQuery = Object.fromEntries(
     Object.entries(query).filter(([_, value]) => value && value.trim() !== "")
@@ -81,7 +81,7 @@ const ListproductAdmin = () => {
   };
 
   const handleUpdateProduct = (id) => {
-     navigate(`/admin/products/update/${id}`);
+    navigate(`/admin/products/update/${id}`);
     // Code để cập nhật sản phẩm (ví dụ, mở modal để cập nhật thông tin sản phẩm)
     console.log(`Chỉnh sửa sản phẩm có ID: ${id}`);
   };
@@ -128,6 +128,18 @@ const ListproductAdmin = () => {
         ) : (
           <Tag color="green">Còn hàng</Tag>
         ),
+    },
+    {
+      title: "Chi tiết",
+      key: "details",
+      render: (_, record) => (
+        <Button
+          type="link"
+          onClick={() => navigate(`/admin/products/detail/${record._id}`)}
+        >
+          Xem chi tiết
+        </Button>
+      ),
     },
     {
       title: "Hành động",

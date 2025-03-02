@@ -331,7 +331,6 @@ export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
   const products = await query;
   console.log("products", products);
 
-
   const transformedProducts = products.map((product) => {
     const plainProduct = product.toObject();
     // console.log("plainProduct",plainProduct);
@@ -348,5 +347,156 @@ export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
     productLength: transformedProducts.length,
     products: transformedProducts,
     countproduct,
+  });
+});
+
+// 1. Thêm biến thể mới (màu sắc)
+export const addVariant = CatchAsync(async (req, res, next) => {
+  const { productId } = req.params;
+  const { color, sizes } = req.body;
+
+  // Validate input
+  if (!color || !sizes || !Array.isArray(sizes)) {
+    return next(new HandelError("Vui lòng cung cấp đầy đủ thông tin", 400));
+  }
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+
+  // Kiểm tra màu đã tồn tại
+  const colorExists = product.variants.some(
+    (v) => v.color.toLowerCase() === color.toLowerCase()
+  );
+  if (colorExists) {
+    return next(new HandelError(`Màu ${color} đã tồn tại trong sản phẩm`, 400));
+  }
+
+  // Thêm biến thể mới
+  product.variants.push({
+    color,
+    sizes: sizes.map((s) => ({
+      size: s.size,
+      quantity: s.quantity || 0,
+      price: s.price,
+    })),
+  });
+
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Thêm biến thể mới thành công",
+    variant: product.variants[product.variants.length - 1],
+  });
+});
+
+// 2. Cập nhật biến thể
+export const updateVariant = CatchAsync(async (req, res, next) => {
+  const { productId, variantId } = req.params;
+  const { color, sizes } = req.body;
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+
+  const variantIndex = product.variants.findIndex(
+    (v) => v._id.toString() === variantId
+  );
+  if (variantIndex === -1) {
+    return next(new HandelError("Không tìm thấy biến thể", 404));
+  }
+
+  // Kiểm tra trùng màu nếu có thay đổi màu
+  if (color && color !== product.variants[variantIndex].color) {
+    const colorExists = product.variants.some(
+      (v) =>
+        v.color.toLowerCase() === color.toLowerCase() &&
+        v._id.toString() !== variantId
+    );
+    if (colorExists) {
+      return next(
+        new HandelError(`Màu ${color} đã tồn tại trong sản phẩm`, 400)
+      );
+    }
+    product.variants[variantIndex].color = color;
+  }
+
+  // Cập nhật sizes nếu có
+  if (sizes && Array.isArray(sizes)) {
+    product.variants[variantIndex].sizes = sizes.map((s) => ({
+      size: s.size,
+      quantity: s.quantity,
+      price: s.price,
+    }));
+  }
+
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Cập nhật biến thể thành công",
+    variant: product.variants[variantIndex],
+  });
+});
+
+// 3. Xóa biến thể
+export const deleteVariant = CatchAsync(async (req, res, next) => {
+  const { productId, variantId } = req.params;
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+
+  const variantIndex = product.variants.findIndex(
+    (v) => v._id.toString() === variantId
+  );
+  if (variantIndex === -1) {
+    return next(new HandelError("Không tìm thấy biến thể", 404));
+  }
+
+  product.variants.splice(variantIndex, 1);
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Xóa biến thể thành công",
+  });
+});
+
+// 4. Cập nhật số lượng trong kho
+export const updateInventory = CatchAsync(async (req, res, next) => {
+  const { productId, variantId, sizeId } = req.params;
+  const { quantity } = req.body;
+
+  if (quantity < 0) {
+    return next(new HandelError("Số lượng không thể âm", 400));
+  }
+
+  const product = await Product.findById(productId);
+  if (!product) {
+    return next(new HandelError("Không tìm thấy sản phẩm", 404));
+  }
+
+  const variant = product.variants.id(variantId);
+  if (!variant) {
+    return next(new HandelError("Không tìm thấy biến thể", 404));
+  }
+
+  const size = variant.sizes.id(sizeId);
+  if (!size) {
+    return next(new HandelError("Không tìm thấy kích thước", 404));
+  }
+
+  size.quantity = quantity;
+  await product.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Cập nhật số lượng thành công",
+    inventory: size,
   });
 });
