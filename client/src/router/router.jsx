@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "../features/404/NotFoundPage";
 import HomePage from "../features/HomePage";
 import AboutPage from "../features/about/AboutPage";
+import AccessoryPage from "../features/accessory/AccessoryPage";
 import Customer from "../features/admin/customers/customer";
 import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
@@ -22,8 +23,10 @@ import ResetPassword from "../features/resetpassword/ResetPassword";
 import Register from "../features/signup/Register";
 import LayoutAdmin from "../layouts/LayoutAdmin";
 import LayoutClient from "../layouts/LayoutClient";
+
 import CategoriesAdmin from "../features/admin/categories/Categories";
 import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
+import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdmin";
 import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
 import LoginAdmin from "../features/admin/login/LoginAdmin";
@@ -43,7 +46,6 @@ import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
-import ProductDetailAdmin from "../features/admin/products/productdetail/ProductDetailAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -60,7 +62,7 @@ export const router = createBrowserRouter([
         element: <ProductPage />,
       },
       {
-        path: "/favourite",
+        path: "/favourite ",
         element: <FavouritePage />,
       },
       {
@@ -149,19 +151,14 @@ export const router = createBrowserRouter([
       { path: "dashboard", element: <Dashboard /> },
 
       { path: "inventory", element: <Iventory /> },
-      {
-        path: "useradmin",
-        element: <UserAdminPage />,
-        children: [{ path: "listuseradmin", element: <UserAdminList /> }],
-      },
       { path: "orders", element: <Order /> },
       {
         path: "categories",
         element: <CategoriesAdmin />,
         children: [
           { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
-          { path: "addcategoriesadmin", element: <AddCategoriesAdmin /> },
-          { path: ":id/update", element: <UppdateCategoriesAdmin /> },
+          // { path: "addcategoriesadmin", element: <add /> },
+          { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
         ],
       },
       {
@@ -192,10 +189,6 @@ export const router = createBrowserRouter([
       {
         path: "add-banner",
         element: <AddBanner />,
-      },
-      {
-        path: "edit-banner/:id",
-        element: <EditBanner />,
       },
     ],
   },

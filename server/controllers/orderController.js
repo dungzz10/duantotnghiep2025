@@ -161,17 +161,21 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   });
 });
 
-export const deleteOrder = CatchAsync(async (req, res, next) => {
-  const { orderId } = req.params;
+// export const deleteOrder = CatchAsync(async (req, res, next) => {
+//   const { orderId } = req.params;
 
-  const order = await Order.findOneAndDelete({ orderId });
+//   const order = await Order.findById(orderId);
 
-  if (!order) {
-    return next(new HandelError("Không tìm thấy đơn hàng", 404));
-  }
+//   if (!order) {
+//     return next(new HandelError("Không tìm thấy đơn hàng", 404));
+//   }
 
-  res.status(200).json({
-    success: true,
-    message: "Đơn hàng đã được xoá thành công",
-  });
-});
+//   order.orderStatus = "cancelled";
+//   await order.save();
+
+//   res.status(200).json({
+//     success: true,
+//     message: "Đơn hàng đã được hủy thành công",
+//     order,
+//   });
+// });
