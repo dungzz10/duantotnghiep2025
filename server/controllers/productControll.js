@@ -324,18 +324,6 @@ export const getAllProductsisDelete = CatchAsync(async (req, res, next) => {
 
   // Thực hiện truy vấn
   const products = await query;
-  console.log("products", products);
-
-
-  const transformedProducts = products.map((product) => {
-    const plainProduct = product.toObject();
-    // console.log("plainProduct",plainProduct);
-    if (plainProduct.category) {
-      // console.log("plainProduct.category", plainProduct.category);
-      plainProduct.category = plainProduct.category.name;
-    }
-    return plainProduct;
-  });
 
   // Phản hồi kết quả
   res.status(201).json({

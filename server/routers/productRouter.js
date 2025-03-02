@@ -6,10 +6,16 @@ import {
   updateProduct,
   softDeleteProduct,
   restoreProduct,
-  getAllProductsisDelete
+
+  getAllProductsisDelete,
 
   // updateWarehouseStock,
   // updateProductVariants,
+
+
+  getAllProductsisDelete,
+  updateWarehouseStock,
+  updateProductVariants,
 
 } from "../controllers/productControll.js";
 import { isAuththenticated } from "../middlewares/auth.js";
@@ -24,6 +30,10 @@ productRouter.put("/:id", isAuththenticated, updateProduct);
 productRouter.put("/delete/:id", isAuththenticated, softDeleteProduct);
 productRouter.put("/khoiphuc/:id", isAuththenticated, restoreProduct);
 // productRouter.post(":id", createProduct);
+
+// New routes for warehouse stock and product variants
+// productRouter.put("/updateWarehouseStock/:id", updateWarehouseStock);
+// productRouter.put("/updateProductVariants/:id", updateProductVariants);
 
 
 // Quản lý biến thể và kho hàng

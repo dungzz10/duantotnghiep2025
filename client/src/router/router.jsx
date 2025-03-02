@@ -47,6 +47,7 @@ import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/
 import FavouritePage from "../features/favourite/FavouritePage";
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import Warehouse from "../features/admin/warehouse/Warehouse";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -148,7 +149,7 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
-      { path: "warehouse", element: <Warehouse /> },
+     
       { path: "dashboard", element: <Dashboard /> },
 
       { path: "inventory", element: <Iventory /> },
@@ -162,6 +163,7 @@ export const router = createBrowserRouter([
           { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
         ],
       },
+      { path: "warehouse", element: <Warehouse /> },
       {
         path: "customers",
         element: <Customer />,
