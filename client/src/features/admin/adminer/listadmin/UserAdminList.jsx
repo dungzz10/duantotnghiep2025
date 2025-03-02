@@ -98,6 +98,17 @@ const UserAdminList = () => {
         return <Tag color={color}>{role.toUpperCase()}</Tag>;
       },
     },
+   
+    {
+      title: "Trạng thái",
+      dataIndex: "active",
+      key: "active",
+      render: (active) => (
+        <Tag color={active ? "success" : "error"}>
+          {active ? "Hoạt động" : "Vô hiệu hóa"}
+        </Tag>
+      ),
+    },
     {
       title: "Thao tác",
       key: "actions",
@@ -116,13 +127,17 @@ const UserAdminList = () => {
             danger
             onClick={() => {
               Modal.confirm({
-                title: "Xác nhận vô hiệu hóa",
-                content: `Bạn có chắc muốn vô hiệu hóa tài khoản ${record.name}?`,
+                title: record.active
+                  ? "Xác nhận vô hiệu hóa"
+                  : "Xác nhận kích hoạt",
+                content: `Bạn có chắc muốn ${
+                  record.active ? "vô hiệu hóa" : "kích hoạt"
+                } tài khoản ${record.name}?`,
                 onOk: () => deactivateUser.mutate(record._id),
               });
             }}
           >
-            Vô hiệu hóa
+            {record.active ? "Vô hiệu hóa" : "Kích hoạt"}
           </Button>
         </Space>
       ),
@@ -152,7 +167,7 @@ const UserAdminList = () => {
             setEditModalVisible(false);
             setSelectedUser(null);
           }}
-          user={selectedUser} 
+          user={selectedUser}
           onSubmit={handleUpdate}
         />
       )}

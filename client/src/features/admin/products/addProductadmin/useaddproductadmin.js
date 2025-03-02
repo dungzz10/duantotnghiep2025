@@ -12,7 +12,7 @@ const useaddproductadmin = () => {
     },
     onError: (error) => {
       console.log(error);
-      message.error("Thêm sản phẩm thất bại");
+      // message.error("Thêm sản phẩm thất bại");
     }
   });
   return { mutate, isLoading };

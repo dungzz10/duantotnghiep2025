@@ -1,35 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Cloudinary } from "@cloudinary/url-gen";
 import { Resize } from "@cloudinary/url-gen/actions";
-import {
-  Button, Form, Input, Row, Col, Upload, message,
-} from 'antd';
-import { useNavigate, useParams } from 'react-router-dom';
-import { UploadOutlined } from '@ant-design/icons';
-import axios from 'axios';
+import { Button, Form, Input, Row, Col, Upload, message } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { UploadOutlined } from "@ant-design/icons";
+import axios from "axios";
 
 const UppdateCategoriesAdmin = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [form] = Form.useForm();
-  const [imageUrl, setImageUrl] = useState('');
+  const [imageUrl, setImageUrl] = useState("");
   const [initialData, setInitialData] = useState({});
 
   useEffect(() => {
     // Fetch the existing category data
     const fetchCategory = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/v1/categories/${id}`);
+        const response = await fetch(
+          `http://localhost:5000/api/v1/categories/${id}`
+        );
         const data = await response.json();
         if (response.ok) {
           setInitialData(data.data);
           setImageUrl(data.data.image);
           form.setFieldsValue(data.data);
         } else {
-          message.error('Failed to fetch category data');
+          message.error("Failed to fetch category data");
         }
       } catch (error) {
-        message.error('Error fetching category data');
+        message.error("Error fetching category data");
       }
     };
 
@@ -51,15 +51,26 @@ const UppdateCategoriesAdmin = () => {
     };
 
     try {
-      const response = await axios.put(`http://localhost:5000/api/v1/categories/${id}/edit`)
-      if (response) {
-        message.success('Danh mục đã được cập nhật thành công!');
-        navigate('/admin/categories/listcategoriesadmin');
-      } else {
-        message.error('Đã xảy ra lỗi khi cập nhật danh mục.');
+      const response = await axios.put(
+        `http://localhost:5000/api/v1/categories/${id}/edit`,
+        payload, // Add the payload here
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        message.success("Danh mục đã được cập nhật thành công!");
+        navigate("/admin/categories/listcategoriesadmin");
       }
     } catch (error) {
-      message.error('Đã xảy ra lỗi khi kết nối với API.');
+      console.error("Error updating category:", error);
+      message.error(
+        error.response?.data?.message || "Đã xảy ra lỗi khi cập nhật danh mục."
+      );
     }
   };
 
@@ -117,21 +128,25 @@ const UppdateCategoriesAdmin = () => {
 
   return (
     <>
-      <Form form={form} layout="vertical" autoComplete="off" onFinish={onFinish}>
+      <Form
+        form={form}
+        layout="vertical"
+        autoComplete="off"
+        onFinish={onFinish}
+      >
         <Col span={12}>
           <Form.Item
             label="Tên danh mục"
             name="name"
-            rules={[{ message: 'Không được bỏ trống!', required: true, min: 3 }]}
+            rules={[
+              { message: "Không được bỏ trống!", required: true, min: 3 },
+            ]}
           >
-            <Input className='w-[450px]' />
+            <Input className="w-[450px]" />
           </Form.Item>
         </Col>
         <Col span={12}>
-          <Form.Item
-            label="Upload Ảnh"
-            name="image"
-          >
+          <Form.Item label="Upload Ảnh" name="image">
             <Upload
               name="image"
               listType="picture"
@@ -140,7 +155,13 @@ const UppdateCategoriesAdmin = () => {
             >
               <Button icon={<UploadOutlined />}>Tải lên ảnh</Button>
             </Upload>
-            {imageUrl && <img src={imageUrl} alt="Category" style={{ width: '100px', marginTop: '10px' }} />}
+            {imageUrl && (
+              <img
+                src={imageUrl}
+                alt="Category"
+                style={{ width: "100px", marginTop: "10px" }}
+              />
+            )}
           </Form.Item>
         </Col>
         <Row>
