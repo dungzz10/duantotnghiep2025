@@ -25,33 +25,34 @@ const CheckoutPage = () => {
   const handlePayment = async () => {
     if (!order) return;
 
-   if (!order.shippingAddress?.address) {
-  order.shippingAddress = {
-    ...order.shippingAddress,
-    address: "home",
-  };
-}
-  if (!order.total) {
-    alert("Tổng tiền không hợp lệ!");
-    return;
-  }
+    if (!order.shippingAddress?.address) {
+      order.shippingAddress = {
+        ...order.shippingAddress,
+        address: "home",
+      };
+    }
+    if (!order.total) {
+      alert("Tổng tiền không hợp lệ!");
+      return;
+    }
+    const finalTotal = order.total;
 
-  const finalOrder = {
-    ...order,
-    paymentMethod: paymentMethod, // Đảm bảo gửi đúng giá trị hợp lệ
-    finalTotal: order.total, // Bổ sung finalTotal
-  };
+    const finalOrder = {
+      ...order,
+      paymentMethod: paymentMethod, 
+      finalTotal,
+    };
 
     if (paymentMethod === "ATM_MOMO") {
       try {
-        // Chuyển amount thành số nguyên (đơn vị VND)
+        
         const amount = Math.round(order.total);
 
         const response = await fetch("http://localhost:5000/api/momo/payment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Thêm token
+            Authorization: `Bearer ${localStorage.getItem("token")}`, 
           },
           credentials: "include",
           body: JSON.stringify({
@@ -60,11 +61,12 @@ const CheckoutPage = () => {
             orderInfo: `Thanh toán đơn hàng #${Date.now()}`,
             shippingAddress: order.shippingAddress,
             products: order.products.map((product) => ({
-              productId: product.productId || product.id || "", 
+              productId: product.productId || product.id || "",
               name: product.name || product.title || "Không có tên",
               price: product.price || 0,
               quantity: product.quantity || 1,
-              totalPrice: product.totalPrice || product.price * product.quantity || 0,
+              totalPrice:
+                product.totalPrice || product.price * product.quantity || 0,
               image: product.image || "",
               color: product.color || "Unknown",
               size: product.size || "Unknown",
@@ -86,11 +88,34 @@ const CheckoutPage = () => {
         alert("Có lỗi xảy ra khi thanh toán!");
       }
     } else {
-      console.log("Final Order:", finalOrder);
-      localStorage.removeItem("cart");
-      localStorage.removeItem("order");
-      alert("Thanh toán thành công!");
-      navigate("/");
+      try {
+        
+        const response = await fetch(
+          "http://localhost:5000/api/v1/orders/create",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify(finalOrder),
+          }
+        );
+
+        const data = await response.json();
+        if (response.ok) {
+          alert("Thanh toán thành công! Đơn hàng đã được tạo.");
+          localStorage.removeItem("cart");
+          localStorage.removeItem("order");
+          navigate("/");
+        } else {
+          alert(`Tạo đơn hàng thất bại: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tạo đơn hàng COD:", error);
+        alert("Có lỗi xảy ra khi đặt hàng!");
+      }
     }
   };
 

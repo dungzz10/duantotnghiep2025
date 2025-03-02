@@ -73,15 +73,14 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
 
   const {
     products,
-    amount,
+    total,
     shippingAddress,
     shippingFee = 0,
     voucherDiscount = 0,
+    amount,
   } = req.body;
-  const finalTotal = amount + shippingFee - voucherDiscount;
-  if (!amount || isNaN(amount) || finalTotal < 1000) {
-    return next(new HandelError("Số tiền không hợp lệ", 400));
-  }
+  const finalTotal = total - voucherDiscount;
+
   const userId = req.user?.id;
   if (!userId) {
     return next(new HandelError("Người dùng chưa xác thực", 401));
@@ -102,6 +101,7 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     userId,
     orderId,
     amount,
+    total,
     products,
     shippingAddress,
     shippingFee,
