@@ -46,7 +46,7 @@ import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
 import ProductDetailAdmin from "../features/admin/products/productdetail/ProductDetailAdmin";
-
+import NoOrderPage from "../features/cart/NoOrderPage";
 import Warehouse from "../features/admin/warehouse/Warehouse";
 
 export const router = createBrowserRouter([
@@ -103,6 +103,10 @@ export const router = createBrowserRouter([
       {
         path: "/cart/emptycart",
         element: <EmptyCart />,
+      },
+      {
+        path: "no-order",
+        element: <NoOrderPage />,
       },
       {
         path: "/momo-success",

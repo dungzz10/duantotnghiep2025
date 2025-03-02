@@ -91,6 +91,37 @@ const userSchema = new mongoose.Schema(
         },
       ],
     },
+    // ATM
+    ATM: {
+      balance: {
+        type: Number,
+        default: 0,
+      },
+      transactions: [
+        {
+          type: {
+            type: String,
+            enum: ["momo_naptien", "deposit", "withdrawal", "muahang"],
+            required: true,
+          },
+          amount: {
+            type: Number,
+            required: true,
+          },
+          momoTransactionId: String,
+          status: {
+            type: String,
+            enum: ["pending", "completed", "failed"],
+            default: "pending",
+          },
+          date: {
+            type: Date,
+            default: Date.now,
+          },
+          description: String,
+        },
+      ],
+    },
 
     address: [
       {

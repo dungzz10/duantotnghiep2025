@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiDownload, FiPrinter } from "react-icons/fi";
 import { Button, Typography, Row, Col, Card, Radio, Space } from "antd";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
+
+import NoOrderPage from "./NoOrderPage";
 
 const { Title, Text } = Typography;
 
 const CheckoutPage = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
@@ -16,11 +14,13 @@ const CheckoutPage = () => {
   useEffect(() => {
     const storedOrder = JSON.parse(localStorage.getItem("order"));
     if (!storedOrder) {
-      navigate("/cart");
+      navigate("/no-order");
     } else {
       setOrder(storedOrder);
     }
   }, [navigate]);
+
+  if (!order) return <NoOrderPage />;
 
   const handlePayment = async () => {
     if (!order) return;
@@ -43,11 +43,11 @@ const CheckoutPage = () => {
       finalTotal,
     };
 
-    if (paymentMethod === "ATM_MOMO") {
+    if (paymentMethod === "ATM_MOMO" || paymentMethod === "QR_MOMO") {
       try {
         
         const amount = Math.round(order.total);
-
+        const paymentType = paymentMethod === "ATM_MOMO" ? "atm" : "qr";
         const response = await fetch("http://localhost:5000/api/momo/payment", {
           method: "POST",
           headers: {
@@ -71,6 +71,7 @@ const CheckoutPage = () => {
               color: product.color || "Unknown",
               size: product.size || "Unknown",
             })),
+            paymentType,
           }),
         });
 
@@ -121,36 +122,8 @@ const CheckoutPage = () => {
 
   if (!order) return null;
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleDownloadPDF = () => {
-    const doc = new jsPDF();
-    doc.text("Hóa Đơn Thanh Toán", 20, 20);
-    doc.autoTable({
-      head: [["Sản phẩm", "Số lượng", "Giá", "Tổng"]],
-      body: order.products.map((p) => [
-        p.title,
-        p.quantity,
-        p.price,
-        p.price * p.quantity,
-      ]),
-    });
-    doc.text(
-      `Tổng cộng: ${order.total} VNĐ`,
-      20,
-      doc.autoTable.previous.finalY + 10
-    );
-    doc.save("invoice.pdf");
-  };
-
   return (
-    <div
-      className={`min-h-screen ${
-        isDarkMode ? "dark bg-gray-900 text-white" : "bg-gray-50"
-      }`}
-    >
+    <div>
       <div className="container mx-auto p-6 md:p-10">
         <Card className="shadow-lg p-6" bordered>
           <Row justify="space-between" align="middle" className="mb-6">
@@ -159,15 +132,6 @@ const CheckoutPage = () => {
             </Col>
             <Col>
               <Space>
-                <Button onClick={() => setIsDarkMode(!isDarkMode)}>
-                  {isDarkMode ? "Light Mode" : "Dark Mode"}
-                </Button>
-                <Button icon={<FiPrinter />} onClick={handlePrint}>
-                  In hóa đơn
-                </Button>
-                <Button icon={<FiDownload />} onClick={handleDownloadPDF}>
-                  Tải PDF
-                </Button>
               </Space>
             </Col>
           </Row>
@@ -218,6 +182,7 @@ const CheckoutPage = () => {
             >
               <Radio value="COD">Thanh toán khi nhận hàng</Radio>
               <Radio value="ATM_MOMO">Chuyển khoản ATM MOMO</Radio>
+              <Radio value="QR_MOMO">Quét mã QR MoMo</Radio>
             </Radio.Group>
           </Card>
           <Row justify="center" className="mt-5">
