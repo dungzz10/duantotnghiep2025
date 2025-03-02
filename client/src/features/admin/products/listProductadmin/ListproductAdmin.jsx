@@ -10,7 +10,7 @@ import {
   Popconfirm,
   message,
 } from "antd";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
 const { Option } = Select;
@@ -39,6 +39,8 @@ const ListproductAdmin = () => {
     sort: "originalPrice",
   });
 
+  const queryClient = useQueryClient();
+
   // Query 1: Lấy tất cả sản phẩm
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -54,30 +56,54 @@ const ListproductAdmin = () => {
     ), // Bỏ các giá trị rỗng khỏi query
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await axios.put(
+        `http://localhost:5000/api/v1/product/delete/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      message.success("Sản phẩm đã được xóa");
+      queryClient.invalidateQueries(["products"]);
+      queryClient.invalidateQueries(["filteredProducts"]);
+    },
+    onError: (error) => {
+      message.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi xóa sản phẩm"
+      );
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async (id) => {
+      const response = await axios.put(
+        `http://localhost:5000/api/v1/product/khoiphuc/${id}`
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      message.success("Sản phẩm đã được khôi phục");
+      queryClient.invalidateQueries(["products"]);
+      queryClient.invalidateQueries(["filteredProducts"]);
+    },
+    onError: (error) => {
+      message.error(
+        error.response?.data?.message || "Có lỗi xảy ra khi khôi phục sản phẩm"
+      );
+    },
+  });
+
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleDeleteProduct = async (id) => {
-    try {
-      await axios.put(`http://localhost:5000/api/v1/product/delete/${id}`);
-      message.success("Sản phẩm đã được xóa");
-
-      fetchProducts(filters);
-    } catch (error) {
-      message.error("Có lỗi xảy ra khi xóa sản phẩm");
-    }
+  const handleDeleteProduct = (id) => {
+    deleteMutation.mutate(id);
   };
 
-  const handleRestoreProduct = async (id) => {
-    try {
-      await axios.put(`http://localhost:5000/api/v1/product/khoiphuc/${id}`);
-      message.success("Sản phẩm đã được khôi phục");
-
-      fetchProducts(filters);
-    } catch (error) {
-      message.error("Có lỗi xảy ra khi khôi phục sản phẩm");
-    }
+  const handleRestoreProduct = (id) => {
+    restoreMutation.mutate(id);
   };
 
   const handleUpdateProduct = (id) => {
@@ -109,7 +135,7 @@ const ListproductAdmin = () => {
       render: (price) => (price ? `${price} VND` : "Không giảm giá"),
       sorter: (a, b) => (a.salePrice || 0) - (b.salePrice || 0),
     },
-    { title: "Danh mục", dataIndex: "category", key: "category" },
+    { title: "Danh mục", dataIndex: "categoryName", key: "category" },
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -152,18 +178,27 @@ const ListproductAdmin = () => {
           >
             Cập nhật
           </Button>
-          <Popconfirm
-            title="Bạn có chắc chắn muốn xóa sản phẩm này?"
-            onConfirm={() => handleDeleteProduct(record._id)}
-          >
-            <Button danger>Xóa</Button>
-          </Popconfirm>
-          {record.isDeleted && (
+          {!record.isDeleted ? (
+            <Popconfirm
+              title="Bạn có chắc chắn muốn xóa sản phẩm này?"
+              onConfirm={() => handleDeleteProduct(record._id)}
+              okText="Đồng ý"
+              cancelText="Hủy"
+            >
+              <Button danger loading={deleteMutation.isLoading}>
+                Xóa
+              </Button>
+            </Popconfirm>
+          ) : (
             <Popconfirm
               title="Bạn có chắc chắn muốn khôi phục sản phẩm này?"
               onConfirm={() => handleRestoreProduct(record._id)}
+              okText="Đồng ý"
+              cancelText="Hủy"
             >
-              <Button type="primary">Khôi phục</Button>
+              <Button type="primary" loading={restoreMutation.isLoading}>
+                Khôi phục
+              </Button>
             </Popconfirm>
           )}
         </div>
