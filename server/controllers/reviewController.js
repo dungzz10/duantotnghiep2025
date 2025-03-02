@@ -1,5 +1,6 @@
 import Review from "../models/reviewModel.js";
 import Product from "../models/productModel.js";
+import Order from "../models/orderModel.js";
 
 //------------------------tạo đánh giá -----------------------
 export const createReview = async (req, res) => {
@@ -9,17 +10,28 @@ export const createReview = async (req, res) => {
             return res.status(400).json({ message: "Tất cả các trường đều bắt buộc" });
         }
 
-        const existingReview = await Review.findOne({ productId, userId });
+        // Kiểm tra xem user đã có đơn hàng 'delivered' với sản phẩm này chưa
+        const hasDeliveredOrder = await Order.findOne({
+            userId,
+            'products.productId': productId,
+            paymentStatus: 'delivered'
+        })
+
+        if(!hasDeliveredOrder ){
+            return res.status(403).json({
+                message: "Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng đã được giao"
+            })
+        }
+        // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
+        const existingReview = await Review.findOne({productId,userId}) 
         //nếu user id có review
-        if (existingReview) {
+        if(existingReview){
             existingReview.comment = comment;
             existingReview.rating = rating;
-            await existingReview.save();
-        } else {
-            const newReview = new Review({ comment, rating, productId, userId });
-            await newReview.save();
+            await existingReview.save()
         }
 
+        //tính toán trung bình rating 
         const reviews = await Review.find({ productId });
         if (reviews.length > 0) {
             const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);

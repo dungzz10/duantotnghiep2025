@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { postReview } from "./useReview";
+import { checkDeliveredOrder, postReview } from "./useReview";
 import { Filter } from "bad-words";
 
 const PostAReview = ({ isModalOpen, handleClose }) => {
@@ -39,6 +39,11 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
     e.preventDefault();
     if (!user) {
       alert("Bạn cần đăng nhập để gửi đánh giá.");
+      return;
+    }
+    const hasDeliveredOrder = await checkDeliveredOrder(user._id, id);
+    if (!hasDeliveredOrder) {
+      alert("Bạn chỉ có thể đánh giá sản phẩm sau khi đã mua và đơn hàng đã được giao.");
       return;
     }
 
