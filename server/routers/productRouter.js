@@ -8,6 +8,9 @@ import {
   restoreProduct,
   getAllProductsisDelete
 
+  // updateWarehouseStock,
+  // updateProductVariants,
+
 } from "../controllers/productControll.js";
 import { isAuththenticated } from "../middlewares/auth.js";
 
