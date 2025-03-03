@@ -1,7 +1,7 @@
 import Review from "../models/reviewModel.js";
 import Product from "../models/productModel.js";
 import Order from "../models/orderModel.js";
-import { checkDeliveredOrder } from "./orderController.js";
+
 
 //------------------------tạo đánh giá -----------------------
 export const createReview = async (req, res) => {
@@ -11,28 +11,27 @@ export const createReview = async (req, res) => {
             return res.status(400).json({ message: "Tất cả các trường đều bắt buộc" });
         }
 
-        // Kiểm tra đơn hàng đã được giao hay chưa
-        const delivered = await checkDeliveredOrder({ query: { orderId } });
-        if (!delivered) {
-            return res.status(403).json({
-                message: "Bạn chỉ có thể đánh giá sau khi đơn hàng được giao"
-            });
-        }
-
         // Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
-        const existingReview = await Review.findOne({productId,userId}) 
-        //nếu user id có review
-        if(existingReview){
-            existingReview.comment = comment;
-            existingReview.rating = rating;
-            await existingReview.save()
+        let review = await Review.findOne({ productId, userId });
+
+        if (review) {
+            // Cập nhật review nếu đã tồn tại
+            review.comment = comment;
+            review.rating = rating;
+            await review.save();
+        } else {
+            // Tạo mới review nếu chưa tồn tại
+            review = await Review.create({ comment, rating, productId, userId });
         }
 
-        //tính toán trung bình rating 
+        // Lấy lại tất cả review của sản phẩm này
         const reviews = await Review.find({ productId });
+
+        // Tính toán trung bình rating
         if (reviews.length > 0) {
             const totalRating = reviews.reduce((acc, review) => acc + review.rating, 0);
             const averageRating = totalRating / reviews.length;
+
             const product = await Product.findById(productId);
             if (product) {
                 product.rating = averageRating;
@@ -42,6 +41,7 @@ export const createReview = async (req, res) => {
             }
         }
 
+        // Trả về tất cả các review sau khi cập nhật
         return res.status(200).json({ message: "Bình luận thành công", reviews });
     } catch (error) {
         console.log("Lỗi:", error);
