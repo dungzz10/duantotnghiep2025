@@ -15,10 +15,6 @@ const ContactModel = new mongoose.Schema({
         type: Number,
         require: true
     },
-    address: {
-        type: String,
-        require: true
-    },
     support: {
         type: String,
         require: true

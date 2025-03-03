@@ -13,10 +13,6 @@ const contactSchema = joi.object({
         "string.empty": 'Trường phone không được để trống', 
         "any.required": 'Trường phone là bắt buộc',
     }),
-    address: joi.string().required().messages({
-        "string.empty": 'Trường address không được để trống',
-        "any.required": 'Trường address là bắt buộc',
-    }),
     support: joi.string().required().messages({
         "string.empty": 'Trường support không được để trống',
         "any.required": 'Trường support là bắt buộc',

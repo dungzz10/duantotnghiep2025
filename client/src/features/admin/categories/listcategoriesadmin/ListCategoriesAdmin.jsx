@@ -123,7 +123,7 @@ const ListCategoriesAdmin = () => {
       key: "actions",
       render: (_, item) => (
         <>
-          <Link to={`/admin/categories/edit/${item._id}`}>
+          <Link to={`/admin/sua-danh-muc/${item._id}`}>
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
               <EditOutlined />
             </button>
