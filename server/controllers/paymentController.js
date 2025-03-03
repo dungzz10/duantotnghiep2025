@@ -279,7 +279,7 @@ export const createWalletDeposit = CatchAsync(async (req, res, next) => {
       );
     }
 
-    // Add pending transaction to user's wallet
+   
     await User.findByIdAndUpdate(userId, {
       $push: {
         "wallet.transactions": {
