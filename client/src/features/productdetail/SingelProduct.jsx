@@ -11,6 +11,7 @@ import RelatedProducts from "./RelatedProducts";
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
+  console.log("data",data)
   const productReviews = data?.reviews || [];
 
   // Cập nhật logic xử lý variants

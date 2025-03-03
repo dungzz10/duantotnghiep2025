@@ -33,7 +33,6 @@ const productSchema = new mongoose.Schema(
     },
     shippingFee: {
       type: Number,
-      required: [true, "san pham can co gia van chuyen"],
     },
     image: [
       {
@@ -59,29 +58,29 @@ const productSchema = new mongoose.Schema(
             size: { type: String, required: true },
             quantity: { type: Number, required: true, min: 0 },
             price: { type: Number, required: true },
-          }
-        ]
-      }
+          },
+        ],
+      },
     ],
     condition: {
       type: String,
       enum: {
-        values: ["new", "used", "semiused"],
-        message: "condition has to be new , used, semiused",
+        values: ["new", "used", "semiused", "limited edition"],
       },
     },
     status: {
       type: String,
       enum: {
-        values: ["sale", "under reservation", "sold out", "hide"],
-        message: "status is incorrect",
+        values: ["sale", "sold out", "new"],
+        message: "Trạng thái không hợp lệ",
       },
-      default: "sale",
+      default: "new",
     },
     user: {
       type: mongoose.Schema.ObjectId,
       ref: "User",
     },
+
     rating: {
       type: Number,
       default: 4.5,
@@ -92,6 +91,21 @@ const productSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    salePrice: {
+      type: Number,
+      default: 0,
+      validate: {
+        validator: function (value) {
+          if (value === 0) return true;
+
+          const discountPercentage =
+            ((this.originalPrice - value) / this.originalPrice) * 100;
+
+          return discountPercentage >= 0 && discountPercentage <= 50;
+        },
+        message: "Giá khuyến mãi phải từ 0% đến 50% giá gốc",
+      },
+    },
     // warehouseStock: {
     //   type: Number,
     //   default: 0,
@@ -101,5 +115,23 @@ const productSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+productSchema.pre("save", function (next) {
+  if (this.salePrice && this.salePrice > 0) {
+    this.status = "sale";
+  } else {
+    this.status = "new";
+  }
+
+  const allSoldOut = this.variants.every((variant) =>
+    variant.sizes.every((size) => size.quantity === 0)
+  );
+
+  if (allSoldOut) {
+    this.status = "sold out";
+  }
+
+  next();
+});
 
 export default mongoose.model("Product", productSchema);

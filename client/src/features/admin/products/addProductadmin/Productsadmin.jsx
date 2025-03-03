@@ -6,8 +6,8 @@ import { Cloudinary } from "@cloudinary/url-gen";
 import { Resize } from "@cloudinary/url-gen/actions";
 import useaddproductadmin from "./useaddproductadmin";
 import useCategory from "./usecategory";
-import ProductVariantManager from "./ProductVariantManager"; // Import the new component
-// ProductVariantManager
+import ProductVariantManager from "./ProductVariantManager";
+
 const { Option } = Select;
 const statusData = [
   { name: "Mới", value: "new" },
@@ -109,39 +109,36 @@ const ProductsAdmin = () => {
   const onFinish = (values) => {
     const productData = { ...values };
 
-    // Transform variants to the format expected by your backend
     const formattedVariants = [];
-    
-    // Group variants by color
+
     const variantsByColor = {};
-    variants.forEach(variant => {
+    variants.forEach((variant) => {
       if (!variantsByColor[variant.color]) {
         variantsByColor[variant.color] = [];
       }
       variantsByColor[variant.color].push({
         size: variant.size,
         quantity: variant.quantity,
-        price: variant.price
+        price: variant.price,
       });
     });
-    
-    // Create the final variants structure
-    Object.keys(variantsByColor).forEach(color => {
+
+    Object.keys(variantsByColor).forEach((color) => {
       formattedVariants.push({
         color: color,
-        sizes: variantsByColor[color]
+        sizes: variantsByColor[color],
       });
     });
 
     productData.variants = formattedVariants;
     productData.image = images;
     productData.tag = tags;
-    
+
     console.log(productData);
     mutate(productData);
     message.success("Sản phẩm đã được thêm thành công!");
   };
-  
+
   if (loading) return <p>Loading...</p>;
   if (isLoading) return <p>Loading...</p>;
 
@@ -214,7 +211,7 @@ const ProductsAdmin = () => {
             </Select>
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="Tình trạng sản phẩm"
             name="condition"
             rules={[
@@ -228,7 +225,7 @@ const ProductsAdmin = () => {
                 </Radio>
               ))}
             </Radio.Group>
-          </Form.Item>
+          </Form.Item> */}
         </div>
 
         {/* Thêm trường mô tả */}
@@ -247,6 +244,48 @@ const ProductsAdmin = () => {
           rules={[{ required: true, message: "Vui lòng nhập giá sản phẩm!" }]}
         >
           <Input type="number" placeholder="Nhập giá sản phẩm" />
+        </Form.Item>
+
+        {/* Thêm trường giá khuyến mãi */}
+        <Form.Item
+          label="Giá khuyến mãi"
+          name="salePrice"
+          dependencies={["originalPrice"]}
+          rules={[
+            {
+              validator: async (_, value) => {
+                
+                const originalPrice = Number(form.getFieldValue("originalPrice"));
+                const salePriceValue = Number(value);
+        
+               
+                if (!value) return Promise.resolve();
+                
+               
+                if (!originalPrice) {
+                  return Promise.reject("Vui lòng nhập giá gốc trước!");
+                }
+        
+               
+                const discountPercentage = ((originalPrice - salePriceValue) / originalPrice) * 100;
+               
+                if (salePriceValue >= originalPrice) {
+                  return Promise.reject("Giá khuyến mãi phải thấp hơn giá gốc!");
+                }
+                console.log(discountPercentage)
+                if (discountPercentage < 50) {
+                  return Promise.reject("Giảm giá không được vượt quá 50% giá gốc!");
+                }
+        
+                return Promise.resolve();
+              },
+            },
+          ]}
+        >
+          <Input
+            type="number"
+            placeholder="Nhập giá khuyến mãi (không bắt buộc)"
+          />
         </Form.Item>
 
         <Form.Item label="Thẻ sản phẩm (không bắt buộc)" name="tag">
@@ -273,22 +312,18 @@ const ProductsAdmin = () => {
           </div>
         </Form.Item>
 
-        {/* New Variant Manager Component */}
-        <ProductVariantManager 
-          variants={variants} 
-          setVariants={setVariants} 
-        />
+        <ProductVariantManager variants={variants} setVariants={setVariants} />
 
         {/* Phí vận chuyển */}
-        <Form.Item
+        {/* <Form.Item
           name="shippingFee"
           label="Phí vận chuyển"
           rules={[{ required: true, message: "Vui lòng nhập phí vận chuyển!" }]}
         >
           <Input type="number" placeholder="Nhập phí vận chuyển" />
-        </Form.Item>
+        </Form.Item> */}
 
-        <Form.Item>
+        <Form.Item  className="py-5">
           <Button type="primary" htmlType="submit">
             Đăng ký sản phẩm
           </Button>
