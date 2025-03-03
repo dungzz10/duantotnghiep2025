@@ -48,6 +48,7 @@ import FavouritePage from "../features/favourite/FavouritePage";
 import ProductDetailAdmin from "../features/admin/products/productdetail/ProductDetailAdmin";
 import NoOrderPage from "../features/cart/NoOrderPage";
 import Warehouse from "../features/admin/warehouse/Warehouse";
+import SingelProduct from "../features/productdetail/SingelProduct";
 
 export const router = createBrowserRouter([
   {
@@ -81,7 +82,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/products/:id",
-        element: <ProductDetailPage />,
+        element: <SingelProduct />,
       },
       {
         path: "/about",
