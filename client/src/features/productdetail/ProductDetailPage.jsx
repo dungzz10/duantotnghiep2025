@@ -8,9 +8,10 @@ import RatingStarts from "../../components/RatingStarts";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
+  console.log("data",data)
   const productReviews = data?.reviews || [];
 
-  // Cập nhật logic xử lý variants
+
   const colorVariants = useMemo(() => {
     // console.log(data?.product);
     if (!data?.product?.variants) return {};
