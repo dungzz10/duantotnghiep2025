@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "../features/404/NotFoundPage";
 import HomePage from "../features/HomePage";
 import AboutPage from "../features/about/AboutPage";
-
+import MomoSuccess from "../features/momo/MomoSuccess";
 import Customer from "../features/admin/customers/customer";
 import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
@@ -58,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/momo-success",
+        element: <MomoSuccess />,
       },
 
       {
@@ -179,11 +183,11 @@ export const router = createBrowserRouter([
           { path: "detail/:userId", element: <UserDetail /> },
         ],
       },
-      { path: "useradmin", element: <UserAdminPage />,
-        children :[
-          { path: "listuseradmin", element: <UserAdminList/> },
-        ]
-       },
+      {
+        path: "useradmin",
+        element: <UserAdminPage />,
+        children: [{ path: "listuseradmin", element: <UserAdminList /> }],
+      },
       {
         path: "products",
         element: <ProductAdminPage />,
