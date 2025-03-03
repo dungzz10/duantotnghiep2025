@@ -22,6 +22,51 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
     return urlRegex.test(text);
   };
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!user) {
+      alert("Bạn cần đăng nhập để gửi đánh giá.");
+      return;
+    }
+    try {
+      const hasDeliveredOrder = await checkDeliveredOrder(user._id, id);
+      if (!hasDeliveredOrder) {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Bạn chỉ được đánh giá khi đã mua thành công sản phẩm này!",
+        }).then(() => {
+          handleClose(); // Đóng modal
+          navigate(`/products/${id}`);
+        });
+        return;
+      }
+
+      if (filter.isProfane(comment)) {
+        alert(`Bình luận của bạn có từ ngữ: (${comment}) bị cấm  `);
+        return;
+      }
+
+      // Kiểm tra link trong bình luận
+      if (containsLink(comment)) {
+        alert("Bình luận của bạn không được chứa link.");
+        return;
+      }
+
+      const newComment = {
+        comment,
+        rating,
+        userId: user._id, // Lấy user từ localStorage
+        productId: id,
+      };
+      mutation.mutate(newComment);
+    } catch (error) {
+      console.error("Lỗi kiểm tra đơn hàng:", error);
+      alert("Lỗi kiểm tra đơn hàng, vui lòng thử lại.");
+    }
+  };
   const mutation = useMutation({
     mutationFn: postReview,
     onSuccess: () => {
@@ -35,48 +80,6 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
       alert(error.message);
     },
   });
-
-  const user = JSON.parse(localStorage.getItem("user"));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!user) {
-      alert("Bạn cần đăng nhập để gửi đánh giá.");
-      return;
-    }
-    const hasDeliveredOrder = await checkDeliveredOrder(user._id, id);
-    if (!hasDeliveredOrder) {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "Bạn chỉ được đánh giá khi đã mua thành công sản phẩm này!",
-      }).then(() => {
-        handleClose(); // Đóng modal
-        navigate(`/products/${id}`);
-      });
-      return;
-    }
-    
-    if (filter.isProfane(comment)) {
-      alert(`Bình luận của bạn có từ ngữ: (${comment}) bị cấm  `);
-      return;
-    }
-
-    // Kiểm tra link trong bình luận
-    if (containsLink(comment)) {
-      alert("Bình luận của bạn không được chứa link.");
-      return;
-    }
-
-    const newComment = {
-      comment: comment,
-      rating: rating,
-      userId: user._id, // Lấy user từ localStorage
-      productId: id,
-    };
-    mutation.mutate(newComment);
-  };
-
   const handleRating = (value) => {
     setRating(value);
   };

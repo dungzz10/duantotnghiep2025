@@ -36,17 +36,21 @@ export const getNewOrders = CatchAsync(async (req, res, next) => {
   }
 });
 
-// Kiểm tra xem đơn hàng đã được giao hay chưa
+
+// Kiểm tra xem người dùng có đơn hàng đã giao với sản phẩm này chưa
 export const checkDeliveredOrder = async (req, res) => {
-  const { orderId } = req.query;
-  if (!orderId) {
-      return res.status(400).json({ message: "Thiếu orderId" });
+  const { userId, productId } = req.query;
+
+  if (!productId || !userId) {
+      return res.status(400).json({ message: "Thiếu productId hoặc userId" });
   }
 
   try {
+      // Kiểm tra đơn hàng có sản phẩm và đã giao chưa
       const order = await Order.findOne({
-          _id: orderId,
-          orderStatus: 'delivered'
+          userId: userId,
+          "products.productId": productId, // Kiểm tra trong mảng products
+          orderStatus: "delivered"
       });
 
       if (!order) {
@@ -59,6 +63,7 @@ export const checkDeliveredOrder = async (req, res) => {
       return res.status(500).json({ message: "Lỗi server" });
   }
 };
+
 
 export const getAllOrders = CatchAsync(async (req, res, next) => {
   const { id: userId, role } = req.user;

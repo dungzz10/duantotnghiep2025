@@ -1,16 +1,26 @@
 import axios from "axios";
 
-// Gửi đánh giá sản phẩm
 export const postReview = async (reviewData) => {
-    const response = await axios.post('http://localhost:5000/api/v1/reviews', reviewData);
-    return response.data;
+    try {
+        console.log("Dữ liệu gửi lên server:", reviewData); // Log kiểm tra
+        const response = await axios.post("http://localhost:5000/api/v1/reviews", reviewData, {
+            headers: { "Content-Type": "application/json" },
+        });
+        console.log("Phản hồi từ server:", response.data); // Log kiểm tra
+        return response.data;
+    } catch (error) {
+        console.error("Lỗi khi gửi đánh giá:", error.response?.data || error.message);
+        throw error;
+    }
 };
 
-// Kiểm tra xem user có đơn hàng "delivered" với sản phẩm này chưa
-export const checkDeliveredOrder = async (orderId) => {
+
+// Hàm kiểm tra đơn hàng đã giao qua userId và productId
+export const checkDeliveredOrder = async (userId, productId) => {
+
     try {
-        const response = await axios.get(`http://localhost:5000/api/v1/orders/check-delivered`, {
-            params: { orderId }
+        const response = await axios.get("http://localhost:5000/api/v1/orders/check-delivered", {
+            params: { userId, productId }
         });
         return response.status === 200;
     } catch (error) {

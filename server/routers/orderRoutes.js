@@ -7,7 +7,7 @@ import { isAuththenticated } from "../middlewares/auth.js";
 const orderRoutes = express.Router();
 
 
-orderRoutes.get('/check-delivered', checkDeliveredOrder);
+orderRoutes.get('/check-delivered',isAuththenticated, checkDeliveredOrder);
 orderRoutes.get("/", isAuththenticated, getAllOrders);
 orderRoutes.get("/new", isAuththenticated, getNewOrders);
 orderRoutes.post("/create",isAuththenticated, createCODOrder);

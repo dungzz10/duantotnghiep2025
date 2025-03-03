@@ -7,7 +7,6 @@ import { useContext } from 'react';
 const ReviewCart = ({ productReviews }) => {
     const [isModalOpen, setIsModalOpen] = useState(false)//trạng thái đóng mở
     const reviews = productReviews || [] // mảng ds bình luậnluận
-    console.log(reviews);
 
     //nút mở model khi thêm bình luận 
     const handleOpenReviewModal = () => {
