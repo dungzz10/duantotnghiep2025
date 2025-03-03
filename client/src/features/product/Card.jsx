@@ -3,44 +3,28 @@ import React from "react";
 
 const Card = ({ product }) => {
   return (
-    <div className="card bg-base-100 shadow-xl">
-      <figure>
-       
-        <Link to={`/products/${product._id}`}>
-          <img
-            src={product.image?.length ? product.image[0].url : "https://via.placeholder.com/300"}
-            alt={product.title}
-            className="h-56 w-full object-cover"
-          />
-        </Link>
-      </figure>
-      <div className="card-body p-4">
-        <h2 className="card-title">
-          <Link to={`/product/${product._id}`} className="hover:text-blue-500">
-            {product.title}
-          </Link>
-          <div className="badge badge-neutral p-2 rounded-lg uppercase">{product.brand}</div>
-          {product.status === "sale" && <div className="badge badge-primary">SALE</div>}
-        </h2>
-        <h1 className="text-2xl font-bold text-red-500">
-          {product.salePrice ? `$${product.salePrice}` : `$${product.originalPrice}`}
-        </h1>
-        {product.salePrice && (
-          <p className="text-sm text-gray-500 line-through">Original: ${product.originalPrice}</p>
-        )}
-        <p className="text-sm">{product.description}</p>
-        <div className="card-actions justify-start mt-2">
-          {product.tag?.map((tag, index) => (
-            <div key={index} className="badge badge-outline">
-              {tag}
-            </div>
-          ))}
+    <Link
+      className="bg-white transform overflow-hidden duration-200 hover:scale-105 cursor-pointer"
+      to={`/products/${product._id}`}
+    >
+      <img
+        className="w-full"
+        src={product.image?.[0]?.url || "https://via.placeholder.com/500"}
+        alt={product.title}
+      />
+      <div className="p-4 text-black/[0.9]">
+        <h2 className="text-lg font-medium">{product.title}</h2>
+        <div className="flex items-center text-black/[0.5]">
+          <p className="mr-2 text-lg font-semibold">${product.originalPrice}</p>
+          {product.originalPrice && (
+            <p className="text-base font-medium line-through">
+              ${product.originalPrice * 1.2}
+            </p>
+          )}
+          <p className="ml-auto text-base text-green-500">20% off</p>
         </div>
-        <p className="text-sm font-light text-gray-400 mt-2">
-          {new Date(product.createdAt).toLocaleDateString()}
-        </p>
       </div>
-    </div>
+    </Link>
   );
 };
 
