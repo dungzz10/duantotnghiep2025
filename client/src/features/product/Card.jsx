@@ -15,10 +15,10 @@ const Card = ({ product }) => {
       <div className="p-4 text-black/[0.9]">
         <h2 className="text-lg font-medium">{product.title}</h2>
         <div className="flex items-center text-black/[0.5]">
-          <p className="mr-2 text-lg font-semibold">${product.originalPrice}</p>
+          <p className="mr-2 text-lg font-semibold">{product.originalPrice}đ</p>
           {product.originalPrice && (
             <p className="text-base font-medium line-through">
-              ${product.originalPrice * 1.2}
+              {product.originalPrice * 1.2}đ
             </p>
           )}
           <p className="ml-auto text-base text-green-500">20% off</p>
