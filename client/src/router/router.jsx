@@ -49,6 +49,8 @@ import ProductDetailAdmin from "../features/admin/products/productdetail/Product
 import NoOrderPage from "../features/cart/NoOrderPage";
 import Warehouse from "../features/admin/warehouse/Warehouse";
 import SingelProduct from "../features/productdetail/SingelProduct";
+import CategoriesPage from "../features/categories/CategoriesPage";
+import ContactAdmin from "../features/admin/contact/ContactAdmin";
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +65,10 @@ export const router = createBrowserRouter([
       {
         path: "/products",
         element: <ProductPage />,
+      },
+      {
+        path: "/danh-muc",
+        element: <CategoriesPage />,
       },
       {
         path: "/favourite",
@@ -160,14 +166,15 @@ export const router = createBrowserRouter([
       { path: "inventory", element: <Iventory /> },
       { path: "orders", element: <Order /> },
       {
-        path: "categories",
+        path: "/admin/",
         element: <CategoriesAdmin />,
         children: [
-          { path: "listcategoriesadmin", element: <ListCategoriesAdmin /> },
-          { path: "addcategoriesadmin", element: <AddCategoriesAdmin /> },
-          { path: "edit/:id", element: <UppdateCategoriesAdmin /> },
+          { path: "danh-muc", element: <ListCategoriesAdmin /> },
+          { path: "them-danh-muc", element: <AddCategoriesAdmin /> },
+          { path: "sua-danh-muc/:id", element: <UppdateCategoriesAdmin /> },
         ],
       },
+      { path: "lien-he", element: <ContactAdmin /> },
       { path: "warehouse", element: <Warehouse /> },
       {
         path: "customers",
