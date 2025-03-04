@@ -104,8 +104,8 @@ const Order = () => {
     { title: "#", dataIndex: "idx", key: "idx" },
     {
       title: "ID",
-      dataIndex: "_id",
-      key: "_id",
+      dataIndex: "orderId",
+      key: "orderId",
     },
     {
       title: "Tên khách hàng",
@@ -114,19 +114,22 @@ const Order = () => {
       render: (user) => user?.name || "Unknown",
     },
     {
-      title: "Số lượng",
-      dataIndex: "products",
-      key: "products",
-      render: (products) =>
-        products.reduce((total, item) => total + item.quantity, 0),
-    },
-    {
       title: "Tổng tiền",
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
       render: (amount) => `${amount} VNĐ`,
     },
+    {
+      title: "Phương thức thanh toán",
+      dataIndex: ["paymentMethod", "paymentStatus"],
+      key: "payment",
+      render: (text, record) => 
+        record.paymentMethod && record.paymentStatus
+          ? `${record.paymentMethod} (${record.paymentStatus})`
+          : "Không xác định"
+      
+    },   
     {
       title: "Trạng thái",
       dataIndex: "orderStatus",
@@ -234,14 +237,14 @@ const Order = () => {
         {selectedOrder && (
           <div>
             <p>
-              <strong>ID:</strong> {selectedOrder._id}
+              <strong>ID Đơn Hàng:</strong> {selectedOrder.orderId}
             </p>
             <p>
-              <strong>Date:</strong>{" "}
-              {format(new Date(selectedOrder.date), "MM/dd/yyyy")}
+              <strong>Ngày đặt:</strong>{" "}
+              {format(new Date(selectedOrder.date), "HH:mm:ss MM/dd/yyyy ")}
             </p>
             <p>
-              <strong>Status:</strong>
+              <strong>Trạng thái:</strong>
               <Select
                 value={editingStatus}
                 onChange={setEditingStatus}
@@ -255,9 +258,39 @@ const Order = () => {
                 <Option value="cancelled">Cancelled</Option>
               </Select>
             </p>
-            <h4>
-              <strong>Products:</strong>
-            </h4>
+
+            {/* Thông tin khách hàng */}
+            <h2>
+              <strong>Thông tin khách hàng:</strong>
+            </h2>
+            {selectedOrder.userId && (
+              <div style={{ marginBottom: "15px" }}>
+                <p>
+                  <strong>Tên:</strong> {selectedOrder.userId.name}
+                </p>
+                <p>
+                  <strong>Số điện thoại:</strong> {selectedOrder.userId.phone}
+                </p>
+                <p>
+                  <strong>Email:</strong> {selectedOrder.userId.email}
+                </p>
+                <p>
+                  <strong>Giới thiệu:</strong>{" "}
+                  {selectedOrder.userId.introduction || "Không có"}
+                </p>
+                <p>
+                  <strong>Địa chỉ:</strong>{" "}
+                  {selectedOrder.userId.address
+                    ?.map((addr) => `${addr.address} (${addr.addressType})`)
+                    .join(", ")}
+                </p>
+              </div>
+            )}
+
+            {/* Danh sách sản phẩm */}
+            <h2>
+              <strong>Sản phẩm trong đơn hàng:</strong>
+            </h2>
             <div style={{ maxHeight: "500px", overflowY: "auto" }}>
               {selectedOrder.products.map((item, idx) => (
                 <div
@@ -279,15 +312,49 @@ const Order = () => {
                       borderRadius: "10px",
                     }}
                   />
-                  <span style={{ fontSize: "16px" }}>
-                    {item.name} (x{item.quantity}) - {item.price} VNĐ -{" "}
-                    {item.size} - {item.color}
-                  </span>
+                  <div>
+                    <p>
+                      <strong>Tên:</strong> {item.name}
+                    </p>
+                    <p>
+                      <strong>Màu sắc:</strong> {item.color}
+                    </p>
+                    <p>
+                      <strong>Số lượng:</strong> {item.quantity}
+                    </p>
+                    <p>
+                      <strong>Kích thước:</strong> {item.size}
+                    </p>
+                    <p>
+                      <strong>Thương hiệu:</strong> {item.productId.brand}
+                    </p>
+                    <p>
+                      <strong>Mô tả:</strong> {item.productId.description}
+                    </p>
+                    <p>
+                      <strong>Giá:</strong> {item.price} VNĐ
+                    </p>
+                    <p>
+                      <strong>Loại sản phẩm:</strong> {item.productId.condition}
+                    </p>
+                    <p>
+                      <strong>Đánh giá:</strong> {item.productId.rating} (
+                      {item.ratingQuantity} lượt đánh giá)
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
             <p>
-              <strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ
+              <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee} VNĐ
+            </p>
+            <p>
+              <strong>Giảm giá Voucher:</strong> {selectedOrder.voucherDiscount}{" "}
+              VNĐ
+            </p>
+            <p>
+              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal}{" "}
+              VNĐ
             </p>
           </div>
         )}

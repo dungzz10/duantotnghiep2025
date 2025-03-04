@@ -78,11 +78,14 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
   }
   
   const orders = await Order.find(filter)
-    .populate("userId", "name")
-    .populate({
-      path: "products.productId",
-      select: "name price image",
-    })
+  .populate({
+    path: "userId",
+    select: "-password -passwordResetToken -passwordResetExpires",
+  })
+  .populate({
+    path: "products.productId",
+    select: "-__v -isDeleted", 
+  })
     .lean();
 
   if (!orders || orders.length === 0) {
@@ -105,11 +108,15 @@ export const getOrderById = CatchAsync(async (req, res, next) => {
   }
 
   const order = await Order.findById(orderId)
-    .populate({
-      path: "products.productId",
-      select: "name price image",
-    })
-    .lean();
+  .populate({
+    path: "userId",
+    select: "-password -passwordResetToken -passwordResetExpires",
+  })
+  .populate({
+    path: "products.productId",
+    select: "-__v -isDeleted", 
+  })
+  .lean();
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
@@ -144,8 +151,12 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
       return next(new HandelError("Mỗi sản phẩm phải có productId", 400));
     }
   }
-
-  const orderId = `ORD-${Date.now()}`;
+  const generateOrderId = () =>
+    `${Math.random().toString(36).toUpperCase().slice(2, 6)}-${Math.floor(
+      10000 + Math.random() * 90000
+    )}`;
+    
+  const orderId = generateOrderId();
 
   const newOrder = await Order.create({
     userId,

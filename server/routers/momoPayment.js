@@ -5,7 +5,6 @@ import { isAuththenticated } from "../middlewares/auth.js";
 const router = express.Router();
 
 router.post("/payment", isAuththenticated, createMomoPayment);
-
 // Xác nhận trạng thái giao dịch
 router.get("/verify/:orderId", isAuththenticated, verifyTransaction);
 
