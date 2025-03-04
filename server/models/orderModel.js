@@ -83,7 +83,6 @@ const orderSchema = new mongoose.Schema({
     enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
     default: "pending",
   },
-  deliveredAt: Date, 
   date: {
     type: Date,
     default: Date.now,

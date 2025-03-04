@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { notification, Result, Spin } from "antd";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const PaymentSuccess = () => {
     const queryParams = new URLSearchParams(location.search);
     const orderId = queryParams.get("orderId");
 
-    if (!orderId) return navigate("/");
+    if (!orderId) return navigate("/cart/checkout");
 
     const verifyPayment = async () => {
       try {
@@ -21,14 +22,21 @@ const PaymentSuccess = () => {
         const data = await response.json();
         console.log("Kết quả xác nhận thanh toán:", data);
 
-        if (data.success && data.status === "completed") {
+        if (data.success) {
           localStorage.removeItem("cart");
-
-          alert("Thanh toán thành công! Đơn hàng đang được chuẩn bị.");
-          navigate(`/cart?success=true`);
+          notification.success({
+            message: "Thanh toán thành công",
+            description: "Đơn hàng đang được chuẩn bị. Bạn sẽ được chuyển về trang chủ sau 5 giây.",
+            duration: 5,
+          });
+          setTimeout(() => navigate("/momo-success"), 5000);
         } else {
-          alert(`Thanh toán thất bại: ${data.message}`);
-          navigate(`/cart?success=false`);
+          notification.error({
+            message: "Thanh toán thất bại",
+            description: data.message || "Có lỗi xảy ra khi xác nhận thanh toán!",
+            duration: 5,
+          });
+          setTimeout(() => navigate("/"), 5000);
         }
       } catch (error) {
         console.error("Lỗi xác nhận giao dịch:", error);
@@ -36,14 +44,17 @@ const PaymentSuccess = () => {
         navigate("/cart");
       }
     };
-
     verifyPayment();
   }, [location, navigate]);
 
   return (
-    <div>
-      <h2>Đang kiểm tra trạng thái thanh toán...</h2>
-      <p>Mã đơn hàng: {new URLSearchParams(location.search).get("orderId")}</p>
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <Spin size="large" />
+      <Result
+        status="info"
+        title="Đang kiểm tra trạng thái thanh toán..."
+        subTitle={`Mã đơn hàng: ${new URLSearchParams(location.search).get("orderId")}`}
+      />
     </div>
   );
 };
