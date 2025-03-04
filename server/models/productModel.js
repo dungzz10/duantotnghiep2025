@@ -101,7 +101,7 @@ const productSchema = new mongoose.Schema(
           const discountPercentage =
             ((this.originalPrice - value) / this.originalPrice) * 100;
 
-          return discountPercentage >= 0 && discountPercentage <= 50;
+          return  discountPercentage > 50;
         },
         message: "Giá khuyến mãi phải từ 0% đến 50% giá gốc",
       },
