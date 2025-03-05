@@ -33,7 +33,7 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
   }
 
   // Cho phép cập nhật các trường này
-  const allowedFields = ["name", "email", "photo", "address", "introduction"];
+  const allowedFields = ["name", "email", "photo", "address", "introduction","phoneNumber"];
   const updateData = {};
 
   // Lọc và xử lý các trường được phép cập nhật
@@ -68,6 +68,7 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
       photo: updatedUser.photo,
       introduction: updatedUser.introduction,
       address: updatedUser.address,
+      phoneNumber:updatedUser.phoneNumber
     },
   });
 });
