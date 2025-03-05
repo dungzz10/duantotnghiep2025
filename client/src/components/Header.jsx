@@ -99,10 +99,6 @@ const Header = ({ user }) => {
               }
             </div>
           </div>
-
-
-
-
           {user ? (
             <div className="dropdown dropdown-end z-20">
               {/* Avatar (Button để mở dropdown) */}
@@ -111,7 +107,6 @@ const Header = ({ user }) => {
                   <img src={user.photo || "https://via.placeholder.com/40"} alt="User Avatar" />
                 </div>
               </div>
-
               {/* Dropdown Menu */}
               <ul
                 tabIndex={0}
@@ -149,11 +144,7 @@ const Header = ({ user }) => {
               </Link>
             </div>
           )}
-
-
         </div>
-
-
       </Wrapper>
     </header>
   );
