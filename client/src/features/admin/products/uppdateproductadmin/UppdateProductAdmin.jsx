@@ -25,11 +25,10 @@ const cld = new Cloudinary({
 });
 
 const checkDuplicateVariant = (variants, currentVariant, currentSize) => {
- 
   const existingVariant = variants.find(
     (v) => v.color.toLowerCase() === currentVariant.color.toLowerCase()
   );
-  console.log(existingVariant)
+  console.log(existingVariant);
 
   if (existingVariant) {
     // Check if size already exists for this color
@@ -64,7 +63,7 @@ const UppdateProductAdmin = () => {
   const { data, isLoadingProduct } = useGetOneProduct(id);
   const { mutate, isLoading } = useUppdateProduct();
   const { category, loading } = useCategory();
-  
+
   console.log("cate", category);
   const [form] = Form.useForm();
   const [tags, setTags] = useState([]); // Lưu trữ các thẻ sản phẩm
@@ -72,17 +71,18 @@ const UppdateProductAdmin = () => {
   console.log("images", images);
   const [variants, setVariants] = useState([]); // Quản lý biến thể sản phẩm
   const [existingVariants, setExistingVariants] = useState([]); // Store existing variants for comparison
-  console.log(variants)
+  // console.log(variants);
 
   useEffect(() => {
     if (data?.product) {
       const product = data.product;
-      console.log(product.category)
+      // console.log(category)
+
       const selectedCategory = category?.data?.find(
         (cat) => cat._id === product.category
       );
-      console.log(selectedCategory);
-      product.category = selectedCategory.name
+
+      product.category = selectedCategory.name;
       form.setFieldsValue({
         title: product.title,
         brand: product.brand,
@@ -95,7 +95,6 @@ const UppdateProductAdmin = () => {
       setImages(product.image || []);
       setTags(product.tag || []);
       // console.log(category.data)
-     
 
       // Tạo lại các biến thể với dữ liệu có sẵn
       const transformedVariants =
@@ -109,12 +108,12 @@ const UppdateProductAdmin = () => {
             isExisting: true, // Đánh dấu các biến thể có sẵn
           }))
         ) || [];
-        // console.log(transformedVariants)
+      // console.log(transformedVariants)
 
       setVariants(transformedVariants);
       setExistingVariants(product.variants || []); // Lưu biến thể đã tồn tại để kiểm tra trùng
     }
-  }, [data, form]);
+  }, [data, form, category]);
 
   const handleAddImages = (newImages) => {
     setImages(newImages); // Cập nhật lại ảnh sau khi thêm ảnh
@@ -320,17 +319,19 @@ const UppdateProductAdmin = () => {
             rules={[{ required: true, message: "Vui lòng chọn danh mục!" }]}
           >
             <Select placeholder="Chọn danh mục">
-              {category?.data?.map((categoryItem) => (
-             
-                <Option key={categoryItem._id} value={categoryItem.name}>
-                  
-                  {category.name}
-                </Option>
-              ))}
+              {loading ? (
+                <Option disabled>Đang tải danh mục...</Option>
+              ) : category?.data && category.data.length > 0 ? (
+                category?.data?.map((categoryItem) => (
+                  <Option key={categoryItem._id} value={categoryItem.name}>
+                    {categoryItem?.name} 
+                  </Option>
+                ))
+              ) : (
+                <Option disabled>Không có danh mục</Option> // Hiển thị nếu không có danh mục
+              )}
             </Select>
           </Form.Item>
-
-        
         </div>
 
         {/* Thêm trường mô tả */}
@@ -377,7 +378,7 @@ const UppdateProductAdmin = () => {
                   );
                 }
 
-                if (discountPercentage > 50) {
+                if (discountPercentage < 50) {
                   return Promise.reject(
                     "Giảm giá không được vượt quá 50% giá gốc!"
                   );

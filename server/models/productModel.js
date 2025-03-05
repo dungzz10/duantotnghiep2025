@@ -94,17 +94,17 @@ const productSchema = new mongoose.Schema(
     salePrice: {
       type: Number,
       default: 0,
-      validate: {
-        validator: function (value) {
-          if (value === 0) return true;
+      // validate: {
+      //   validator: function (value) {
+      //     if (value === 0) return true;
 
-          const discountPercentage =
-            ((this.originalPrice - value) / this.originalPrice) * 100;
+      //     const discountPercentage =
+      //       ((this.originalPrice - value) / this.originalPrice) * 100;
 
-          return  discountPercentage > 50;
-        },
-        message: "Giá khuyến mãi phải từ 0% đến 50% giá gốc",
-      },
+      //     return  discountPercentage > 50;
+      //   },
+      //   message: "Giá khuyến mãi phải từ 0% đến 50% giá gốc",
+      // },
     },
     // warehouseStock: {
     //   type: Number,

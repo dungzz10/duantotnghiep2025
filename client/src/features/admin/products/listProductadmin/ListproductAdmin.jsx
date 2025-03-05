@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  Tag,
   Table,
   Image,
   Input,
   Select,
-  Tag,
   Button,
   Popconfirm,
   message,
+  DatePicker,
 } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
@@ -16,7 +17,6 @@ import axios from "axios";
 const { Option } = Select;
 
 const fetchProducts = async (query) => {
-  //
   // Lọc bỏ các tham số có giá trị rỗng hoặc undefined
   const filteredQuery = Object.fromEntries(
     Object.entries(query).filter(([_, value]) => value && value.trim() !== "")
@@ -37,6 +37,8 @@ const ListproductAdmin = () => {
     status: "",
     condition: "",
     sort: "originalPrice",
+    startDate: "",
+    endDate: "",
   });
 
   const queryClient = useQueryClient();
@@ -95,9 +97,11 @@ const ListproductAdmin = () => {
   });
 
   const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setFilters((prev) => ({
+      ...prev,
+      [key]: prev[key] === value ? `-${value}` : value,
+    }));
   };
-
   const handleDeleteProduct = (id) => {
     deleteMutation.mutate(id);
   };
@@ -154,6 +158,13 @@ const ListproductAdmin = () => {
         ) : (
           <Tag color="green">Còn hàng</Tag>
         ),
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      render: (date) => new Date(date).toLocaleDateString(),
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
     },
     {
       title: "Chi tiết",
@@ -221,32 +232,23 @@ const ListproductAdmin = () => {
           onChange={(value) => handleFilterChange("status", value)}
           style={{ width: 150, marginRight: 8 }}
         >
-          <Option value="">Tất cả</Option>
-          <Option value="sale">Sale</Option>
-          <Option value="under reservation">Under Reservation</Option>
+          <Option value="">Trạng thái</Option>
+          <Option value="sale">Sale</Option>        
           <Option value="sold out">Sold Out</Option>
-          <Option value="hide">Hide</Option>
+          <Option value="new">new</Option>
         </Select>
-        <Select
-          placeholder="Điều kiện"
-          value={filters.condition}
-          onChange={(value) => handleFilterChange("condition", value)}
-          style={{ width: 150, marginRight: 8 }}
-        >
-          <Option value="">Tất cả</Option>
-          <Option value="new">New</Option>
-          <Option value="used">Used</Option>
-          <Option value="semiused">Semiused</Option>
-        </Select>
+     
         <Select
           placeholder="Sắp xếp"
           value={filters.sort}
           onChange={(value) => handleFilterChange("sort", value)}
-          style={{ width: 150 }}
+          style={{ width: 150, marginRight: 8 }}
         >
           <Option value="originalPrice">Giá gốc</Option>
           <Option value="salePrice">Giá giảm</Option>
           <Option value="rating">Đánh giá</Option>
+          <Option value="-createdAt">Ngày tạo</Option>
+          <Option value="-updatedAt">Uppdate Gần nhất </Option>
         </Select>
       </div>
       <Table

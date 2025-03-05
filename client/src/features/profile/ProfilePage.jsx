@@ -11,7 +11,7 @@ const ProfilePage = () => {
   return (
     <>
    {}
-    <div>
+    <div className="containerCustom">
       <Header user={user} />
       <div className="section normalFlexResponsive align-middle flex items-center justify-center h-screen">
         <div className="w-full 800px:w-3/12 self-start mb-14 800px:mr-12 800px:mb-0 text-center">
