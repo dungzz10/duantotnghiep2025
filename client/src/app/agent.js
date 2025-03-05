@@ -124,7 +124,19 @@ const Account = {
   deactiveUser: (id) => {
     try {
       const res = request.put(`/user/deactive/${id}`);
-      return res
+      return res;
+    } catch (error) {}
+  },
+  uppdateMe: (data) => {
+    try {
+      const res = request.put(`/user/me`, data);
+      return res;
+    } catch (error) {}
+  },
+  uppdatePassword: async (data) => {
+    try {
+      const res = await request.put(`user/uppdatepassword`, data);
+      return res;
     } catch (error) {}
   },
 };

@@ -1,6 +1,7 @@
 import React from "react";
 
 const ProfileSidebar = ({ user }) => {
+  const dateString = user.createdAt.toString().split("T")[0];
   return (
     <div className="flex flex-col items-center p-4">
       <div className="avatar">
@@ -11,7 +12,7 @@ const ProfileSidebar = ({ user }) => {
       <br />
       <h1 className="font-bold text-xl mb-3">{user.name}</h1>
       <h1 className="font-bold text-xl mb-3">{user.email}</h1>
-      <p className="text-slate-500"> thoi gia tao acc here </p>
+      <p className="text-slate-500"> {dateString} </p>
     </div>
   );
 };

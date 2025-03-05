@@ -52,6 +52,9 @@ const userSchema = new mongoose.Schema(
       // type: mongoose.Schema.Types.ObjectId,
       // ref: "Order",
     },
+    phoneNumber: {
+      type: Number,
+    },
 
     withdrawalAccounts: [
       {
@@ -70,7 +73,14 @@ const userSchema = new mongoose.Schema(
         {
           type: {
             type: String,
-            enum: ["momo_naptien", "deposit", "withdrawal", "muahang"], // Update enum to include new type
+            enum: [
+              "momo_naptien",
+              "deposit",
+              "withdraw",
+              "transfer",
+              "muahang",
+              "momo_payment",
+            ], // Update enum to include new type
             required: true,
           },
           amount: {
