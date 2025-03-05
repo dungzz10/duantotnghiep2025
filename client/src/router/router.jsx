@@ -67,12 +67,8 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/products",
+        path: "/san-pham",
         element: <ProductPage />,
-      },
-      {
-        path: "/danh-muc",
-        element: <CategoriesPage />,
       },
       {
         path: "/favourite",
@@ -91,16 +87,16 @@ export const router = createBrowserRouter([
         element: <BranchPage />,
       },
       {
-        path: "/products/:id",
+        path: "/san-pham/:id",
         element: <SingelProduct />,
       },
       {
-        path: "/about",
+        path: "/gioi-thieu",
         element: <AboutPage />,
       },
 
       {
-        path: "/contact",
+        path: "/lien-he",
         element: <ContactPage />,
       },
       {
@@ -134,6 +130,10 @@ export const router = createBrowserRouter([
       {
         path: "/contact",
         element: <ContactPage />,
+      },
+      {
+        path: "/danh-muc/:id",
+        element: <CategoriesPage />,
       },
     ],
   },
