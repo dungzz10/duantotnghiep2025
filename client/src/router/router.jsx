@@ -67,7 +67,7 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/san-pham",
+        path: "/products",
         element: <ProductPage />,
       },
       {
@@ -87,7 +87,7 @@ export const router = createBrowserRouter([
         element: <BranchPage />,
       },
       {
-        path: "/san-pham/:id",
+        path: "/products/:id",
         element: <SingelProduct />,
       },
       {
