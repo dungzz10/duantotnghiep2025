@@ -34,6 +34,7 @@ export const createFavourite = async (req, res) => {
 
 export const getFavourites = async (req, res) => {
   const userId = req.user.id;
+  console.log();
 
   const user = await usersModel.findById(userId);
 
@@ -41,10 +42,18 @@ export const getFavourites = async (req, res) => {
     throw new Error(message, "tai khoan k ton tai");
   }
 
-  res.status(201).json({
+  // lay id san pham yeu thich
+  const favouritesId = user.favourites;
+
+  // tu id san pham yeu thich lay toan bo thong tin cua san pham
+  const favourites = await productModel.find({
+    _id: { $in: favouritesId },
+  });
+
+  res.status(200).json({
     success: true,
     data: {
-      favourites: user.favourites,
+      favourites,
     },
   });
 };
