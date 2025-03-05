@@ -218,9 +218,24 @@ export const getSingleProducts = async (req, res) => {
   }
 };
 export const updateProduct = CatchAsync(async (req, res, next) => {
+  const productData = req.body;
+
+  // Kiểm tra và xử lý danh mục (giống createProduct)
+  if (productData.category) {
+    const category = await Category.findOne({ name: productData.category });
+
+    // Nếu danh mục không tồn tại
+    if (!category) {
+      return next(new HandelError("Danh mục không tồn tại", 400));
+    }
+
+    // Lấy ID của danh mục và gán vào sản phẩm
+    productData.category = category._id;
+  }
+
   const product = await Product.findByIdAndUpdate(
     { _id: req.params.id },
-    req.body,
+    productData,
     {
       new: true,
       runValidators: true,

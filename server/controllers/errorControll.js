@@ -45,7 +45,7 @@ const globalMillwareError = (err, req, res, next) => {
   }
   // 5. handle expired jwt error
 	if (err.name === "TokenExpiredError") {
-		const jwtMsg = `Your url has expired try again latter`
+		const jwtMsg = `Bạn đã hết hạn phiên đăng nhập vui lòng đăng nhập lại `
 		err = new HandelError(jwtMsg, 400)
 	}
 

@@ -6,7 +6,7 @@ import axios from "axios";
 const MomoSuccess = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  console.log(location)
+  console.log(location);
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -15,17 +15,13 @@ const MomoSuccess = () => {
         const orderId = params.get("orderId");
 
         const resultCode = params.get("resultCode");
+        // console.log("token",localStorage.getItem("token"));
 
         const response = await axios.get(
-          `http://localhost:5000/api/v1/user/payment/verify/${orderId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          `http://localhost:5000/api/v1/user/payment/verify/${orderId}`
         );
         // console.log(location)
-        console.log("orderid", response.data.success, resultCode);
+        console.log("orderid", response.data.success, resultCode, orderId);
 
         if (response.data.success && resultCode == "0") {
           message.success("Thanh toán thành công!");
@@ -36,7 +32,7 @@ const MomoSuccess = () => {
           } else {
             navigate("/orders");
           }
-        } 
+        }
       } catch (error) {
         console.error("Verification error:", error);
         message.error(
