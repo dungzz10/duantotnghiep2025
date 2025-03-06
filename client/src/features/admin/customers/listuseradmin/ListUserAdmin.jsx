@@ -3,6 +3,7 @@ import { Table, Space, Tag, Input, Select, Modal, message, Switch } from "antd";
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import usedeactiveuser from "./usedectiveuser";
 import { useUserAdmin } from "./useuseradmin";
+import { Link } from "react-router-dom";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -115,9 +116,8 @@ const ListUserAdmin = () => {
           Modal.confirm({
             title: `${active ? "Vô hiệu hóa" : "Kích hoạt"} tài khoản`,
             icon: <ExclamationCircleOutlined />,
-            content: `Bạn có chắc chắn muốn ${
-              active ? "vô hiệu hóa" : "kích hoạt"
-            } tài khoản của "${record.name}"?`,
+            content: `Bạn có chắc chắn muốn ${active ? "vô hiệu hóa" : "kích hoạt"
+              } tài khoản của "${record.name}"?`,
             okText: "Xác nhận",
             okType: active ? "danger" : "primary",
             cancelText: "Hủy",
@@ -153,7 +153,10 @@ const ListUserAdmin = () => {
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
-          <a href={`/admin/customers/detail/${record._id}`}>Xem chi tiết</a>
+          <a href={`/admin/detail/${record._id}`}>Xem chi tiết</a>
+           <a href={`/admin/edit/${record._id}`} style={{ color: "#1890ff" }}>
+        cập nhật
+      </a>
           {/* <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
           <a
             onClick={() => handleDelete(record._id, record.name)}
@@ -168,8 +171,13 @@ const ListUserAdmin = () => {
 
   return (
     <div>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-2xl font-semibold text-gray-800">Danh sách người dùng </h1>
+        <Link to="/admin/adduseradmin" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+          Thêm tài khoản user
+        </Link>
+      </div>
       <h2>User List</h2>
-
       {/* Thanh tìm kiếm và bộ lọc */}
       <div style={{ marginBottom: 16, display: "flex", gap: "10px" }}>
         {/* Ô tìm kiếm */}
