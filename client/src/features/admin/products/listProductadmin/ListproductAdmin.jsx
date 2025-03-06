@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Tag,
   Table,
@@ -111,7 +112,7 @@ const ListproductAdmin = () => {
   };
 
   const handleUpdateProduct = (id) => {
-    navigate(`/admin/products/update/${id}`);
+    navigate(`/admin/update/${id}`);
     // Code để cập nhật sản phẩm (ví dụ, mở modal để cập nhật thông tin sản phẩm)
     console.log(`Chỉnh sửa sản phẩm có ID: ${id}`);
   };
@@ -219,6 +220,12 @@ const ListproductAdmin = () => {
 
   return (
     <div>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-2xl font-semibold text-gray-800">Danh sách sản phẩm </h1>
+        <Link to="/admin/addproductadmin" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+          Thêm sản phẩm 
+        </Link>
+      </div>
       <div style={{ marginBottom: 16 }}>
         <Input
           placeholder="Tìm kiếm theo tên"
@@ -233,11 +240,11 @@ const ListproductAdmin = () => {
           style={{ width: 150, marginRight: 8 }}
         >
           <Option value="">Trạng thái</Option>
-          <Option value="sale">Sale</Option>        
+          <Option value="sale">Sale</Option>
           <Option value="sold out">Sold Out</Option>
           <Option value="new">new</Option>
         </Select>
-     
+
         <Select
           placeholder="Sắp xếp"
           value={filters.sort}

@@ -3,7 +3,6 @@ import NotFoundPage from "../features/404/NotFoundPage";
 import HomePage from "../features/HomePage";
 import AboutPage from "../features/about/AboutPage";
 import MomoSuccess from "../features/momo/MomoSuccess";
-import Customer from "../features/admin/customers/customer";
 import Dashboard from "../features/admin/dashboard/dashboard";
 import Iventory from "../features/admin/inventory/Iventory";
 import Order from "../features/admin/orders/Order";
@@ -24,13 +23,11 @@ import Register from "../features/signup/Register";
 import LayoutAdmin from "../layouts/LayoutAdmin";
 import LayoutClient from "../layouts/LayoutClient";
 
-import CategoriesAdmin from "../features/admin/categories/Categories";
 import ListCategoriesAdmin from "../features/admin/categories/listcategoriesadmin/ListCategoriesAdmin";
 import UppdateCategoriesAdmin from "../features/admin/categories/uppdatecategoriesadmin/UppdateCategoriesAdmin";
 import ListUserAdmin from "../features/admin/customers/listuseradmin/ListUserAdmin";
 import UppdateUserAdmin from "../features/admin/customers/uppdateuseradmin/UppdateUserAdmin";
 import LoginAdmin from "../features/admin/login/LoginAdmin";
-import ProductAdminPage from "../features/admin/products/ProductAdminPage";
 import ProductsAdmin from "../features/admin/products/addProductadmin/Productsadmin";
 import ListproductAdmin from "../features/admin/products/listProductadmin/ListproductAdmin";
 import UppdateProductAdmin from "../features/admin/products/uppdateproductadmin/UppdateProductAdmin";
@@ -41,7 +38,7 @@ import AddBanner from "../features/admin/banners/addBannerAdmimn/AddBanner";
 import OrderHistory from "../features/OrderHistory/OrderHistory";
 import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
 import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
-import UserAdminPage from "../features/admin/adminer/UserAdminPage";
+
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
@@ -165,59 +162,45 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <LayoutAdmin />, // Layout dành cho admin
     children: [
+      //============= bảng dashboard ===============
       { path: "dashboard", element: <Dashboard /> },
 
+      //============= bảng inventory ===============
       { path: "inventory", element: <Iventory /> },
+
+      //============= bảng orders ===============
       { path: "orders", element: <Order /> },
-      {
-        path: "/admin/",
-        element: <CategoriesAdmin />,
-        children: [
-          { path: "danh-muc", element: <ListCategoriesAdmin /> },
-          { path: "them-danh-muc", element: <AddCategoriesAdmin /> },
-          { path: "sua-danh-muc/:id", element: <UppdateCategoriesAdmin /> },
-        ],
-      },
+
+      //============= bảng danh-muc ===============
+      { path: "danh-muc", element: <ListCategoriesAdmin /> },
+      { path: "them-danh-muc", element: <AddCategoriesAdmin /> },
+      { path: "sua-danh-muc/:id", element: <UppdateCategoriesAdmin /> },
+
+      //============= bảng lien-he ===============
       { path: "lien-he", element: <ContactAdmin /> },
+
+      //============= bảng kho hàng ===============
       { path: "warehouse", element: <Warehouse /> },
-      {
-        path: "customers",
-        element: <Customer />,
-        children: [
-          { path: "listuseradmin", element: <ListUserAdmin /> },
-          { path: "adduseradmin", element: <SignupAdmin /> },
-          { path: "edit/:userId", element: <UppdateUserAdmin /> },
-          { path: "detail/:userId", element: <UserDetail /> },
-        ],
-      },
-      {
-        path: "useradmin",
-        element: <UserAdminPage />,
-        children: [{ path: "listuseradmin", element: <UserAdminList /> }],
-      },
-      {
-        path: "products",
-        element: <ProductAdminPage />,
-        children: [
-          { path: "addproductadmin", element: <ProductsAdmin /> },
-          { path: "listproductadmin", element: <ListproductAdmin /> },
-          { path: "update/:id", element: <UppdateProductAdmin /> },
-          { path: "detail/:id", element: <ProductDetailAdmin /> },
-        ],
-      },
-      //----------------------banner router----------------
-      {
-        path: "banners",
-        element: <ListBanner />,
-      },
-      {
-        path: "add-banner",
-        element: <AddBanner />,
-      },
-      {
-        path: "edit-banner/:id",
-        element: <EditBanner />,
-      },
+
+      //============= bảng user ===============
+      {path: "customers",element: <ListUserAdmin />,},
+      { path: "adduseradmin", element: <SignupAdmin /> },
+      { path: "edit/:userId", element: <UppdateUserAdmin /> },
+      { path: "detail/:userId", element: <UserDetail /> },
+
+      //============= bảng admin ===============
+      {path: "useradmin",element: <UserAdminList />,},
+
+      //============= bảng product ===============
+      { path: "products",element: <ListproductAdmin />,},
+      { path: "addproductadmin", element: <ProductsAdmin /> },
+      { path: "update/:id", element: <UppdateProductAdmin /> },
+      { path: "detail/:id", element: <ProductDetailAdmin /> },
+
+      //============= bảng banners ===============
+      {path: "banners",element: <ListBanner />,},
+      {path: "add-banner",element: <AddBanner />,},
+      {path: "edit-banner/:id",element: <EditBanner />,},
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },

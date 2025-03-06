@@ -39,8 +39,7 @@ const Sidebar = () => {
           onClick={(item) => (console.log(item.key), navigate(item.key))}
         />
       </div>
-      <div className="flex-grow flex-col">
-        <div className="text-xl flex items-start p-5 w-full">Welcome to Admin Panel</div> 
+      <div className="flex-grow flex-col mt-10">
         <div className="flex-grow">
           <PageContain></PageContain>
         </div>
