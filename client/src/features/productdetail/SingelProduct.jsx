@@ -7,11 +7,13 @@ import ProductDetailsCarousel from './ProductDetailsCarousel';
 import usegetoneproduct from "./usegetproduct";
 import SizeGuide from "./sizeGuide";
 import RelatedProducts from "./RelatedProducts";
+import RatingStarts from "../../components/RatingStarts";
 
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
-  console.log("data",data)
+  const [showSizeError, setShowSizeError] = useState(false);
+  console.log("data", data)
   const productReviews = data?.reviews || [];
 
   // Cập nhật logic xử lý variants
@@ -54,10 +56,10 @@ const SingelProduct = () => {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Vui lòng chọn kích cỡ trước khi thêm vào giỏ hàng!");
+      setShowSizeError(true);
       return;
     }
-
+    setShowSizeError(false);
     const cartItem = {
       id: data.product._id,
       title: data.product.title,
@@ -134,6 +136,7 @@ const SingelProduct = () => {
             <div className='text-lg font-semibold mt-5 mb-5 text-black/50'>
               Hãng: {product.brand}
             </div>
+            <RatingStarts rating={product.rating} />
             <div className='text-md font-medium text-black/[0.5]'>
               Đã bao gồm thuế
             </div>
@@ -198,10 +201,15 @@ const SingelProduct = () => {
                 ))}
               </div>
 
+
               {/* SHOW ERROR START */}
-              <div className='text-red-600 mt-1'>
-                Vui lòng chọn kích cỡ
-              </div>
+              {showSizeError && !selectedSize && (
+                <div className='text-red-600 mt-1'>
+                  Vui lòng chọn kích cỡ
+                </div>
+              )}
+              {/* SHOW ERROR END */}
+
               {/* SHOW ERROR END */}
             </div>
             {/* PRODUCT SIZE RANGEW END */}
@@ -210,9 +218,8 @@ const SingelProduct = () => {
             <button className='w-full py-4 rounded-full bg-black
                     text-white text-lg font-medium transition-transform
                     active:scale-95 mb-3 hover:opacity-75'
-                    onClick={handleAddToCart}
-                    disabled={!selectedSize}
-                    >
+              onClick={handleAddToCart}
+            >
               Thêm vào giỏ hàng
             </button>
             {/* ADD TO CARD BUTTON END */}
@@ -235,7 +242,7 @@ const SingelProduct = () => {
         <section className="mt-8">
           <ReviewCart productReviews={productReviews} />
         </section>
-        <RelatedProducts/>
+        <RelatedProducts />
       </Wrapper>
     </div>
   )
