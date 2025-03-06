@@ -38,7 +38,7 @@ import AddBanner from "../features/admin/banners/addBannerAdmimn/AddBanner";
 import OrderHistory from "../features/OrderHistory/OrderHistory";
 import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
 import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
-
+import Search from "../features/search/Search";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
@@ -119,6 +119,10 @@ export const router = createBrowserRouter([
       {
         path: "/order",
         element: <OrderHistory />,
+      },
+      {
+        path: "/search",
+        element: <Search />,
       },
       {
         path: "/user/profile",

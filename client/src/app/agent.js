@@ -27,8 +27,11 @@ axios.interceptors.response.use(
         const { data, status } = response;
 
         if (status === 400) {
-          console.warn("Unauthorized:", data.message);
-          console.log("data", data.message);
+          if (data?.message && data.message !== "Thành công") {
+            console.warn("Unauthorized:", data.message);
+          }
+
+          console.log("data", data);
           toast.error(data.message);
         } else if (status === 403) {
           console.warn("Forbidden:", data.message);
@@ -144,6 +147,7 @@ const Product = {
   getAllProducts: async (body) => {
     try {
       const res = await request.get("/product", body);
+      console.log("abc", res);
       return res;
     } catch (error) {
       throw error;
