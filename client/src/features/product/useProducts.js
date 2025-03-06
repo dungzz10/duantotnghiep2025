@@ -17,6 +17,7 @@ export const useAllProducts = (filterData) => {
         return allPages.length < totalPages ? allPages.length + 1 : undefined;
       },
     });
+   
 
   return { data, fetchNextPage, hasNextPage, isLoading, isError };
 };

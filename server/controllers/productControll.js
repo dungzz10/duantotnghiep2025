@@ -188,6 +188,50 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
   // console.log("total",totalPages);
   // Thực hiện truy vấn
   const products = await query;
+  const catArray = await Product.aggregate([
+    {
+      $match: JSON.parse(queryString) || {},
+    },
+    {
+      $lookup: {
+        from: "categories", // Collection của danh mục (chắc chắn tên đúng trong DB)
+        localField: "category",
+        foreignField: "_id",
+        as: "categoryData",
+      },
+    },
+    {
+      $unwind: "$categoryData", // Trả về object thay vì array
+    },
+    {
+      $group: {
+        _id: "$categoryData.name", // Lấy tên danh mục thay vì ObjectId
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+  ]);
+  
+
+  const brandArray = await Product.aggregate([
+    {
+      $match: JSON.parse(queryString) || {},
+    },
+    {
+      $group: {
+        _id: "$brand",
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+  ]);
+  
+
+
 
   // Phản hồi kết quả
   res.status(201).json({
@@ -196,6 +240,8 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
     productLength: products.length,
     products,
     countproduct,
+    catArray,
+    brandArray
   });
 });
 export const getSingleProducts = async (req, res) => {
