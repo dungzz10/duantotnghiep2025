@@ -144,9 +144,10 @@ const Account = {
   },
 };
 const Product = {
-  getAllProducts: async (body) => {
+  getAllProducts: async (params) => {
+    // console.log("body",body)
     try {
-      const res = await request.get("/product", body);
+      const res = await request.get("/product", params);
       console.log("abc", res);
       return res;
     } catch (error) {
