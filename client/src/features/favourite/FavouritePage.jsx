@@ -2,30 +2,51 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../axios/api";
 
 const FavouritePage = () => {
-  const [product, setProducts] = useState({ favourites: [] });
+  const [favourites, setFavourites] = useState([]);
 
+  // Lấy danh sách yêu thích từ localStorage hoặc API
   useEffect(() => {
-    async function fetchData() {
-      const response = await api.get("/favourite");
-      console.log(response.data.data.favourites, 9999);
+    const storedFavourites =
+      JSON.parse(localStorage.getItem("favourites")) || [];
 
-      setProducts({ favourites: response.data.data.favourites });
+    // Nếu không có trong localStorage, gọi API để lấy danh sách yêu thích
+    if (storedFavourites.length === 0) {
+      async function fetchData() {
+        try {
+          const response = await api.get("/favourite");
+          setFavourites(response.data.data.favourites);
+          localStorage.setItem(
+            "favourites",
+            JSON.stringify(response.data.data.favourites)
+          );
+        } catch (error) {
+          console.error("Lỗi khi lấy danh sách yêu thích từ API", error);
+        }
+      }
+      fetchData();
+    } else {
+      setFavourites(storedFavourites);
     }
-    fetchData();
   }, []);
 
-  const handleRemoveFavourite = async (productId) => {
-    try {
-      await api.delete(`/favourite/${productId}`);
+  // Xóa sản phẩm khỏi danh sách yêu thích
+  const handleRemoveFavourite = (productId) => {
+    // Xóa sản phẩm khỏi localStorage
+    const updatedFavourites = favourites.filter(
+      (item) => item._id !== productId
+    );
+    setFavourites(updatedFavourites);
+    localStorage.setItem("favourites", JSON.stringify(updatedFavourites));
 
-      setProducts((prevState) => ({
-        favourites: prevState.favourites.filter(
-          (item) => item._id !== productId
-        ),
-      }));
-    } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm khỏi danh sách yêu thích", error);
-    }
+    // Xóa sản phẩm khỏi API (nếu cần)
+    api
+      .delete(`/favourite/${productId}`)
+      .then(() => {
+        console.log("Xóa sản phẩm khỏi danh sách yêu thích thành công");
+      })
+      .catch((error) => {
+        console.error("Lỗi khi xóa sản phẩm khỏi danh sách yêu thích", error);
+      });
   };
 
   return (
@@ -42,8 +63,8 @@ const FavouritePage = () => {
             </a>
           </div>
           <div className="grid grid-cols-4 gap-8">
-            {product.favourites && product.favourites.length > 0 ? (
-              product.favourites.map((item) => (
+            {favourites && favourites.length > 0 ? (
+              favourites.map((item) => (
                 <div key={item._id}>
                   <div className="overflow-hidden">
                     <img
