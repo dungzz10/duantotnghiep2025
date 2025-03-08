@@ -187,24 +187,24 @@ export const router = createBrowserRouter([
       { path: "warehouse", element: <Warehouse /> },
 
       //============= bảng user ===============
-      {path: "customers",element: <ListUserAdmin />,},
+      { path: "customers", element: <ListUserAdmin /> },
       { path: "adduseradmin", element: <SignupAdmin /> },
       { path: "edit/:userId", element: <UppdateUserAdmin /> },
       { path: "detail/:userId", element: <UserDetail /> },
 
       //============= bảng admin ===============
-      {path: "useradmin",element: <UserAdminList />,},
+      { path: "useradmin", element: <UserAdminList /> },
 
       //============= bảng product ===============
-      { path: "products",element: <ListproductAdmin />,},
+      { path: "products", element: <ListproductAdmin /> },
       { path: "addproductadmin", element: <ProductsAdmin /> },
       { path: "update/:id", element: <UppdateProductAdmin /> },
       { path: "detail/:id", element: <ProductDetailAdmin /> },
 
       //============= bảng banners ===============
-      {path: "banners",element: <ListBanner />,},
-      {path: "add-banner",element: <AddBanner />,},
-      {path: "edit-banner/:id",element: <EditBanner />,},
+      { path: "banners", element: <ListBanner /> },
+      { path: "add-banner", element: <AddBanner /> },
+      { path: "edit-banner/:id", element: <EditBanner /> },
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },
