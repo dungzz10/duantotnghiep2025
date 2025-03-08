@@ -21,6 +21,7 @@ function SearchWrapper(props) {
   } = props;
   
   const products = data?.pages.map((page) => page.products).flat();
+  // console.log("page",data?.pages)
   const { brandArray, catArray } = data?.pages[0];
   const [originalPrice, setOriginalPrice] = useState("");
   const [filterIndex, setFilterIndex] = useState(0);
