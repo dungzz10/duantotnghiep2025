@@ -16,25 +16,21 @@ const SingelProduct = () => {
   const [showSizeError, setShowSizeError] = useState(false);
   console.log("data", data);
   const productReviews = data?.reviews || [];
-  const [isfavourite, setIsFavourite] = useState("");
+  const [isfavourite, setIsFavourite] = useState(false);
   //kiem tra xem san pham da co trong muc yeu thich hay chua
   console.log(id, 12345);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await api.get(`/favourite/isfavourite/${id}`);
-        console.log(response.data.isFavourite, 666);
+    (async () => {
+      const res = await api.get(`/favourite/isfavourite/${id}`);
+      setIsFavourite(res.data.data);
+    })();
+  }, []);
 
-        setIsFavourite(response.data.isFavourite);
-        console.log(isfavourite, 777);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [isfavourite]);
+  //them vao danh sach yeu thich
+  const addFavourite = async (productId) => {
+    console.log(productId, 1234512345);
+  };
 
   // Cập nhật logic xử lý variants
   const colorVariants = useMemo(() => {
@@ -115,36 +111,6 @@ const SingelProduct = () => {
   if (!data || !data.product) return <div>Product not found</div>;
 
   const product = data.product;
-
-  const handleAddToFavorites = () => {
-    const favoriteItem = {
-      id: data.product._id,
-      title: data.product.title,
-      image: data.product.image?.length
-        ? data.product.image[0].url
-        : "https://via.placeholder.com/300",
-      color: selectedColor,
-      size: selectedSize,
-      price: selectedVariant?.price || data.product.originalPrice,
-    };
-
-    const existingFavorites =
-      JSON.parse(localStorage.getItem("favorites")) || [];
-    const existingIndex = existingFavorites.findIndex(
-      (item) =>
-        item.id === favoriteItem.id &&
-        item.color === favoriteItem.color &&
-        item.size === favoriteItem.size
-    );
-
-    if (existingIndex === -1) {
-      existingFavorites.push(favoriteItem);
-      localStorage.setItem("favorites", JSON.stringify(existingFavorites));
-      alert("Sản phẩm đã được thêm vào yêu thích! ❤️");
-    } else {
-      alert("Sản phẩm đã có trong danh sách yêu thích.");
-    }
-  };
 
   return (
     <div className="w-full md:py-20">
@@ -285,10 +251,10 @@ const SingelProduct = () => {
               </button>
             ) : (
               <button
+                onClick={() => addFavourite(product.id)}
                 className="w-full py-4 rounded-full border border-black
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
-                onClick={handleAddToFavorites}
               >
                 Yêu thích
                 <IoMdHeartEmpty size={20} />

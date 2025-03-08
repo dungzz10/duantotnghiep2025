@@ -8,17 +8,18 @@ export const isFavourite = async (req, res) => {
 
     const user = await usersModel.findById(userId);
 
-    console.log(userId, 999, productId);
-
     if (!user) {
       return res.status(404).json({ message: "tai khoan khong ton taiiii" });
     }
 
     const isFavourite = user.favourites.includes(productId);
-    console.log(isFavourite, 12345);
-
+    if (isFavourite) {
+      console.log("co trong muc yeu thihc");
+    } else {
+      console.log("khong co trong muc yeu thihc");
+    }
     res.json({
-      isFavourite,
+      data: isFavourite,
     });
   } catch (error) {
     console.log(error, 999);
