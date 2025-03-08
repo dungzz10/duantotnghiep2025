@@ -1,6 +1,30 @@
 import productModel from "../models/productModel.js";
 import usersModel from "../models/usersModel.js";
 
+export const isFavourite = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const productId = req.params.id;
+
+    const user = await usersModel.findById(userId);
+
+    console.log(userId, 999, productId);
+
+    if (!user) {
+      return res.status(404).json({ message: "tai khoan khong ton taiiii" });
+    }
+
+    const isFavourite = user.favourites.includes(productId);
+    console.log(isFavourite, 12345);
+
+    res.json({
+      isFavourite,
+    });
+  } catch (error) {
+    console.log(error, 999);
+  }
+};
+
 export const createFavourite = async (req, res) => {
   try {
     console.log(12344, req.user);
@@ -12,7 +36,7 @@ export const createFavourite = async (req, res) => {
 
     const user = await usersModel.findById(userId);
 
-    if (!userId) {
+    if (!user) {
       return res.status(404).json({ message: "tai khoan khong ton tai" });
     }
 

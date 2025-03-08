@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { IoMdHeartEmpty } from "react-icons/io";
 import { useParams } from "react-router-dom";
 import Wrapper from "../../components/Wrapper";
@@ -8,6 +8,7 @@ import usegetoneproduct from "./usegetproduct";
 import SizeGuide from "./sizeGuide";
 import RelatedProducts from "./RelatedProducts";
 import RatingStarts from "../../components/RatingStarts";
+import { api } from "../../axios/api";
 
 const SingelProduct = () => {
   const { id } = useParams();
@@ -15,6 +16,25 @@ const SingelProduct = () => {
   const [showSizeError, setShowSizeError] = useState(false);
   console.log("data", data);
   const productReviews = data?.reviews || [];
+  const [isfavourite, setIsFavourite] = useState("");
+  //kiem tra xem san pham da co trong muc yeu thich hay chua
+  console.log(id, 12345);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await api.get(`/favourite/isfavourite/${id}`);
+        console.log(response.data.isFavourite, 666);
+
+        setIsFavourite(response.data.isFavourite);
+        console.log(isfavourite, 777);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [isfavourite]);
 
   // Cập nhật logic xử lý variants
   const colorVariants = useMemo(() => {
@@ -254,15 +274,27 @@ const SingelProduct = () => {
             {/* ADD TO CARD BUTTON END */}
 
             {/* WHISLIST BUTTON START */}
-            <button
-              className="w-full py-4 rounded-full border border-black
+            {isfavourite ? (
+              <button
+                className="w-full py-4 rounded-full border border-black
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
-              onClick={handleAddToFavorites}
-            >
-              Yêu thích
-              <IoMdHeartEmpty size={20} />
-            </button>
+              >
+                huy Yêu thích
+                <IoMdHeartEmpty size={20} />
+              </button>
+            ) : (
+              <button
+                className="w-full py-4 rounded-full border border-black
+             text-lg font-medium transition-transform
+             flex items-center justify-center gap-2 hover:opacity-75 mb-10"
+                onClick={handleAddToFavorites}
+              >
+                Yêu thích
+                <IoMdHeartEmpty size={20} />
+              </button>
+            )}
+
             {/* WHISLIST BUTTON END */}
 
             <div>
