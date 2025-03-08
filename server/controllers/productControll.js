@@ -206,9 +206,16 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Thực hiện truy vấn
   const products = await query;
   const categoryMatchStage = JSON.parse(queryString) || {};
+  // console.log(categoryMatchStage)
   delete categoryMatchStage.price; // Xóa bộ lọc price khỏi category để không ảnh hưởng đến lọc danh mục
-// aggregate để lấy danh sách danh mục kèm số lượng sản phẩm.
-
+  // aggregate để lấy danh sách danh mục kèm số lượng sản phẩm.
+  if (categoryMatchStage.category) {
+    categoryMatchStage.category = new mongoose.Types.ObjectId(
+      categoryMatchStage.category
+    );
+  }
+  // const categoryExists = await Category.findById(categoryMatchStage.category);
+  // // console.log("Category Existss:", categoryExists);
 
   const catArray = await Product.aggregate([
     {
@@ -238,7 +245,7 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
       $sort: { count: -1 },
     },
   ]);
-
+  console.log(catArray);
   const brandMatchStage = {};
   if (
     req.query.price &&
@@ -252,6 +259,10 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
       brandMatchStage.numericPrice = { $lt: priceValue };
     }
   }
+  const productsWithBrand = await Product.find({
+    category: categoryMatchStage.category,
+  }).select("brand");
+  console.log("Products with Brand:", productsWithBrand);
 
   const brandArray = await Product.aggregate([
     {
