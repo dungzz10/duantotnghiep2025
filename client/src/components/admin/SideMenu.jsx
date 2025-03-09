@@ -13,7 +13,7 @@ import PageContain from "./PageContain";
 
 const menuItems = [
   { key: "/admin/dashboard", icon: <AppstoreOutlined />, label: "Dashboard" },
-  { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Inventory" },
+  { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Tồn kho" },
   { key: "/admin/danh-muc", icon: <OrderedListOutlined />, label: "Danh mục" },
   { key: "/admin/warehouse", icon: <OrderedListOutlined />, label: "Kho hàng" },
   { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
@@ -21,7 +21,7 @@ const menuItems = [
   { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
   { key: "/admin/banners", icon: <ShopOutlined />, label: "Banners" },
   { key: "/admin/lien-he", icon: <OrderedListOutlined />, label: "Liên hệ" },
-  { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Orders" },
+  { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Đơn hàng" },
 
 ];
 

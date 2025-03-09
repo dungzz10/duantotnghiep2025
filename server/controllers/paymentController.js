@@ -112,7 +112,7 @@ console.log("MoMo Payload:", payload);
 
     return res.status(200).json({
       success: true,
-      message: "Payment request created",
+      message: "Tạo đươn hàng thành công",
       data: { orderId, amount, payUrl: jsonResponse.payUrl },
     });
   } catch (error) {
@@ -216,10 +216,21 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
         { new: true }
       );
 
-      return res.status(200).json({
-        success: true,
-        message: "Thanh toán thành công.",
-      });
+      const updatedOrder = await Order.findById(order._id);
+
+      if (updatedOrder && updatedOrder.paymentStatus === "completed") {
+        return res.status(200).json({
+          success: true,
+          message: "Thanh toán thành công. Bạn sẽ được chuyển hướng về trang chủ sau 5 giây.",
+          order: updatedOrder,
+          transactions: user.wallet.transactions,
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: "Cập nhật trạng thái đơn hàng thất bại.",
+        });
+      }
     }
 
     if (result.resultCode === 7002) {
@@ -235,7 +246,7 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
     });
   } catch (error) {
     return next(
-      new HandelError(`Error verifying transaction: ${error.message}`, 500)
+      new HandelError(`Lỗi xác minh khi giao dịch: ${error.message}`, 500)
     );
   }
 });

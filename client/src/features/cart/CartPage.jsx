@@ -12,6 +12,7 @@ import {
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import EmptyCart from "./EmptyCart";
+import { add } from "date-fns";
 
 const { Title, Text } = Typography;
 
@@ -112,15 +113,20 @@ const CartPage = () => {
 
     const orderData = {
       userId: user._id,
+      user: {
+        name: user.name,
+        email: user.email,
+        shippingAddress: {
+          address: "Hà Nội",
+          addressType: "home",
+        },
+      },
       products: formattedProducts, 
       amount,
       total: totalPrice,
       shippingFee,
       finalTotal: totalPrice,
-      paymentMethod: "COD",
-      shippingAddress: {
-        address: "home",
-      },
+      
     };
     localStorage.setItem("order", JSON.stringify(orderData));
     navigate("/cart/checkout");
