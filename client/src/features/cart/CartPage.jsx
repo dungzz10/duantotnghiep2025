@@ -1,255 +1,186 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import {
-  Button,
-  InputNumber,
-  Typography,
-  Row,
-  Col,
-  Image,
-  Checkbox,
-  message,
-} from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
-import EmptyCart from "./EmptyCart";
-import { add } from "date-fns";
-
-const { Title, Text } = Typography;
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CartPage = () => {
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [cart, setCart] = useState([]);
+  const [cartData, setCartData] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [expandedProductIds, setExpandedProductIds] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (!user) {
-      localStorage.removeItem("cart");
-      navigate("/signin");
-    }
-  }, [navigate]);
+    const fetchCart = async () => {
+      try {
+        const res = await axios.get("/carts/details");
+        const rawCart = res.data.cart || [];
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem("cart")) || [];
-    setCart(storedCart);
-    setSelectedItems(new Array(storedCart.length).fill(false));
-  }, []);
+        if (rawCart.length === 0) {
+          navigate("/cart/emptycart");
+          return;
+        }
+        const grouped = {};
+        rawCart.forEach(item => {
+          const key = item.productId._id; 
+          if (!grouped[key]) {
+            grouped[key] = {
+              productId: key,
+              productName: item.productId.name,
+              brand: item.productId.brand,
+              image: item.productId.image,
+              variants: [],
+            };
+          }
 
-  useEffect(() => {
-    const queryParams = new URLSearchParams(window.location.search);
-    const paymentSuccess = queryParams.get("success");
+          const sameVariant = grouped[key].variants.find(v =>
+            v.color === item.color && v.size === item.size
+          );
 
-    if (paymentSuccess === "true") {
-      message.success("Thanh toán thành công! Đang trở về giỏ hàng...");
-      localStorage.removeItem("cart");
-      setCart([]);
-      navigate("/cart");
-    } else if (paymentSuccess === "false") {
-      message.error("Thanh toán thất bại! Vui lòng thử lại.");
-    }
-  }, [navigate]);
+          if (sameVariant) {
+            sameVariant.quantity += item.quantity;
+          } else {
+            grouped[key].variants.push({
+              color: item.color,
+              size: item.size,
+              quantity: item.quantity,
+              price: item.price,
+            });
+          }
+        });
 
-  const updateQuantity = (index, newQuantity) => {
-    const updatedCart = cart.map((item, i) =>
-      i === index ? { ...item, quantity: newQuantity } : item
-    );
-    setCart(updatedCart);
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const removeItem = (index) => {
-    const updatedCart = cart.filter((_, i) => i !== index);
-    setCart(updatedCart);
-    setSelectedItems(selectedItems.filter((_, i) => i !== index));
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-
-  const toggleSelectItem = (index) => {
-    const updatedSelectedItems = [...selectedItems];
-    updatedSelectedItems[index] = !updatedSelectedItems[index];
-    setSelectedItems(updatedSelectedItems);
-  };
-
-  const toggleSelectAll = () => {
-    const newSelectAll = !selectAll;
-    setSelectAll(newSelectAll);
-    setSelectedItems(cart.map(() => newSelectAll));
-  };
-
-  const deleteSelectedItems = () => {
-    const updatedCart = cart.filter((_, index) => !selectedItems[index]);
-    setCart(updatedCart);
-    setSelectedItems(new Array(updatedCart.length).fill(false));
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-  };
-  const selectedProducts = cart.filter((_, index) => selectedItems[index]);
-
-  const shippingFee = 30000;
-  const totalPrice =
-    cart.reduce(
-      (sum, item, index) =>
-        sum + (selectedItems[index] ? item.price * item.quantity : 0),
-      0
-    ) + (selectedProducts.length > 0 ? shippingFee : 0);
-
-  const handleCheckout = () => {
-    const user = JSON.parse(localStorage.getItem("user")) || {};
-    const formattedProducts = selectedProducts.map((product) => ({
-      productId: product.id,
-      name: product.title,
-      price: product.price,
-      title: product.title,
-      color: product.color,
-      size: product.size,
-      quantity: product.quantity,
-      totalPrice: product.price * product.quantity,
-      image: product.image,
-    }));
-    const amount = selectedProducts.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-
-    const orderData = {
-      userId: user._id,
-      user: {
-        name: user.name,
-        email: user.email,
-        shippingAddress: {
-          address: "Hà Nội",
-          addressType: "home",
-        },
-      },
-      products: formattedProducts, 
-      amount,
-      total: totalPrice,
-      shippingFee,
-      finalTotal: totalPrice,
-      
+        setCartData(Object.values(grouped));
+        setSelectedProducts([]);
+        setSelectAll(false);
+      } catch (err) {
+        console.error("Lỗi khi lấy giỏ hàng:", err);
+      }
     };
-    localStorage.setItem("order", JSON.stringify(orderData));
-    navigate("/cart/checkout");
+
+    fetchCart();
+  }, [navigate]);
+
+  const toggleExpand = (productId) => {
+    setExpandedProductIds(prev =>
+      prev.includes(productId)
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
+    );
   };
 
-  if (cart.length === 0) {
-    return <EmptyCart />;
-  }
+  const handleSelectAll = () => {
+    const allIds = cartData.map(item => item.productId);
+    setSelectedProducts(selectAll ? [] : allIds);
+    setSelectAll(!selectAll);
+  };
+
+  const handleSelect = (id) => {
+    setSelectedProducts(prev =>
+      prev.includes(id) ? prev.filter(pid => pid !== id) : [...prev, id]
+    );
+  };
+
+  const getTotalPrice = (variants) =>
+    variants.reduce((total, v) => total + v.quantity * v.price, 0);
+
+  const handleDeleteSelected = async () => {
+    try {
+      await axios.post("/api/v1/orders/delete-multiple", {
+        productIds: selectedProducts,
+      });
+      setCartData(prev => prev.filter(p => !selectedProducts.includes(p.productId)));
+      setSelectedProducts([]);
+      setSelectAll(false);
+    } catch (error) {
+      console.error("Xoá sản phẩm thất bại", error);
+    }
+  };
 
   return (
-    <div className="w-full md:py-20 bg-white">
-      <Row justify="center">
-        <Col span={20}>
-          <Title level={2} className="text-center mb-5">
-            Shopping Cart
-          </Title>
+    <div className="max-w-5xl mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-6"> Giỏ hàng của bạn</h1>
 
-          <Row gutter={24} className="py-10">
-            <Col span={24}>
-              <Row className="border-b pb-3" align="middle" gutter={16}>
-                <Col span={1}>
-                  <Checkbox checked={selectAll} onChange={toggleSelectAll} />
-                </Col>
-                <Col span={3}>
-                  <Text className="text-lg font-medium">Ảnh</Text>
-                </Col>
-                <Col span={6}>
-                  <Text className="text-lg font-medium">Sản Phẩm</Text>
-                </Col>
-                <Col span={3}>
-                  <Text className="text-lg font-medium">Đơn Giá</Text>
-                </Col>
-                <Col span={4}>
-                  <Text className="text-lg font-medium">Số Lượng</Text>
-                </Col>
-                <Col span={3}>
-                  <Text className="text-lg font-medium">Số Tiền</Text>
-                </Col>
-                <Col span={2}>
-                  <Text className="text-lg font-medium">Thao Tác</Text>
-                </Col>
-              </Row>
-              {cart.map((item, index) => (
-                <Row
-                  key={index}
-                  align="middle"
-                  gutter={16}
-                  className="py-2 border-b"
-                >
-                  <Col span={1}>
-                    <Checkbox
-                      checked={selectedItems[index]}
-                      onChange={() => toggleSelectItem(index)}
-                    />
-                  </Col>
-                  <Col span={3}>
-                    <Image
-                      width={80}
-                      src={item.image || "https://via.placeholder.com/80"}
-                      alt={item.title}
-                    />
-                  </Col>
-                  <Col span={6}>
-                    <Title level={5}>{item.title}</Title>
-                  </Col>
-                  <Col span={3}>
-                    <Text>{item.price} VNĐ</Text>
-                  </Col>
-                  <Col span={4}>
-                    <InputNumber
-                      min={1}
-                      value={item.quantity}
-                      onChange={(value) => updateQuantity(index, value || 1)}
-                      className="mx-2"
-                    />
-                  </Col>
-                  <Col span={3}>
-                    <Text>{item.price * item.quantity} VNĐ</Text>
-                  </Col>
-                  <Col span={2}>
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => removeItem(index)}
-                    />
-                  </Col>
-                </Row>
-              ))}
-            </Col>
-          </Row>
+      <div className="flex items-center justify-between mb-3">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={selectAll}
+            onChange={handleSelectAll}
+          />
+          Chọn tất cả
+        </label>
+        {selectedProducts.length > 0 && (
+          <button
+            onClick={handleDeleteSelected}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-1 rounded"
+          >
+            Xoá sản phẩm đã chọn
+          </button>
+        )}
+      </div>
 
-          <div className="flex justify-between items-center border-t pt-3">
-            <Checkbox checked={selectAll} onChange={toggleSelectAll}>
-              Chọn Tất Cả ({cart.length})
-            </Checkbox>
-            <Button
-              type="text"
-              danger
-              onClick={deleteSelectedItems}
-              disabled={!selectedItems.includes(true)}
-            >
-              Xóa
-            </Button>
-            <Text className="font-medium">
-              Tổng thanh toán ({selectedProducts.length} Sản phẩm):{" "}
-              <span className="text-red-500">{totalPrice} VNĐ</span>
-            </Text>
-            <Text className="text-gray-500">
-              (Bao gồm phí vận chuyển: {shippingFee} VNĐ)
-            </Text>
-            <Button
-              type="primary"
-              size="large"
-              className="bg-red-500 text-white rounded-lg"
-              disabled={totalPrice === 0}
-              onClick={handleCheckout}
-            >
-              Mua Hàng
-            </Button>
+       {cartData.map(product => (
+        <div
+          key={product.productId}
+          className="border rounded-xl shadow-sm mb-4 p-4 bg-white"
+        >
+          <div className="flex items-center gap-4">
+            <input
+              type="checkbox"
+              checked={selectedProducts.includes(product.productId)}
+              onChange={() => handleSelect(product.productId)}
+            />
+            <img
+              src={product.image}
+              alt={product.productName}
+              className="w-20 h-20 rounded-xl object-cover cursor-pointer"
+              onClick={() => toggleExpand(product.productId)}
+            />
+            <div className="flex-1 cursor-pointer" onClick={() => toggleExpand(product.productId)}>
+              <h2 className="text-lg font-semibold">{product.productName}</h2>
+              <p className="text-gray-500">{product.brand}</p>
+              <p className="text-sm text-gray-700">
+                {product.variants.length} biến thể - Tổng tiền:{" "}
+                <span className="font-semibold text-green-600">
+                  {getTotalPrice(product.variants).toLocaleString()}₫
+                </span>
+              </p>
+            </div>
           </div>
-        </Col>
-      </Row>
+
+          {/* Biến thể */}
+          {expandedProductIds.includes(product.productId) && (
+            <div className="mt-4 border-t pt-3 space-y-2">
+              {product.variants.map((v, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between bg-gray-50 p-2 rounded-lg"
+                >
+                  <div className="flex items-center gap-4">
+                    <div>
+                      <label className="text-sm mr-2">Màu:</label>
+                      <select className="border rounded p-1" defaultValue={v.color}>
+                        <option>{v.color}</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sm mr-2">Size:</label>
+                      <select className="border rounded p-1" defaultValue={v.size}>
+                        <option>{v.size}</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="text-sm">
+                    SL: {v.quantity} × {v.price.toLocaleString()}₫ ={" "}
+                    <span className="font-medium text-blue-600">
+                      {(v.quantity * v.price).toLocaleString()}₫
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
