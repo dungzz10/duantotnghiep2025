@@ -4,13 +4,19 @@ import { Card, Descriptions, Table, Tag, Image, Divider } from "antd";
 import useGetOneProduct from "../../../productdetail/usegetproduct";
 
 const ProductDetailAdmin = () => {
-  const { id } = useParams();
+  const params = useParams();
+console.log("Params:", params);
+const { id } = params;
+console.log("ID:", id);
+
+  //  const { id } = useParams();
+  // console.log(id)
   const { data, isLoading } = useGetOneProduct(id);
 
   if (isLoading) return <div>Loading...</div>;
 
   const product = data?.product;
-//   console.log(product)
+  console.log(product)
 
   // Cấu hình cho bảng variants
   const variantColumns = [
