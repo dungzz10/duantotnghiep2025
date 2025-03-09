@@ -245,7 +245,8 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
       if (updatedOrder && updatedOrder.paymentStatus === "completed") {
         return res.status(200).json({
           success: true,
-          message: "Thanh toán thành công. Bạn sẽ được chuyển hướng về trang chủ sau 5 giây.",
+          message:
+            "Thanh toán thành công. Bạn sẽ được chuyển hướng về trang chủ sau 5 giây.",
           order: updatedOrder,
           transactions: user.wallet.transactions,
         });
@@ -270,17 +271,11 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
       message: result.message || "Giao dịch thất bại. Vui lòng thử lại.",
     });
   } catch (error) {
-<<<<<<< HEAD
-    return next(
-      new HandelError(`Lỗi xác minh khi giao dịch: ${error.message}`, 500)
-    );
-=======
     console.error("Verification error:", error);
     return res.status(500).json({
       success: false,
       message: `Lỗi xác thực giao dịch: ${error.message}`,
     });
->>>>>>> 5080b2e055fa6e9394c4c6b367b6feca86612d8a
   }
 });
 
