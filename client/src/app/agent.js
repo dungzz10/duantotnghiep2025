@@ -142,6 +142,14 @@ const Account = {
       return res;
     } catch (error) {}
   },
+  myAddress: async () => {
+    try {
+      const res = await request.get("user/my-addresses");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 const Product = {
   getAllProducts: async (params) => {

@@ -15,7 +15,7 @@ const menuItems = [
     { key: "/admin/dashboard", icon: <AppstoreOutlined />, label: "Bảng thống kê" },
     { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Đơn hàng" },
     { key: "/admin/products", icon: <ShopOutlined />, label: "Sản phẩm" },
-    { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Tồn kho" },
+    // { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Tồn kho" },
     { key: "/admin/danh-muc", icon: <OrderedListOutlined />, label: "Danh mục" },
     { key: "/admin/warehouse", icon: <OrderedListOutlined />, label: "Kho hàng" },
     { key: "/admin/banners", icon: <ShopOutlined />, label: "Ảnh bìa" },

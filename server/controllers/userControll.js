@@ -302,3 +302,90 @@ export const updateUserAdmin = CatchAsync(async (req, res, next) => {
     data: updatedUser,
   });
 });
+export const getMyAddresses = CatchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select("address");
+
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    addresses: user.address, 
+  });
+});
+export const addAddress = CatchAsync(async (req, res, next) => {
+  const { address, addressType } = req.body;
+
+  if (!address || !addressType) {
+    return next(new HandelError("Vui lòng nhập đầy đủ thông tin địa chỉ!", 400));
+  }
+
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  user.address.push({ address, addressType });
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Thêm địa chỉ thành công!",
+    addresses: user.address,
+  });
+});
+export const updateAddress = CatchAsync(async (req, res, next) => {
+  const { addressId, address, addressType } = req.body;
+
+  if (!addressId || !address || !addressType) {
+    return next(new HandelError("Vui lòng cung cấp đầy đủ thông tin", 400));
+  }
+
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  const addressIndex = user.address.findIndex((a) => a._id.toString() === addressId);
+  if (addressIndex === -1) {
+    return next(new HandelError("Không tìm thấy địa chỉ", 404));
+  }
+
+  user.address[addressIndex] = { address, addressType };
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Cập nhật địa chỉ thành công!",
+    addresses: user.address,
+  });
+});
+export const deleteAddress = CatchAsync(async (req, res, next) => {
+  const { addressId } = req.params;
+
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  const addressIndex = user.address.findIndex((a) => a._id.toString() === addressId);
+  if (addressIndex === -1) {
+    return next(new HandelError("Không tìm thấy địa chỉ", 404));
+  }
+
+  user.address.splice(addressIndex, 1);
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Xóa địa chỉ thành công!",
+    addresses: user.address,
+  });
+});
+
+
+

@@ -1,7 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
+import agent from "../../app/agent";
+
 const addressType = ["home", "Office", "default"];
 
 const AddAdddress = ({ setType }) => {
+  const [address, setAddress] = useState("");
+  const [selectedType, setSelectedType] = useState("home");
+
+  const handleUpdateAddress = async () => {
+    if (!address) {
+      alert("Vui lòng nhập địa chỉ!");
+      return;
+    }
+
+    try {
+      const res = await agent.Account.uppdateMe({
+        address: [{ address, addressType: selectedType }]
+      });
+      alert(res.message);
+      document.getElementById("adress_model").close();
+    } catch (error) {
+      console.error("Lỗi cập nhật địa chỉ:", error);
+    }
+  };
+
   return (
     <div>
       <dialog id="adress_model" className="modal">
@@ -10,8 +32,12 @@ const AddAdddress = ({ setType }) => {
 
           <div className="modal-action flex-col gap-4">
             <div className="flex flex-col w-full gap-2">
-              <label htmlFor="address" className="font-medium">Tìm địa chỉ</label>
-              <input className="input input-bordered w-full" />
+              <label htmlFor="address" className="font-medium">Nhập địa chỉ mới</label>
+              <input 
+                className="input input-bordered w-full"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+              />
             </div>
 
             <div className="flex flex-col w-full gap-2">
@@ -19,9 +45,9 @@ const AddAdddress = ({ setType }) => {
               <select
                 id="addressType"
                 className="select select-bordered w-full"
-                onChange={(e) => setType(e.target.value)}
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
               >
-                <option defaultValue="">Chọn loại địa chỉ</option>
                 {addressType.map((type) => (
                   <option key={type} value={type}>
                     {type}
@@ -30,8 +56,8 @@ const AddAdddress = ({ setType }) => {
               </select>
             </div>
 
-            {/* Nút Xác nhận được cải tiến */}
             <button 
+              onClick={handleUpdateAddress}
               className="bg-blue-500 text-white font-semibold px-6 py-2 rounded-lg shadow-md hover:bg-blue-600 transition"
             >
               Xác nhận
