@@ -12,17 +12,16 @@ import { Outlet, useNavigate } from "react-router-dom";
 import PageContain from "./PageContain";
 
 const menuItems = [
-  { key: "/admin/dashboard", icon: <AppstoreOutlined />, label: "Dashboard" },
-  { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Inventory" },
-  { key: "/admin/danh-muc", icon: <OrderedListOutlined />, label: "Danh mục" },
-  { key: "/admin/warehouse", icon: <OrderedListOutlined />, label: "Kho hàng" },
-  { key: "/admin/customers", icon: <UserOutlined />, label: "Customers" },
-  { key: "/admin/useradmin", icon: <UserOutlined />, label: "Admin" },
-  { key: "/admin/products", icon: <ShopOutlined />, label: "Products" },
-  { key: "/admin/banners", icon: <ShopOutlined />, label: "Banners" },
-  { key: "/admin/lien-he", icon: <OrderedListOutlined />, label: "Liên hệ" },
-  { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Orders" },
-
+    { key: "/admin/dashboard", icon: <AppstoreOutlined />, label: "Bảng thống kê" },
+    { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Đơn hàng" },
+    { key: "/admin/products", icon: <ShopOutlined />, label: "Sản phẩm" },
+    { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Tồn kho" },
+    { key: "/admin/danh-muc", icon: <OrderedListOutlined />, label: "Danh mục" },
+    { key: "/admin/warehouse", icon: <OrderedListOutlined />, label: "Kho hàng" },
+    { key: "/admin/banners", icon: <ShopOutlined />, label: "Ảnh bìa" },
+    { key: "/admin/customers", icon: <UserOutlined />, label: "Khách hàng" },
+    { key: "/admin/useradmin", icon: <UserOutlined />, label: "Quản trị viên" },
+    { key: "/admin/lien-he", icon: <OrderedListOutlined />, label: "Liên hệ" }
 ];
 
 const Sidebar = () => {

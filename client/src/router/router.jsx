@@ -204,7 +204,7 @@ export const router = createBrowserRouter([
       { path: "products", element: <ListproductAdmin/>},
       { path: "addproductadmin", element: <ProductsAdmin /> },
       { path: "update/:id", element: <UppdateProductAdmin /> },
-      { path: "detail/:id", element: <ProductDetailAdmin /> },
+      { path: "products/detail/:id", element: <ProductDetailAdmin /> },
 
       //============= bảng banners ===============
       { path: "banners", element: <ListBanner /> },
