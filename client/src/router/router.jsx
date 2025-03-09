@@ -48,6 +48,7 @@ import Warehouse from "../features/admin/warehouse/Warehouse";
 import SingelProduct from "../features/productdetail/SingelProduct";
 import CategoriesPage from "../features/categories/CategoriesPage";
 import ContactAdmin from "../features/admin/contact/ContactAdmin";
+import Addadress from "../features/adress/Addadress";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/adress",
+        element: <Addadress />,
       },
       {
         path: "/momo-success",
@@ -196,7 +201,7 @@ export const router = createBrowserRouter([
       { path: "useradmin", element: <UserAdminList /> },
 
       //============= bảng product ===============
-      { path: "products", element: <ListproductAdmin /> },
+      { path: "products", element: <ListproductAdmin/>},
       { path: "addproductadmin", element: <ProductsAdmin /> },
       { path: "update/:id", element: <UppdateProductAdmin /> },
       { path: "products/detail/:id", element: <ProductDetailAdmin /> },
