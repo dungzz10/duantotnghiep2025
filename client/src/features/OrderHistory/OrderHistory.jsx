@@ -60,28 +60,30 @@ const OrderHistory = () => {
   }, [orders, viewCancelled, selectedStatus, searchTerm]);
 
   const getStatusTag = (orderStatus) => {
-    const colors = {
-      delivered: "green",
-      pending: "orange",
-      processing: "orange",
-      shipped: "orange",
-      cancelled: "red",
+    const statusMap = {
+      delivered: { color: "green", text: "Đã giao" },
+      pending: { color: "orange", text: "Chưa thanh toán" },
+      processing: { color: "orange", text: "Đang xử lý" },
+      shipped: { color: "orange", text: "Đang vận chuyển" },
+      cancelled: { color: "red", text: "Đã hủy" },
     };
-    return <Tag color={colors[orderStatus] || "default"}>{orderStatus}</Tag>;
+    const { color, text } = statusMap[orderStatus] || { color: "default", text: orderStatus };
+    return <Tag color={color}>{text}</Tag>;
   };
+
 
   const columns = [
     { title: "#", dataIndex: "idx", key: "idx" },
-    { title: "ID", dataIndex: "_id", key: "_id" },
+    { title: "Tên sản phẩm", dataIndex: "_id", key: "_id" },
     {
-      title: "Total Amount",
+      title: "Tổng tiền",
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
-      render: (amount) => `$${amount}`,
+      render: (amount) => `${amount} VNĐ`,
     },
     {
-      title: "Status",
+      title: "Trạng thái",
       dataIndex: "orderStatus",
       key: "orderStatus",
       render: (status) => getStatusTag(status),
@@ -94,7 +96,7 @@ const OrderHistory = () => {
       render: (date) => (date ? format(new Date(date), "MM/dd/yyyy") : "N/A"),
     },
     {
-      title: "Actions",
+      title: "",
       key: "actions",
       render: (_, record) => (
         <Button
@@ -105,7 +107,7 @@ const OrderHistory = () => {
             setIsModalVisible(true);
           }}
         >
-          View Details
+          Xem chi tiết
         </Button>
       ),
     },
@@ -113,7 +115,7 @@ const OrderHistory = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Order History</h2>
+      <h2>Lịch sử đặt đơn hàng</h2>
       <div
         style={{
           display: "flex",
@@ -124,7 +126,7 @@ const OrderHistory = () => {
       >
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <Input
-            placeholder="Search orders..."
+            placeholder="Tìm kiếm đơn..."
             prefix={<SearchOutlined />}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{ width: "250px" }}
@@ -133,14 +135,14 @@ const OrderHistory = () => {
             <Select
               defaultValue="All"
               onChange={(value) => setSelectedStatus(value)}
-              style={{ width: "150px" }}
+              style={{ width: "160px" }}
             >
-              <Option value="All">All Statuses</Option>
-              <Option value="pending">Pending</Option>
-              <Option value="processing">Processing</Option>
-              <Option value="shipped">Shipped</Option>
-              <Option value="delivered">Delivered</Option>
-              <Option value="cancelled">Cancelled</Option>
+              <Option value="All">Tất cả</Option>
+              <Option value="pending">Chưa thanh toán</Option>
+              <Option value="processing">Đang xử lý</Option>
+              <Option value="shipped">Đang vận chuyển</Option>
+              <Option value="delivered">Đã giao</Option>
+              <Option value="cancelled">Đã huỷ</Option>
             </Select>
           )}
         </div>
@@ -157,12 +159,12 @@ const OrderHistory = () => {
       />
 
       <Modal
-        title="Order Details"
+        title="Chi tiết đơn hàng"
         visible={isModalVisible}
         onCancel={() => setIsModalVisible(false)}
         footer={[
           <Button key="close" onClick={() => setIsModalVisible(false)}>
-            Close
+            Đóng
           </Button>,
           selectedOrder && selectedOrder.orderStatus !== "cancelled" && (
             <Button
@@ -178,17 +180,17 @@ const OrderHistory = () => {
         {selectedOrder && (
           <div>
             <p>
-              <strong>Order Number:</strong> {selectedOrder.orderId}
+              <strong>Mã đơn:</strong> {selectedOrder.orderId}
             </p>
             <p>
-              <strong>Date:</strong>{" "}
+              <strong>Ngày đặt:</strong>{" "}
               {format(new Date(selectedOrder.date), "MM/dd/yyyy")}
             </p>
             <p>
-              <strong>Status:</strong> {getStatusTag(selectedOrder.orderStatus)}
+              <strong>Trạng thái:</strong> {getStatusTag(selectedOrder.orderStatus)}
             </p>
             <h4>
-              <strong>Products:</strong>
+              <strong>Sản phẩm:</strong>
             </h4>
             <div style={{ maxHeight: "500px", overflowY: "auto" }}>
               {selectedOrder.products.map((item, idx) => (
@@ -212,8 +214,11 @@ const OrderHistory = () => {
                     }}
                   />
                   <span style={{ fontSize: "16px" }}>
-                    {item.name} (x{item.quantity}) - {item.price} VNĐ -{" "}
-                    {item.size} - {item.color}
+                    <p> Tên giày: {item.name}</p>
+                    <p>Số lượng: {item.quantity}</p>
+                    <p>Giá sản phẩm {item.price} VNĐ</p>
+                    <p>Size: {item.size}</p>
+                    <p>Màu: {item.color}</p>
                   </span>
                 </div>
               ))}

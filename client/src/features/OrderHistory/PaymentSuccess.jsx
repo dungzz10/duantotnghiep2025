@@ -1,61 +1,87 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { notification, Result, Spin } from "antd";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { Result, Spin } from "antd";
 
 const PaymentSuccess = () => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const orderId = queryParams.get("orderId");
 
-    if (!orderId) return navigate("/cart/checkout");
+    if (!orderId) {
+      setLoading(false);
+      return;
+    }
 
-    const verifyPayment = async () => {
+    const fetchOrder = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/momo/verify/${orderId}`, {
           method: "GET",
           credentials: "include",
         });
 
-        const data = await response.json();
-        console.log("Kết quả xác nhận thanh toán:", data);
+        const result = await response.json();
 
-        if (data.success) {
-          localStorage.removeItem("cart");
-          notification.success({
-            message: "Thanh toán thành công",
-            description: "Đơn hàng đang được chuẩn bị. Bạn sẽ được chuyển về trang chủ sau 5 giây.",
-            duration: 5,
-          });
-          setTimeout(() => navigate("/momo-success"), 5000);
+        if (result.success) {
+          setOrder(result.order);
         } else {
-          notification.error({
-            message: "Thanh toán thất bại",
-            description: data.message || "Có lỗi xảy ra khi xác nhận thanh toán!",
-            duration: 5,
-          });
-          setTimeout(() => navigate("/"), 5000);
+          console.error("Không tìm được đơn hàng:", result.message);
         }
       } catch (error) {
-        console.error("Lỗi xác nhận giao dịch:", error);
-        alert("Có lỗi xảy ra khi xác nhận thanh toán!");
-        navigate("/cart");
+        console.error("Lỗi đơn hàng:", error);
+      } finally {
+        setLoading(false);
       }
     };
-    verifyPayment();
-  }, [location, navigate]);
+
+    fetchOrder();
+  }, [location]);
+
+  useEffect(() => {
+    if (order) {
+      console.log("Order details:", order);
+    }
+  }, [order]);
+  
+  if (loading) {
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <Spin size="large" />
+        <Result
+          status="info"
+          title="Đang kiểm tra trạng thái thanh toán..."
+          subTitle={`Mã đơn hàng: ${new URLSearchParams(location.search).get("orderId")}`}
+        />
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <Result
+        status="error"
+        title="Không tìm thấy đơn hàng"
+        subTitle="Vui lòng kiểm tra lại mã đơn hàng hoặc liên hệ hỗ trợ."
+      />
+    );
+  }
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <Spin size="large" />
-      <Result
-        status="info"
-        title="Đang kiểm tra trạng thái thanh toán..."
-        subTitle={`Mã đơn hàng: ${new URLSearchParams(location.search).get("orderId")}`}
-      />
-    </div>
+    <Result
+      status="success"
+      title="Thanh toán thành công"
+      subTitle={`Mã đơn hàng: ${order.orderId}`}
+      extra={[
+        <div key="order-details">
+          <p><strong>Trạng thái đơn hàng:</strong> {order.orderStatus}</p>
+          <p><strong>Phương thức thanh toán:</strong> {order.paymentMethod}</p>
+          <p><strong>Tổng tiền:</strong> {order.finalTotal + order.shippingFee} VNĐ</p>
+        </div>
+      ]}
+    />
   );
 };
 
