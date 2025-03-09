@@ -12,13 +12,15 @@ const LayoutClient = () => {
     return <div>Loading...</div>;
   }
   return (
-    <>
-      <Header user={user}></Header>
-      <Wrapper>
-        <Outlet></Outlet>
+    <div className="flex flex-col min-h-screen">
+      <Header user={user} />
+
+      <Wrapper className="flex-grow">
+        <Outlet />
       </Wrapper>
-      <Footer></Footer>
-    </>
+
+      <Footer />
+    </div>
   );
 };
 

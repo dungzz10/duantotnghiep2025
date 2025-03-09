@@ -2,29 +2,29 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../axios/api";
 
 const FavouritePage = () => {
-  const [product, setProducts] = useState({ favourites: [] });
+  const [data, setData] = useState([]);
+  console.log(data, 111111111111111);
 
   useEffect(() => {
-    async function fetchData() {
-      const response = await api.get("/favourite");
-      console.log(response.data.data.favourites, 9999);
+    const fetchFavourites = async () => {
+      const response = await api.get(`/favourite`);
+      setData(response.data.data.favourites);
+    };
 
-      setProducts({ favourites: response.data.data.favourites });
-    }
-    fetchData();
+    fetchFavourites();
   }, []);
 
-  const handleRemoveFavourite = async (productId) => {
-    try {
+  const removeFavourite = async (productId) => {
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?"
+    );
+
+    if (confirmDelete) {
       await api.delete(`/favourite/${productId}`);
 
-      setProducts((prevState) => ({
-        favourites: prevState.favourites.filter(
-          (item) => item._id !== productId
-        ),
-      }));
-    } catch (error) {
-      console.error("Lỗi khi xóa sản phẩm khỏi danh sách yêu thích", error);
+      // Gọi lại hàm fetch để cập nhật danh sách
+      const response = await api.get(`/favourite`);
+      setData(response.data.data.favourites);
     }
   };
 
@@ -42,8 +42,8 @@ const FavouritePage = () => {
             </a>
           </div>
           <div className="grid grid-cols-4 gap-8">
-            {product.favourites && product.favourites.length > 0 ? (
-              product.favourites.map((item) => (
+            {data && data.length > 0 ? (
+              data.map((item) => (
                 <div key={item._id}>
                   <div className="overflow-hidden">
                     <img
@@ -65,7 +65,7 @@ const FavouritePage = () => {
 
                     <br />
                     <button
-                      onClick={() => handleRemoveFavourite(item._id)}
+                      onClick={() => removeFavourite(item._id)}
                       className="mt-4 border border-solid border-red-700 text-red-700 w-full font-semibold text-base py-2 hover:bg-yellow-700 hover:text-white"
                     >
                       Xóa khỏi danh sách yêu thích

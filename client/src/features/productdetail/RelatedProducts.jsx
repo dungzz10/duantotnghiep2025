@@ -5,7 +5,7 @@ import Card from '../product/Card';
 import { useAllProducts } from '../product/useProducts';
 
 const RelatedProducts = () => {
-    const { data, isLoading, isError } = useAllProducts();
+    const { data, isLoading, isError } = useAllProducts({ limit: 12});
 
     const responsive = {
         superLargeDesktop: { breakpoint: { max: 4000, min: 3000 }, items: 5 },

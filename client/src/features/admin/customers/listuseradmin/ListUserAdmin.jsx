@@ -154,9 +154,9 @@ const ListUserAdmin = () => {
       render: (_, record) => (
         <Space size="middle">
           <a href={`/admin/detail/${record._id}`}>Xem chi tiết</a>
-           <a href={`/admin/edit/${record._id}`} style={{ color: "#1890ff" }}>
+           {/* <a href={`/admin/edit/${record._id}`} style={{ color: "#1890ff" }}>
         cập nhật
-      </a>
+      </a> */}
           {/* <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
           <a
             onClick={() => handleDelete(record._id, record.name)}

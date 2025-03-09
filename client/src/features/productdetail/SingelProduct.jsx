@@ -1,20 +1,49 @@
-import React, { useState, useMemo } from "react";
-import { IoMdHeartEmpty } from 'react-icons/io';
+import React, { useState, useMemo, useEffect } from "react";
+import { IoMdHeartEmpty } from "react-icons/io";
 import { useParams } from "react-router-dom";
-import Wrapper from '../../components/Wrapper';
+import Wrapper from "../../components/Wrapper";
 import ReviewCart from "../reviews/ReviewCart";
-import ProductDetailsCarousel from './ProductDetailsCarousel';
+import ProductDetailsCarousel from "./ProductDetailsCarousel";
 import usegetoneproduct from "./usegetproduct";
 import SizeGuide from "./sizeGuide";
 import RelatedProducts from "./RelatedProducts";
 import RatingStarts from "../../components/RatingStarts";
+import { api } from "../../axios/api";
 
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
   const [showSizeError, setShowSizeError] = useState(false);
-  console.log("data", data)
+  console.log("data", data, 111111111111111111);
   const productReviews = data?.reviews || [];
+  const [isfavourite, setIsFavourite] = useState(false);
+  //kiem tra xem san pham da co trong muc yeu thich hay chua
+  console.log(id, 12345);
+
+  useEffect(() => {
+    (async () => {
+      const res = await api.get(`/favourite/isfavourite/${id}`);
+      setIsFavourite(res.data.data);
+    })();
+  }, [id]);
+
+  //them vao danh sach yeu thich
+  const addFavourite = async () => {
+    await api.post(`/favourite/${id}`);
+    setIsFavourite(true);
+    alert("da them vao danh sach yeu thich");
+  };
+
+  // xoa khoi danh sch yeu thich
+
+  const removeFavourite = async (productId) => {
+    console.log(isfavourite, 12345345);
+
+    await api.delete(`/favourite/${productId}`);
+
+    setIsFavourite(false);
+    alert("da xoa khoi danh sach yeu thich");
+  };
 
   // Cập nhật logic xử lý variants
   const colorVariants = useMemo(() => {
@@ -53,7 +82,8 @@ const SingelProduct = () => {
       (size) => size.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
-
+  const availableStock = selectedVariant ? selectedVariant.quantity : 0;
+  
   const handleAddToCart = () => {
     if (!selectedSize) {
       setShowSizeError(true);
@@ -61,6 +91,7 @@ const SingelProduct = () => {
     }
     setShowSizeError(false);
     const cartItem = {
+      kho: availableStock,
       id: data.product._id,
       title: data.product.title,
       image: data.product.image?.length
@@ -70,6 +101,7 @@ const SingelProduct = () => {
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
+    
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -78,6 +110,7 @@ const SingelProduct = () => {
         item.id === cartItem.id &&
         item.color === cartItem.color &&
         item.size === cartItem.size
+
     );
 
     if (existingIndex !== -1) {
@@ -97,24 +130,35 @@ const SingelProduct = () => {
   const product = data.product;
 
   return (
-    <div className='w-full md:py-20'>
+    <div className="w-full md:py-20">
       <Wrapper>
-        <div className='flex flex-col lg:flex-row md:px-10 gap-[50px] lg:gap-[100px]'>
+        <div className="flex flex-col lg:flex-row md:px-10 gap-[50px] lg:gap-[100px]">
           {/* left colums start */}
-          <div className='w-full md:w-auto flex-[1.5] max-w-[500px] lg:max-w-full
+          <div
+            className="w-full md:w-auto flex-[1.5] max-w-[500px] lg:max-w-full
     mx-auto lg:mx-0
-    '><ProductDetailsCarousel product={product.image} />
+    "
+          >
+            <ProductDetailsCarousel product={product.image} />
           </div>
           {/* left colums end */}
 
           {/* right colums start */}
-          <div className='flex-[1] py-3'>
+          <div className="flex-[1] py-3">
             {/* Tiêu đề  */}
-            <div className='text-[34px] font-semibold mb-2'>
+            <div className="text-[34px] font-semibold mb-2">
               {product.title}
             </div>
             {/* tiêu đề  */}
-
+            {selectedSize ? (
+              <div className="text-md font-medium text-black/[0.5] mt-2">
+                {availableStock > 0
+                  ? `Còn lại: ${availableStock} sản phẩm`
+                  : "Hết hàng"}
+              </div>
+            ) : (
+              <p></p>
+            )}
             {/* Giá sản phẩm */}
             <div className="mt-6">
               <span className="title-font font-medium text-2xl text-gray-900 mr-4">
@@ -133,25 +177,23 @@ const SingelProduct = () => {
               </span>
             </div>
             {/* hãng  */}
-            <div className='text-lg font-semibold mt-5 mb-5 text-black/50'>
+            <div className="text-lg font-semibold mt-5 mb-5 text-black/50">
               Hãng: {product.brand}
             </div>
             <RatingStarts rating={product.rating} />
-            <div className='text-md font-medium text-black/[0.5]'>
+            <div className="text-md font-medium text-black/[0.5]">
               Đã bao gồm thuế
             </div>
-            <div className='text-md font-medium text-black/[0.5] mb-20'>
+            <div className="text-md font-medium text-black/[0.5] mb-20">
               {`(Bao gồm tất cả các loại thuế và phí áp dụng)`}
             </div>
 
             {/* PRODUCT SIZE RANGEW START */}
-            <div className='mb-10'>
+            <div className="mb-10">
               {/* HEADING START */}
-              <div className='flex justify-between items '>
-                <div className='text-md font-semibold'>
-                  Chọn kích cỡ
-                </div>
-                <div className='text-md font-medium text-black/[0.5]'>
+              <div className="flex justify-between items ">
+                <div className="text-md font-semibold">Chọn kích cỡ</div>
+                <div className="text-md font-medium text-black/[0.5]">
                   <SizeGuide />
                 </div>
               </div>
@@ -163,14 +205,12 @@ const SingelProduct = () => {
                   <div
                     key={size}
                     className={`border rounded-md text-center py-3 font-medium hover:border-black cursor-pointer
-                ${selectedSize === size ? 'border-black bg-gray-200' : ''}`}
+                ${selectedSize === size ? "border-black bg-gray-200" : ""}`}
                     onClick={() => setSelectedSize(size)}
                   >
                     {size}
                   </div>
                 ))}
-
-
               </div>
               {/* SIZE END */}
               {/* chọn màu  */}
@@ -180,17 +220,19 @@ const SingelProduct = () => {
                   <button
                     key={index}
                     className={`border-2 ml-1 rounded-full w-6 h-6 focus:outline-none
-                      ${color.toLowerCase() === "đỏ"
-                        ? "bg-red-500"
-                        : color.toLowerCase() === "xanh"
+                      ${
+                        color.toLowerCase() === "đỏ"
+                          ? "bg-red-500"
+                          : color.toLowerCase() === "xanh"
                           ? "bg-blue-500"
                           : color.toLowerCase() === "vàng"
-                            ? "bg-yellow-500"
-                            : "bg-gray-300"
+                          ? "bg-yellow-500"
+                          : "bg-gray-300"
                       } 
-                      ${selectedColor === color
-                        ? "border-black"
-                        : "border-gray-300"
+                      ${
+                        selectedColor === color
+                          ? "border-black"
+                          : "border-gray-300"
                       }`}
                     style={{ backgroundColor: color }}
                     onClick={() => {
@@ -201,12 +243,9 @@ const SingelProduct = () => {
                 ))}
               </div>
 
-
               {/* SHOW ERROR START */}
               {showSizeError && !selectedSize && (
-                <div className='text-red-600 mt-1'>
-                  Vui lòng chọn kích cỡ
-                </div>
+                <div className="text-red-600 mt-1">Vui lòng chọn kích cỡ</div>
               )}
               {/* SHOW ERROR END */}
 
@@ -215,9 +254,10 @@ const SingelProduct = () => {
             {/* PRODUCT SIZE RANGEW END */}
 
             {/* ADD TO CARD BUTTON START */}
-            <button className='w-full py-4 rounded-full bg-black
+            <button
+              className="w-full py-4 rounded-full bg-black
                     text-white text-lg font-medium transition-transform
-                    active:scale-95 mb-3 hover:opacity-75'
+                    active:scale-95 mb-3 hover:opacity-75"
               onClick={handleAddToCart}
             >
               Thêm vào giỏ hàng
@@ -225,16 +265,36 @@ const SingelProduct = () => {
             {/* ADD TO CARD BUTTON END */}
 
             {/* WHISLIST BUTTON START */}
-            <button className='w-full py-4 rounded-full border border-black
-                     text-lg font-medium transition-transform
-                    flex items-center justify-center gap-2 hover:opacity-75 mb-10'>Yêu thích
-              <IoMdHeartEmpty size={20} />
-            </button>
+            {isfavourite ? (
+              <button
+                onClick={() => removeFavourite(product._id)}
+                className="w-full py-4 rounded-full border border-black
+             text-lg font-medium transition-transform
+             flex items-center justify-center gap-2 hover:opacity-75 mb-10"
+              >
+                huy Yêu thích
+                <IoMdHeartEmpty size={20} />
+              </button>
+            ) : (
+              <button
+                onClick={() => addFavourite()}
+                className="w-full py-4 rounded-full border border-black
+             text-lg font-medium transition-transform
+             flex items-center justify-center gap-2 hover:opacity-75 mb-10"
+              >
+                Yêu thích
+                <IoMdHeartEmpty size={20} />
+              </button>
+            )}
+
             {/* WHISLIST BUTTON END */}
 
             <div>
-              <div className='text-lg font-bold mb-5'>Chi tiết sản phẩm</div>
-              <div className='text-md mb-5'>Mô tả sản phẩm này sẽ giúp bạn trải nghiệm tốt nhất khi chơi golf.</div>
+              <div className="text-lg font-bold mb-5">Chi tiết sản phẩm</div>
+              <div className="text-md mb-5">
+                Mô tả sản phẩm này sẽ giúp bạn trải nghiệm tốt nhất khi chơi
+                golf.
+              </div>
             </div>
           </div>
           {/* right colums end */}
@@ -245,7 +305,7 @@ const SingelProduct = () => {
         <RelatedProducts />
       </Wrapper>
     </div>
-  )
-}
+  );
+};
 
-export default SingelProduct
+export default SingelProduct;
