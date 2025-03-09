@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Input, Select } from 'antd';
 import { Carousel } from "react-responsive-carousel";
 import { useQuery } from "@tanstack/react-query";
 import { fetchBanners } from '../admin/banners/listBannerAdmin/apiListBanner';
-import Header from '../../components/Header';
 import useFetchData from '../../app/api/useFetchdata';
 
 const { Option } = Select;
 
 const CategoriesPage = () => {
   const { id } = useParams();
+  const [priceRange, setPriceRange] = useState('');
+  const [filteredProducts, setFilteredProducts] = useState([]);
+
   const { data: categories, isLoading: loadingCategories, error: errorCategories } = useFetchData('categories/' + id);
   const { data, isLoading: loadingBanners, error: errorBanners } = useQuery({
     queryKey: ["banners"],
@@ -31,6 +33,31 @@ const CategoriesPage = () => {
     return <div>Error loading banners: {errorBanners.message}</div>;
   }
 
+  // Set filtered products initially to categories' products
+  useEffect(() => {
+    if (categories && categories.products) {
+      setFilteredProducts(categories.products);
+    }
+  }, [categories]);
+
+  // Lọc sản phẩm theo giá
+  useEffect(() => {
+    if (categories && categories.products) {
+      let products = [...categories.products];
+
+      if (priceRange) {
+        products = products.filter(item => {
+          if (priceRange === 'under50') return item.originalPrice < 50;
+          if (priceRange === '50to100') return item.originalPrice >= 50 && item.originalPrice <= 100;
+          if (priceRange === 'over100') return item.originalPrice > 100;
+          return true;
+        });
+      }
+
+      setFilteredProducts(products);
+    }
+  }, [priceRange, categories]);
+
   return (
     <>
       <div className="bg-gray-100 min-h-screen">
@@ -47,9 +74,21 @@ const CategoriesPage = () => {
             enterButton="Tìm kiếm"
             className="w-1/2"
           />
-          <Select defaultValue="" className="ml-4 w-1/4" placeholder="Lọc sản phẩm">
-            <Option value="1">Danh mục 1</Option>
-            <Option value="2">Danh mục 2</Option>
+          <Select
+            defaultValue=""
+            className="ml-4 w-1/4"
+            placeholder="Lọc theo giá"
+            onChange={value => {
+              setPriceRange(value);
+              if (value === "") {
+                setFilteredProducts(categories.products); // Hiển thị tất cả sản phẩm
+              }
+            }}
+          >
+            <Option value="">Tất cả</Option>
+            <Option value="under50">Dưới $50</Option>
+            <Option value="50to100">$50 - $100</Option>
+            <Option value="over100">Trên $100</Option>
           </Select>
         </div>
 
@@ -79,26 +118,31 @@ const CategoriesPage = () => {
           </div>
         </div>
       </div>
+
       <div className="bg-white">
         <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
           <h2 className="text-center text-[36px] my-8">{categories?.title}</h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-            {categories?.products?.map((item) => (
-              <Link key={item._id} to={'/san-pham/' + item._id} className="group p-4 border rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <img
-                  src={item.image[0].url}
-                  alt={item.title}
-                  className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-[7/8]"
-                />
-                <h3 className="mt-4 text-sm font-semibold text-gray-800">{item.title}</h3>
-                <div className="flex items-center mt-1">
-                  <>
-                    <p className="text-lg font-medium text-red-600 mr-2">${item.salePrice}</p>
-                    <p className="text-sm font-medium text-gray-500 line-through">${item.originalPrice}</p>
-                  </>
-                </div>
-              </Link>
-            ))}
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map(item => (
+                <Link key={item._id} to={'/san-pham/' + item._id} className="group p-4 border rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <img
+                    src={item.image[0].url}
+                    alt={item.title}
+                    className="aspect-square w-full rounded-lg bg-gray-200 object-cover group-hover:opacity-75 xl:aspect-[7/8]"
+                  />
+                  <h3 className="mt-4 text-sm font-semibold text-gray-800">{item.title}</h3>
+                  <div className="flex items-center mt-1">
+                    <>
+                      <p className="text-lg font-medium text-red-600 mr-2">${item.salePrice}</p>
+                      <p className="text-sm font-medium text-gray-500 line-through">${item.originalPrice}</p>
+                    </>
+                  </div>
+                </Link>
+              ))
+            ) : (
+              <div className="text-center">Không có sản phẩm nào phù hợp.</div>
+            )}
           </div>
         </div>
       </div>

@@ -95,8 +95,8 @@ const CartPage = () => {
 
   const handleCheckout = () => {
     const user = JSON.parse(localStorage.getItem("user")) || {};
-    const formattedProducts = selectedProducts.map(product => ({
-      productId: product.id, 
+    const formattedProducts = selectedProducts.map((product) => ({
+      productId: product.id,
       name: product.title,
       price: product.price,
       title: product.title,

@@ -130,6 +130,22 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
   // Sao chép req.query và loại bỏ các trường không cần thiết
   const queryObj = { ...req.query, isDeleted: false };
   console.log(queryObj);
+  if (queryObj.category) {
+    let category;
+
+    // Kiểm tra nếu category là ObjectId hợp lệ
+    if (mongoose.Types.ObjectId.isValid(queryObj.category)) {
+      category = await Category.findOne({ _id: queryObj.category });
+    } else {
+      category = await Category.findOne({ name: queryObj.category });
+    }
+
+    if (category) {
+      queryObj.category = category._id;
+    } else {
+      return res.status(400).json({ message: "Category not found" });
+    }
+  }
   const excludedFields = ["page", "sort", "limit", "fields", "id"];
   excludedFields.forEach((el) => delete queryObj[el]);
 
@@ -144,6 +160,7 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
     /\b(gte|gt|lte|lt|in|ne)\b/g,
     (value) => `$${value}`
   );
+
   // console.log(queryString);
   // Tạo truy vấn cơ bản
   let query = Product.find(JSON.parse(queryString));
@@ -188,6 +205,87 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
   // console.log("total",totalPages);
   // Thực hiện truy vấn
   const products = await query;
+  const categoryMatchStage = JSON.parse(queryString) || {};
+  // console.log(categoryMatchStage)
+  delete categoryMatchStage.price; // Xóa bộ lọc price khỏi category để không ảnh hưởng đến lọc danh mục
+  // aggregate để lấy danh sách danh mục kèm số lượng sản phẩm.
+  if (categoryMatchStage.category) {
+    categoryMatchStage.category = new mongoose.Types.ObjectId(
+      categoryMatchStage.category
+    );
+  }
+  // const categoryExists = await Category.findById(categoryMatchStage.category);
+  // // console.log("Category Existss:", categoryExists);
+
+  const catArray = await Product.aggregate([
+    {
+      $match: categoryMatchStage,
+    },
+    // Liên kết Product với collection categories.
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "categoryData",
+      },
+    },
+    // 	Chuyển categoryData từ mảng thành object.
+    {
+      $unwind: "$categoryData",
+    },
+    // Gom nhóm sản phẩm theo danh mục và đếm số lượng.
+    {
+      $group: {
+        _id: "$categoryData.name",
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+  ]);
+  console.log(catArray);
+  const brandMatchStage = {};
+  if (
+    req.query.price &&
+    req.query.price.operator &&
+    req.query.price.originalPrice
+  ) {
+    const priceValue = parseFloat(req.query.price.originalPrice);
+    if (req.query.price.operator === "gt") {
+      brandMatchStage.numericPrice = { $gt: priceValue };
+    } else if (req.query.price.operator === "lt") {
+      brandMatchStage.numericPrice = { $lt: priceValue };
+    }
+  }
+  const productsWithBrand = await Product.find({
+    category: categoryMatchStage.category,
+  }).select("brand");
+  console.log("Products with Brand:", productsWithBrand);
+
+  const brandArray = await Product.aggregate([
+    {
+      $match: JSON.parse(queryString) || {},
+    },
+    {
+      $addFields: {
+        numericPrice: { $toDouble: "$originalPrice" },
+      },
+    },
+    {
+      $match: Object.keys(brandMatchStage).length > 0 ? brandMatchStage : {},
+    },
+    {
+      $group: {
+        _id: "$brand",
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { count: -1 },
+    },
+  ]);
 
   // Phản hồi kết quả
   res.status(201).json({
@@ -196,6 +294,8 @@ export const getAllProduct = CatchAsync(async (req, res, next) => {
     productLength: products.length,
     products,
     countproduct,
+    catArray,
+    brandArray,
   });
 });
 export const getSingleProducts = async (req, res) => {

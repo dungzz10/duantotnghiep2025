@@ -55,7 +55,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
     };
 
     payload.signature = generateSignature(payload);
-console.log("MoMo Payload:", payload);
+    console.log("MoMo Payload:", payload);
 
     const response = await fetch(
       "https://test-payment.momo.vn/v2/gateway/api/create",
@@ -68,7 +68,7 @@ console.log("MoMo Payload:", payload);
 
     const jsonResponse = await response.json();
     console.log("MoMo Response:", jsonResponse);
-    
+
     if (!response.ok || jsonResponse.resultCode !== 0) {
       return next(
         new HandelError(
@@ -124,18 +124,29 @@ console.log("MoMo Payload:", payload);
 
 export const verifyTransaction = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
-  console.log(" Phương thức thanh toán Order ID:", orderId);
+  console.log("Phương thức thanh toán Order ID:", orderId);
+  console.log("Request user:", req.user); // Log để kiểm tra thông tin user
+
+  // Kiểm tra xem req.user có tồn tại không
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({
+      success: false,
+      message: "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.",
+    });
+  }
 
   try {
-    const user = await User.findOne({
-      $or: [
-        { "wallet.transactions.momoTransactionId": orderId },
-        { "ATM.transactions.momoTransactionId": orderId },
-      ],
-    });
+    // Tìm user bằng ID thay vì tìm bằng transaction
+    const user = await User.findById(req.user.id);
 
-    if (!user) return next(new HandelError("Transaction not found", 404));
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy người dùng.",
+      });
+    }
 
+    // Sau đó tìm transaction phù hợp
     const walletTransaction = user.wallet?.transactions?.find(
       (t) => t.momoTransactionId === orderId
     );
@@ -144,10 +155,18 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
     );
     const transaction = walletTransaction || atmTransaction;
 
-    if (!transaction)
-      return next(new HandelError("Transaction data missing", 404));
+    if (!transaction) {
+      console.log("Không tìm thấy giao dịch với ID:", orderId);
+      console.log("Wallet transactions:", user.wallet?.transactions);
+      console.log("ATM transactions:", user.ATM?.transactions);
 
-    console.log(" Transaction found:", transaction);
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy giao dịch với mã này.",
+      });
+    }
+
+    console.log("Transaction found:", transaction);
 
     const requestId = `VERIFY_${orderId}`;
     const signature = generateSignature({
@@ -173,13 +192,7 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
     );
 
     const result = await response.json();
-
-    if (!walletTransaction && !atmTransaction) {
-      return res.status(400).json({
-        success: false,
-        message: "Không tìm thấy giao dịch hợp lệ.",
-      });
-    }
+    console.log("MoMo API result:", result);
 
     const isSuccess = result.resultCode === 0;
 
@@ -203,6 +216,16 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
           { new: true }
         );
       }
+
+      // Kiểm tra xem có phải là nạp tiền vào ví không
+      if (orderId.startsWith("DEPOSIT")) {
+        return res.status(200).json({
+          success: true,
+          message: "Nạp tiền thành công.",
+        });
+      }
+
+      // Nếu là đơn hàng
       const order = await Order.findOne({ orderId });
       if (!order) {
         return res.status(400).json({
@@ -210,6 +233,7 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
           message: "Không tìm thấy đơn hàng tương ứng.",
         });
       }
+
       await Order.updateOne(
         { _id: order._id },
         { $set: { orderStatus: "processing", paymentStatus: "completed" } },
@@ -240,14 +264,23 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
       });
     }
 
+    // Sửa lỗi message "Thành công" khi success là false
     return res.status(400).json({
       success: false,
-      message: result.message || "Giao dịch thất bại.",
+      message: result.message || "Giao dịch thất bại. Vui lòng thử lại.",
     });
   } catch (error) {
+<<<<<<< HEAD
     return next(
       new HandelError(`Lỗi xác minh khi giao dịch: ${error.message}`, 500)
     );
+=======
+    console.error("Verification error:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Lỗi xác thực giao dịch: ${error.message}`,
+    });
+>>>>>>> 5080b2e055fa6e9394c4c6b367b6feca86612d8a
   }
 });
 
@@ -322,7 +355,6 @@ export const createWalletDeposit = CatchAsync(async (req, res, next) => {
       );
     }
 
-   
     await User.findByIdAndUpdate(userId, {
       $push: {
         "wallet.transactions": {

@@ -38,7 +38,7 @@ import AddBanner from "../features/admin/banners/addBannerAdmimn/AddBanner";
 import OrderHistory from "../features/OrderHistory/OrderHistory";
 import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
 import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
-
+import Search from "../features/search/Search";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
 import AddCategoriesAdmin from "../features/admin/categories/addcategoriesadmin/AddCategoriesAdmin";
 import FavouritePage from "../features/favourite/FavouritePage";
@@ -48,6 +48,7 @@ import Warehouse from "../features/admin/warehouse/Warehouse";
 import SingelProduct from "../features/productdetail/SingelProduct";
 import CategoriesPage from "../features/categories/CategoriesPage";
 import ContactAdmin from "../features/admin/contact/ContactAdmin";
+import Addadress from "../features/adress/Addadress";
 
 export const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <HomePage />,
+      },
+      {
+        path: "/adress",
+        element: <Addadress />,
       },
       {
         path: "/momo-success",
@@ -121,6 +126,10 @@ export const router = createBrowserRouter([
         element: <OrderHistory />,
       },
       {
+        path: "/search",
+        element: <Search />,
+      },
+      {
         path: "/user/profile",
         element: <ContactPage />,
       },
@@ -183,24 +192,24 @@ export const router = createBrowserRouter([
       { path: "warehouse", element: <Warehouse /> },
 
       //============= bảng user ===============
-      {path: "customers",element: <ListUserAdmin />,},
+      { path: "customers", element: <ListUserAdmin /> },
       { path: "adduseradmin", element: <SignupAdmin /> },
       { path: "edit/:userId", element: <UppdateUserAdmin /> },
       { path: "detail/:userId", element: <UserDetail /> },
 
       //============= bảng admin ===============
-      {path: "useradmin",element: <UserAdminList />,},
+      { path: "useradmin", element: <UserAdminList /> },
 
       //============= bảng product ===============
-      { path: "products",element: <ListproductAdmin />,},
+      { path: "products", element: <ListproductAdmin/>},
       { path: "addproductadmin", element: <ProductsAdmin /> },
       { path: "update/:id", element: <UppdateProductAdmin /> },
-      { path: "detail/:id", element: <ProductDetailAdmin /> },
+      { path: "products/detail/:id", element: <ProductDetailAdmin /> },
 
       //============= bảng banners ===============
-      {path: "banners",element: <ListBanner />,},
-      {path: "add-banner",element: <AddBanner />,},
-      {path: "edit-banner/:id",element: <EditBanner />,},
+      { path: "banners", element: <ListBanner /> },
+      { path: "add-banner", element: <AddBanner /> },
+      { path: "edit-banner/:id", element: <EditBanner /> },
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },

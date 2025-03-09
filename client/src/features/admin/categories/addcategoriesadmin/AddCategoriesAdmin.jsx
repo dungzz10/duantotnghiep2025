@@ -9,7 +9,7 @@ import axios from "axios";
 const AddCategoriesAdmin = () => {
   const navigate = useNavigate();
   const [imageUrl, setImageUrl] = useState("");
-  console.log(imageUrl);
+
   const cld = new Cloudinary({
     cloud: {
       cloudName: "dsenpijts",
@@ -17,6 +17,7 @@ const AddCategoriesAdmin = () => {
       apiSecret: "U1KLipj3F_1NwW5cKHPvAVzcsbY",
     },
   });
+
   const onFinish = async (values) => {
     const payload = {
       name: values.name,
@@ -26,18 +27,18 @@ const AddCategoriesAdmin = () => {
     try {
       const response = await axios.post(
         "http://localhost:5000/api/v1/categories/create",
-        payload, // Send payload directly
+        payload,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token if required
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
 
       if (response.status === 200) {
         message.success("Danh mục đã được thêm thành công!");
-        navigate("/admin/categories/listcategoriesadmin");
+        navigate("/admin/danh-muc");
       }
     } catch (error) {
       message.error(
@@ -68,13 +69,14 @@ const AddCategoriesAdmin = () => {
         );
 
         const data = await response.json();
-
-        return cld
+        const imageUrl = cld
           .image(data.public_id)
           .resize(Resize.scale().width(width).height(height))
           .quality("auto")
           .format("auto")
           .toURL();
+
+        return imageUrl;
       })
     );
 
@@ -90,7 +92,7 @@ const AddCategoriesAdmin = () => {
         height: 500,
       });
 
-      setImageUrl(imgObj[0]);
+      setImageUrl(imgObj[0]); // Cập nhật state với URL của ảnh
       onSuccess("ok");
     } catch (error) {
       message.error("Upload failed");
@@ -129,6 +131,20 @@ const AddCategoriesAdmin = () => {
               <Button icon={<UploadOutlined />}>Tải lên ảnh</Button>
             </Upload>
           </Form.Item>
+          {/* Hiển thị ảnh nếu đã tải lên thành công */}
+          {imageUrl && (
+            <img
+              src={imageUrl}
+              alt="Uploaded"
+              style={{
+                width: "200px",
+                height: "200px",
+                objectFit: "cover",
+                marginTop: "10px",
+                borderRadius: "10px",
+              }}
+            />
+          )}
         </Col>
         <Row>
           <Button type="primary" className="bg-blue-500" htmlType="submit">

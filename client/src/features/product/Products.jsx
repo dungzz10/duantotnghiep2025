@@ -4,7 +4,7 @@ import Card from "./Card";
 import { useAllProducts } from "./useProducts"; // Đảm bảo đường dẫn đúng
 
 const Products = () => {
-  const { data, fetchNextPage, hasNextPage, isLoading, isError } = useAllProducts();
+  const { data, fetchNextPage, hasNextPage, isLoading, isError } = useAllProducts({limit:8});
 
   if (isLoading) return <Spin size="large" />;
   if (isError) return <div>Lỗi khi tải sản phẩm!</div>;
