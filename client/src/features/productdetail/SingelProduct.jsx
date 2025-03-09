@@ -14,7 +14,7 @@ const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
   const [showSizeError, setShowSizeError] = useState(false);
-  console.log("data", data);
+  console.log("data", data, 111111111111111111);
   const productReviews = data?.reviews || [];
   const [isfavourite, setIsFavourite] = useState(false);
   //kiem tra xem san pham da co trong muc yeu thich hay chua
@@ -25,11 +25,24 @@ const SingelProduct = () => {
       const res = await api.get(`/favourite/isfavourite/${id}`);
       setIsFavourite(res.data.data);
     })();
-  }, []);
+  }, [id]);
 
   //them vao danh sach yeu thich
-  const addFavourite = async (productId) => {
-    console.log(productId, 1234512345);
+  const addFavourite = async () => {
+    await api.post(`/favourite/${id}`);
+    setIsFavourite(true);
+    alert("da them vao danh sach yeu thich");
+  };
+
+  // xoa khoi danh sch yeu thich
+
+  const removeFavourite = async (productId) => {
+    console.log(isfavourite, 12345345);
+
+    await api.delete(`/favourite/${productId}`);
+
+    setIsFavourite(false);
+    alert("da xoa khoi danh sach yeu thich");
   };
 
   // Cập nhật logic xử lý variants
@@ -242,6 +255,7 @@ const SingelProduct = () => {
             {/* WHISLIST BUTTON START */}
             {isfavourite ? (
               <button
+                onClick={() => removeFavourite(product._id)}
                 className="w-full py-4 rounded-full border border-black
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
@@ -251,7 +265,7 @@ const SingelProduct = () => {
               </button>
             ) : (
               <button
-                onClick={() => addFavourite(product.id)}
+                onClick={() => addFavourite()}
                 className="w-full py-4 rounded-full border border-black
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
