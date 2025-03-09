@@ -341,20 +341,10 @@ const Order = () => {
                       <strong>Kích thước:</strong> {item.size}
                     </p>
                     <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Thương hiệu:</strong> {item.productId.brand}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Mô tả:</strong> {item.productId.description}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Giá:</strong> {item.price} VNĐ
                     </p>
                     <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Loại sản phẩm:</strong> {item.productId.condition}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Đánh giá:</strong> {item.productId.rating} (
-                      {item.ratingQuantity} lượt đánh giá)
                     </p>
                   </div>
                 </div>

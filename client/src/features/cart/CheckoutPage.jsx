@@ -142,6 +142,7 @@ const CheckoutPage = () => {
                 <div className="addresses">
                   <Text strong>Địa chỉ:  {order.user?.shippingAddress?.address}</Text>
                 </div>
+                <Text>Số điện thoại: {order.user?.phone}</Text>
               </Card>
             </Col>
             <Col span={12}>
@@ -149,9 +150,12 @@ const CheckoutPage = () => {
                 {order.products.map((product, index) => (
                   <div key={index} className="mb-2">
                     <Text>
-                      Tên: {product.title} x {product.quantity}
+                      Tên: {product.title}
                     </Text>
                     <br />
+                    <Text>Số lượng: {product.quantity}</Text><br />
+                    <Text>Màu: {product.color}</Text><br />
+                    <Text>Size: {product.size}</Text><br />
                     <Text>Giá :{product.price * product.quantity} VNĐ</Text>
                   </div>
                 ))}

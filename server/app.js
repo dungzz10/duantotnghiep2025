@@ -14,6 +14,7 @@ import RouterReview from "./routers/reviewsRouter.js";
 import momoRoutes from "./routers/momoPayment.js";
 import orderRoutes from "./routers/orderRoutes.js";
 import RouterFavourite from "./routers/favourite.js";
+import cartRoutes from "./routers/cartRoutes.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.get("/test", (req, res) => {
 });
 app.use("/api/momo", momoRoutes);
 app.use("/api/v1/orders", orderRoutes);
+app.use("/api/v1/carts", cartRoutes);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/product", productRouter);
 app.use("/api/v1/contact", RouterContact);
