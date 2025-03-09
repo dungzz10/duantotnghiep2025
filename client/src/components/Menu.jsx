@@ -9,6 +9,7 @@ const Menu = ({ showCatMenu, setShowCatMenu }) => {
     const menu = [
         { id: 1, name: "Trang chủ", url: "/" },
         { id: 1, name: "Sản phẩm", url: "/products" },
+        { id: 4, name: "Thương hiệu", url: "/branch" },
         { id: 2, name: "Giới thiệu", url: "/gioi-thieu" },
         { id: 3, name: "Danh mục", subMenu: true },
         { id: 4, name: "Liên hệ", url: "/lien-he" },
