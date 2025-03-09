@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
 import {
@@ -9,6 +10,8 @@ import {
   Button,
   Popconfirm,
   message,
+  Row,
+  Col,
 } from "antd";
 import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons"; // Thêm EditOutlined
 import { format } from "date-fns";
@@ -67,14 +70,21 @@ const Order = () => {
   }, [orders, searchTerm, selectedStatus]);
 
   const getStatusTag = (orderStatus) => {
-    const colors = {
-      delivered: "green",
-      pending: "orange",
-      processing: "orange",
-      shipped: "blue",
-      cancelled: "red",
+    const statusMap = {
+      delivered: { color: "green", text: "Đã giao" },
+      pending: { color: "orange", text: "Chưa thanh toán" },
+      processing: { color: "orange", text: "Đang xử lý" },
+      shipped: { color: "orange", text: "Đang vận chuyển" },
+      cancelled: { color: "red", text: "Đã hủy" },
     };
-    return <Tag color={colors[orderStatus] || "default"}>{orderStatus}</Tag>;
+    const { color, text } = statusMap[orderStatus] || { color: "default", text: orderStatus };
+    return <Tag color={color}>{text}</Tag>;
+  };
+
+  const paymentStatusMap = {
+    pending: "Chưa thanh toán",
+    completed: "Đã thanh toán",
+    failed: "Thất bại",
   };
 
   const handleCancelOrder = async (orderId) => {
@@ -85,10 +95,11 @@ const Order = () => {
       message.success(`Đơn ${orderId} đã được hủy.`);
       fetchOrders();
     } catch (error) {
-      console.error("Error canceling order:", error);
+      console.error("Lỗi khi huỷ đơn:", error);
       message.error("Có lỗi xảy ra khi hủy đơn hàng.");
     }
   };
+
   const handleUpdateStatus = async () => {
     try {
       await axios.patch(`/orders/orderStatus/${selectedOrder._id}`, {
@@ -97,21 +108,23 @@ const Order = () => {
       fetchOrders();
       setIsModalVisible(false);
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error("Lỗi cập nhật sản phẩm:", error);
     }
   };
+
   const columns = [
     { title: "#", dataIndex: "idx", key: "idx" },
-    {
-      title: "ID",
-      dataIndex: "orderId",
-      key: "orderId",
-    },
     {
       title: "Tên khách hàng",
       dataIndex: "userId",
       key: "userId",
       render: (user) => user?.name || "Unknown",
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "products",
+      key: "firstProductName",
+      render: (products) => products[0]?.name || "Không có sản phẩm",
     },
     {
       title: "Tổng tiền",
@@ -124,12 +137,11 @@ const Order = () => {
       title: "Phương thức thanh toán",
       dataIndex: ["paymentMethod", "paymentStatus"],
       key: "payment",
-      render: (text, record) => 
+      render: (text, record) =>
         record.paymentMethod && record.paymentStatus
-          ? `${record.paymentMethod} (${record.paymentStatus})`
-          : "Không xác định"
-      
-    },   
+          ? `${record.paymentMethod} (${paymentStatusMap[record.paymentStatus] || record.paymentStatus})`
+          : "Không xác định",
+    },
     {
       title: "Trạng thái",
       dataIndex: "orderStatus",
@@ -172,7 +184,7 @@ const Order = () => {
               setIsModalVisible(true);
             }}
           >
-            Xem
+            Xem chi tiết
           </Button>
         </div>
       ),
@@ -194,13 +206,12 @@ const Order = () => {
           onChange={(value) => setSelectedStatus(value)}
           style={{ width: "150px" }}
         >
-          <Option value="All">All Statuses</Option>
-
-          <Option value="pending">Pending</Option>
-          <Option value="processing">Processing</Option>
-          <Option value="shipped">Shipped</Option>
-          <Option value="delivered">Delivered</Option>
-          <Option value="cancelled">Cancelled</Option>
+          <Option value="All">Tất cả</Option>
+          <Option value="pending">Chưa thanh toán</Option>
+          <Option value="processing">Đang xử lý</Option>
+          <Option value="shipped">Đang vận chuyển</Option>
+          <Option value="delivered">Đã giao</Option>
+          <Option value="cancelled">Đã hủy</Option>
         </Select>
       </div>
 
@@ -236,56 +247,60 @@ const Order = () => {
       >
         {selectedOrder && (
           <div>
-            <p>
-              <strong>ID Đơn Hàng:</strong> {selectedOrder.orderId}
-            </p>
-            <p>
-              <strong>Ngày đặt:</strong>{" "}
-              {format(new Date(selectedOrder.date), "HH:mm:ss MM/dd/yyyy ")}
-            </p>
-            <p>
-              <strong>Trạng thái:</strong>
-              <Select
-                value={editingStatus}
-                onChange={setEditingStatus}
-                disabled={selectedOrder.orderStatus === "cancelled"}
-                style={{ width: 200, marginLeft: 10 }}
-              >
-                <Option value="pending">Pending</Option>
-                <Option value="processing">Processing</Option>
-                <Option value="shipped">Shipped</Option>
-                <Option value="delivered">Delivered</Option>
-                <Option value="cancelled">Cancelled</Option>
-              </Select>
-            </p>
-
-            {/* Thông tin khách hàng */}
-            <h2>
-              <strong>Thông tin khách hàng:</strong>
-            </h2>
-            {selectedOrder.userId && (
-              <div style={{ marginBottom: "15px" }}>
+            <Row gutter={16}>
+              <Col span={12}>
                 <p>
-                  <strong>Tên:</strong> {selectedOrder.userId.name}
+                  <strong>ID Đơn Hàng:</strong> {selectedOrder.orderId}
                 </p>
                 <p>
-                  <strong>Số điện thoại:</strong> {selectedOrder.userId.phone}
+                  <strong>Ngày đặt:</strong>{" "}
+                  {format(new Date(selectedOrder.date), "HH:mm:ss MM/dd/yyyy ")}
                 </p>
                 <p>
-                  <strong>Email:</strong> {selectedOrder.userId.email}
+                  <strong>Trạng thái:</strong>
+                  <Select
+                    value={editingStatus}
+                    onChange={setEditingStatus}
+                    disabled={selectedOrder.orderStatus === "cancelled"}
+                    style={{ width: 200, marginLeft: 10 }}
+                  >
+                    <Option value="pending">Chưa thanh toán</Option>
+                    <Option value="processing">Đang xử lý</Option>
+                    <Option value="shipped">Đang vận chuyển</Option>
+                    <Option value="delivered">Đã giao</Option>
+                    <Option value="cancelled">Đã huỷ</Option>
+                  </Select>
                 </p>
-                <p>
-                  <strong>Giới thiệu:</strong>{" "}
-                  {selectedOrder.userId.introduction || "Không có"}
-                </p>
-                <p>
-                  <strong>Địa chỉ:</strong>{" "}
-                  {selectedOrder.userId.address
-                    ?.map((addr) => `${addr.address} (${addr.addressType})`)
-                    .join(", ")}
-                </p>
-              </div>
-            )}
+              </Col>
+              <Col span={12}>
+                <h2>
+                  <strong>Thông tin khách hàng:</strong>
+                </h2>
+                {selectedOrder.userId && (
+                  <div style={{ marginBottom: "15px" }}>
+                    <p>
+                      <strong>Tên:</strong> {selectedOrder.userId.name}
+                    </p>
+                    <p>
+                      <strong>Số điện thoại:</strong> {selectedOrder.userId.phone}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {selectedOrder.userId.email}
+                    </p>
+                    <p>
+                      <strong>Giới thiệu:</strong>{" "}
+                      {selectedOrder.userId.introduction || "Không có"}
+                    </p>
+                    <p>
+                      <strong>Địa chỉ:</strong>{" "}
+                      {selectedOrder.userId.address
+                        ?.map((addr) => `${addr.address} (${addr.addressType})`)
+                        .join(", ")}
+                    </p>
+                  </div>
+                )}
+              </Col>
+            </Row>
 
             {/* Danh sách sản phẩm */}
             <h2>
@@ -312,32 +327,32 @@ const Order = () => {
                       borderRadius: "10px",
                     }}
                   />
-                  <div>
-                    <p>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Tên:</strong> {item.name}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Màu sắc:</strong> {item.color}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Số lượng:</strong> {item.quantity}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Kích thước:</strong> {item.size}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Thương hiệu:</strong> {item.productId.brand}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Mô tả:</strong> {item.productId.description}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Giá:</strong> {item.price} VNĐ
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Loại sản phẩm:</strong> {item.productId.condition}
                     </p>
-                    <p>
+                    <p style={{ margin: 0, padding: "2px 0" }}>
                       <strong>Đánh giá:</strong> {item.productId.rating} (
                       {item.ratingQuantity} lượt đánh giá)
                     </p>
@@ -345,16 +360,20 @@ const Order = () => {
                 </div>
               ))}
             </div>
+            <Row gutter={16}>
+              <Col span={12}>
+                <p>
+                  <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee} VNĐ
+                </p>
+              </Col>
+              <Col span={12}>
+                <p>
+                  <strong>Giảm giá Voucher:</strong> {selectedOrder.voucherDiscount} VNĐ
+                </p>
+              </Col>
+            </Row>
             <p>
-              <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee} VNĐ
-            </p>
-            <p>
-              <strong>Giảm giá Voucher:</strong> {selectedOrder.voucherDiscount}{" "}
-              VNĐ
-            </p>
-            <p>
-              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal}{" "}
-              VNĐ
+              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal} VNĐ
             </p>
           </div>
         )}

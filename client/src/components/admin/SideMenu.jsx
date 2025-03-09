@@ -6,7 +6,6 @@ import {
   ShoppingCartOutlined,
   UserOutlined,
   ShopOutlined,
-  OrderedListOutlined
 } from "@ant-design/icons";
 import { Outlet, useNavigate } from "react-router-dom";
 import PageContain from "./PageContain";
@@ -15,7 +14,7 @@ const menuItems = [
     { key: "/admin/dashboard", icon: <AppstoreOutlined />, label: "Bảng thống kê" },
     { key: "/admin/orders", icon: <OrderedListOutlined />, label: "Đơn hàng" },
     { key: "/admin/products", icon: <ShopOutlined />, label: "Sản phẩm" },
-    // { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Tồn kho" },
+    { key: "/admin/inventory", icon: <DatabaseOutlined />, label: "Tồn kho" },
     { key: "/admin/danh-muc", icon: <OrderedListOutlined />, label: "Danh mục" },
     { key: "/admin/warehouse", icon: <OrderedListOutlined />, label: "Kho hàng" },
     { key: "/admin/banners", icon: <ShopOutlined />, label: "Ảnh bìa" },
@@ -38,7 +37,8 @@ const Sidebar = () => {
           onClick={(item) => (console.log(item.key), navigate(item.key))}
         />
       </div>
-      <div className="flex-grow flex-col mt-10">
+      <div className="flex-grow flex-col">
+        <div className="text-xl flex items-start p-5 w-full">Welcome to Admin Panel</div> 
         <div className="flex-grow">
           <PageContain></PageContain>
         </div>
