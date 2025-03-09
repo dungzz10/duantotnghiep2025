@@ -82,7 +82,8 @@ const SingelProduct = () => {
       (size) => size.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
-
+  const availableStock = selectedVariant ? selectedVariant.quantity : 0;
+  
   const handleAddToCart = () => {
     if (!selectedSize) {
       setShowSizeError(true);
@@ -90,6 +91,7 @@ const SingelProduct = () => {
     }
     setShowSizeError(false);
     const cartItem = {
+      kho: availableStock,
       id: data.product._id,
       title: data.product.title,
       image: data.product.image?.length
@@ -99,6 +101,7 @@ const SingelProduct = () => {
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
+    
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -107,6 +110,7 @@ const SingelProduct = () => {
         item.id === cartItem.id &&
         item.color === cartItem.color &&
         item.size === cartItem.size
+
     );
 
     if (existingIndex !== -1) {
@@ -146,7 +150,15 @@ const SingelProduct = () => {
               {product.title}
             </div>
             {/* tiêu đề  */}
-
+            {selectedSize ? (
+              <div className="text-md font-medium text-black/[0.5] mt-2">
+                {availableStock > 0
+                  ? `Còn lại: ${availableStock} sản phẩm`
+                  : "Hết hàng"}
+              </div>
+            ) : (
+              <p></p>
+            )}
             {/* Giá sản phẩm */}
             <div className="mt-6">
               <span className="title-font font-medium text-2xl text-gray-900 mr-4">

@@ -59,7 +59,9 @@ const checkDuplicateVariant = (variants, currentVariant, currentSize) => {
 };
 
 const UppdateProductAdmin = () => {
+  
   const { id } = useParams();
+ 
   const { data, isLoadingProduct } = useGetOneProduct(id);
   const { mutate, isLoading } = useUppdateProduct();
   const { category, loading } = useCategory();
