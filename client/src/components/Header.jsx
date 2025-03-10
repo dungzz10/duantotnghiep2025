@@ -2,23 +2,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { userLogout } from "../app/hook/LogoutUser";
 import React, { useState } from "react";
 import Wrapper from "./Wrapper";
-
-import { ShoppingCart } from "lucide-react";
-import { IoMdHeartEmpty } from "react-icons/io";
-import { BsCart } from "react-icons/bs";
-import { BiMenuAltRight } from "react-icons/bi";
-import { VscChromeClose } from "react-icons/vsc";
 import Menu from "./Menu";
-import MenuMobile from "./MenuMobile";
+import Banner from "./Banner";
+
+import { Search, ShoppingBag, Heart, User } from "lucide-react";
 
 const Header = ({ user }) => {
-  const [mobileMenu, setMobileMenu] = useState(false); // trạng thái menu cho mobile
-  const [showCatMenu, setShowCatMenu] = useState(false); // trạng thái show menu
-
+  const [showCatMenu, setShowCatMenu] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
   const { Logout } = userLogout();
-  // console.log("User:", userLogout);
 
   const handleLogout = () => {
     console.log("Logout");
@@ -27,170 +20,179 @@ const Header = ({ user }) => {
 
   return (
     <>
-      <header
-        className={`w-full h-[50px] md:h-[80px] bg-white flex items-center justify-between
-    z-20 sticky top-0 transition-transform duration-300 
-    `}
-      >
-        <Wrapper className="h-[60px] flex justify-between items-center">
-          {/* LOGO */}
-          <Link to="/">
-            <img
-              src="./src/assets/logo.svg"
-              className="w-[40px] md:w-[60px]"
-              alt="Logo"
+      {/* Top Announcement Bar */}
+      <div className="w-full bg-white py-2 border-b">
+        <div className="container mx-auto flex justify-between items-center px-4">
+          <div className="text-sm font-medium">
+            *New Winter Product 2023 <Link to="/shop" className="underline">Shop Now*</Link>
+          </div>
+          <Link to="/" className="hidden md:block">
+            <img 
+              src="/src/assets/logo.svg" 
+              alt="Beautico" 
+              className="h-10"
             />
           </Link>
-
-          {/* MENU CHÍNH */}
-          <Menu showCatMenu={showCatMenu} setShowCatMenu={setShowCatMenu} />
-
-          {mobileMenu && (
-            <MenuMobile
-              showCatMenu={showCatMenu}
-              setShowCatMenu={setShowCatMenu}
-              setMobileMenu={setMobileMenu}
-            />
-          )}
-
-          {/* USER SECTION */}
-          <div className="flex items-center lg:order-2">
-            {/* Cart */}
-            <div className="flex items-center gap-2 text-black">
-              {/* Icon start  */}
-              <div
-                className="w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center 
-            items-center hover:bg-black/[0.05] cursor-pointer relative"
+          <div className="flex items-center space-x-2">
+            <div className="relative hidden md:flex items-center">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="border border-gray-300 rounded-full px-4 py-1 pr-10 focus:outline-none"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <button 
+                className="absolute right-3" 
+                onClick={() => {
+                  if (q.trim() !== "") {
+                    navigate(`/search?q=${q}`);
+                  }
+                }}
               >
-                <Link to={"/favourite"}>
-                  <IoMdHeartEmpty className="text-[15px] md:text-[20px]" />
-                  <div
-                    className="h-[14px] md:h-[18px] min-w-[14px] md:min-w-[18px]
-                rounded-full bg-red-600 text-white absolute top-1 left-5 md:left-7
-                text-[10px] md:text-[12px] flex justify-center items-center px-[2px] 
-                md:px-[5px]"
-                  >
-                    51
-                  </div>
-                </Link>
-              </div>
-              {/* icon end  */}
-
-              {/* Icon start  */}
-              <Link to="/cart">
-                <div
-                  className="w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center 
-            items-center hover:bg-black/[0.05] cursor-pointer relative"
-                >
-                  <BsCart className="text-[15px] md:text-[20px]" />
-                  <div
-                    className="h-[14px] md:h-[18px] min-w-[14px] md:min-w-[18px]
-                rounded-full bg-red-600 text-white absolute top-1 left-5 md:left-7
-                text-[10px] md:text-[12px] flex justify-center items-center px-[2px] 
-                md:px-[5px]"
-                  >
-                    5
-                  </div>
-                </div>
-              </Link>
-              {/* icon end */}
-
-              {/* mobile icon start */}
-
-              <div
-                className="w-8 md:w-12 h-8 md:h-12 rounded-full flex justify-center 
-            items-center hover:bg-black/[0.05] cursor-pointer relative md:hidden"
-              >
-                {mobileMenu ? (
-                  <VscChromeClose
-                    className="text-[16px]"
-                    onClick={() => setMobileMenu(false)}
-                  />
-                ) : (
-                  <BiMenuAltRight
-                    className="text-[20px]"
-                    onClick={() => setMobileMenu(true)}
-                  />
-                )}
-              </div>
+                <Search size={18} />
+              </button>
             </div>
-            {user ? (
-              <div className="dropdown dropdown-end z-20">
-                {/* Avatar (Button để mở dropdown) */}
-                <div
-                  tabIndex={0}
-                  role="button"
-                  className="btn btn-ghost btn-circle avatar"
-                >
-                  <div className="w-10 rounded-full">
-                    <img
-                      src={user.photo || "https://via.placeholder.com/40"}
-                      alt="User Avatar"
-                    />
-                  </div>
-                </div>
-                {/* Dropdown Menu */}
-                <ul
-                  tabIndex={0}
-                  className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow"
-                >
-                  <li>
-                    <Link to="/profile">Profile</Link>
-                  </li>
-                  <li>
-                    <Link to="/my-store?tab=products">My Store</Link>
-                  </li>
-                  <li>
-                    <Link to="/payment-management">Payment Management</Link>
-                  </li>
-                  <li>
-                    <Link to="/address">Address</Link>
-                  </li>
-                  <li>
-                    <Link to="/order">Orders</Link>
-                  </li>
-                  <li>
-                    <button onClick={handleLogout} className="text-red-600">
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            ) : (
-              <div>
-                <Link to="/signin" className="btn white mr-1">
-                  Login
-                </Link>
-                <Link to="/signup" className="btn white">
-                  Register
-                </Link>
-              </div>
-            )}
           </div>
-        </Wrapper>
+        </div>
+      </div>
+
+      {/* Main Navigation */}
+      <header className="w-full bg-white shadow-sm sticky top-0 z-20">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center h-16">
+            {/* Category Button - Left Side */}
+            <div className="flex items-center">
+              {/* <div className="bg-black text-white px-4 py-2 flex items-center cursor-pointer">
+                <span className="mr-2">☰</span>
+                <span>Category</span>
+              </div> */}
+            </div>
+
+            {/* Mobile Logo - Center */}
+            <Link to="/" className="md:hidden">
+              <img 
+                src="/src/assets/logo.svg" 
+                alt="Beautico" 
+                className="h-8"
+              />
+            </Link>
+
+            {/* Main Menu - Center */}
+            <div className="hidden md:block">
+              <Menu showCatMenu={showCatMenu} setShowCatMenu={setShowCatMenu} />
+            </div>
+
+            {/* Icons - Right Side */}
+            <div className="flex items-center space-x-4">
+              <Link to="/cart" className="relative">
+                <ShoppingBag size={22} />
+                <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  5
+                </span>
+              </Link>
+              <Link to="/favourite" className="relative">
+                <Heart size={22} />
+                <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  8
+                </span>
+              </Link>
+              
+              {user ? (
+                <div className="dropdown dropdown-end z-20">
+                  <div tabIndex={0} role="button" className="cursor-pointer">
+                    <div className="w-8 h-8 rounded-full overflow-hidden">
+                      <img
+                        src={user.photo || "https://via.placeholder.com/40"}
+                        alt="User Avatar"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+                  <ul
+                    tabIndex={0}
+                    className="dropdown-content menu bg-base-100 rounded-box w-52 p-2 shadow"
+                  >
+                    <li>
+                      <Link to="/profile">Profile</Link>
+                    </li>
+                    <li>
+                      <Link to="/my-store?tab=products">My Store</Link>
+                    </li>
+                    <li>
+                      <Link to="/payment-management">Payment Management</Link>
+                    </li>
+                    <li>
+                      <Link to="/address">Address</Link>
+                    </li>
+                    <li>
+                      <Link to="/order">Orders</Link>
+                    </li>
+                    <li>
+                      <button onClick={handleLogout} className="text-red-600">
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              ) : (
+                <Link to="/signin">
+                  <User size={22} />
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
       </header>
-      <div className="w-full max-w-md mt-2 mb-2 mx-auto">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (q.trim() !== "") {
-              navigate(`/search?q=${q}`);
-            }
-          }}
-          className="flex items-center border border-gray-300 rounded-lg px-3 py-1 w-full"
-        >
+
+      {/* Mobile Search Bar */}
+      <div className="md:hidden w-full py-2 px-4 bg-gray-50">
+        <div className="relative flex items-center">
           <input
             type="text"
-            className="flex-grow p-1 outline-none"
             placeholder="Search..."
+            className="w-full border border-gray-300 rounded-full px-4 py-1 pr-10 focus:outline-none"
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-          <button type="submit" className="ml-2 text-gray-600 hover:text-black">
-            🔍
+          <button 
+            className="absolute right-3" 
+            onClick={() => {
+              if (q.trim() !== "") {
+                navigate(`/search?q=${q}`);
+              }
+            }}
+          >
+            <Search size={18} />
           </button>
-        </form>
+        </div>
       </div>
+
+      {/* Hero Banner Section - Just for demonstration */}
+      {/* <div className="relative">
+        <div className="bg-gray-100 w-full h-[400px] flex">
+          <div className="w-1/2 flex flex-col justify-center px-12">
+            <div className="relative">
+              <div className="bg-black text-white px-3 py-1 rounded-full inline-block">
+                50% OFF
+              </div>
+              <h1 className="text-4xl font-bold mt-4">
+                Glow Requires<br />Gradual Nurturing.
+              </h1>
+              <p className="mt-4">
+                Whatever Your Summer Looks Like, Bring Your Own Heat With<br />
+                Up To 25% Off Lumin Brand.
+              </p>
+              <button className="mt-6 bg-black text-white px-6 py-2">
+                *Shop Now*
+              </button>
+            </div>
+          </div>
+          <div className="w-1/2 bg-cover bg-center" style={{ backgroundImage: "url('/src/assets/banner.jpg')" }}>
+           <Banner></Banner>
+          </div>
+        </div>
+      </div> */}
     </>
   );
 };
