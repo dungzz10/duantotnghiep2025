@@ -2,51 +2,30 @@ import React, { useEffect, useState } from "react";
 import { api } from "../../axios/api";
 
 const FavouritePage = () => {
-  const [favourites, setFavourites] = useState([]);
+  const [data, setData] = useState([]);
+  console.log(data, 111111111111111);
 
-  // Lấy danh sách yêu thích từ localStorage hoặc API
   useEffect(() => {
-    const storedFavourites =
-      JSON.parse(localStorage.getItem("favourites")) || [];
+    const fetchFavourites = async () => {
+      const response = await api.get(`/favourite`);
+      setData(response.data.data.favourites);
+    };
 
-    // Nếu không có trong localStorage, gọi API để lấy danh sách yêu thích
-    if (storedFavourites.length === 0) {
-      async function fetchData() {
-        try {
-          const response = await api.get("/favourite");
-          setFavourites(response.data.data.favourites);
-          localStorage.setItem(
-            "favourites",
-            JSON.stringify(response.data.data.favourites)
-          );
-        } catch (error) {
-          console.error("Lỗi khi lấy danh sách yêu thích từ API", error);
-        }
-      }
-      fetchData();
-    } else {
-      setFavourites(storedFavourites);
-    }
+    fetchFavourites();
   }, []);
 
-  // Xóa sản phẩm khỏi danh sách yêu thích
-  const handleRemoveFavourite = (productId) => {
-    // Xóa sản phẩm khỏi localStorage
-    const updatedFavourites = favourites.filter(
-      (item) => item._id !== productId
+  const removeFavourite = async (productId) => {
+    const confirmDelete = window.confirm(
+      "Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?"
     );
-    setFavourites(updatedFavourites);
-    localStorage.setItem("favourites", JSON.stringify(updatedFavourites));
 
-    // Xóa sản phẩm khỏi API (nếu cần)
-    api
-      .delete(`/favourite/${productId}`)
-      .then(() => {
-        console.log("Xóa sản phẩm khỏi danh sách yêu thích thành công");
-      })
-      .catch((error) => {
-        console.error("Lỗi khi xóa sản phẩm khỏi danh sách yêu thích", error);
-      });
+    if (confirmDelete) {
+      await api.delete(`/favourite/${productId}`);
+
+      // Gọi lại hàm fetch để cập nhật danh sách
+      const response = await api.get(`/favourite`);
+      setData(response.data.data.favourites);
+    }
   };
 
   return (
@@ -63,8 +42,8 @@ const FavouritePage = () => {
             </a>
           </div>
           <div className="grid grid-cols-4 gap-8">
-            {favourites && favourites.length > 0 ? (
-              favourites.map((item) => (
+            {data && data.length > 0 ? (
+              data.map((item) => (
                 <div key={item._id}>
                   <div className="overflow-hidden">
                     <img
@@ -86,7 +65,7 @@ const FavouritePage = () => {
 
                     <br />
                     <button
-                      onClick={() => handleRemoveFavourite(item._id)}
+                      onClick={() => removeFavourite(item._id)}
                       className="mt-4 border border-solid border-red-700 text-red-700 w-full font-semibold text-base py-2 hover:bg-yellow-700 hover:text-white"
                     >
                       Xóa khỏi danh sách yêu thích

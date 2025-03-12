@@ -23,6 +23,10 @@ import {
   addUserAdmin,
   deactivateUserAdmin,
   updateUserAdmin,
+  getMyAddresses,
+  addAddress,
+  updateAddress,
+  deleteAddress,
 } from "../controllers/userControll.js";
 import {
   createMomoPayment,
@@ -34,6 +38,9 @@ import {
 const userRouter = express.Router();
 
 // auth router
+
+userRouter.get("/khachhang/:userId", isAuththenticated, getCustomerDetails);
+userRouter.get("/my-addresses",isAuththenticated, getMyAddresses);
 userRouter.get("/admin/", isAuththenticated, getAdminUsers);
 userRouter.post("/signup", signup);
 userRouter.post("/signin", signin);
@@ -84,7 +91,12 @@ userRouter.get(
   isAuththenticated,
   verifyTransaction
 );
+// adress
 
-userRouter.get("/khachhang/:userId", isAuththenticated, getCustomerDetails);
+userRouter.post("/add-address",isAuththenticated, addAddress);
+userRouter.put("/update-address",isAuththenticated, updateAddress);
+userRouter.delete("/delete-address/:addressId", isAuththenticated, deleteAddress);
+
+
 
 export default userRouter;

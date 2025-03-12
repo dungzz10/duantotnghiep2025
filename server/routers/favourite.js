@@ -9,7 +9,7 @@ import {
 import { isAuththenticated } from "../middlewares/auth.js";
 const RouterFavourite = express.Router();
 
-RouterFavourite.post("/", isAuththenticated, createFavourite);
+RouterFavourite.post("/:id", isAuththenticated, createFavourite);
 RouterFavourite.get("/", isAuththenticated, getFavourites);
 
 RouterFavourite.delete("/:id", isAuththenticated, removeFavourite);

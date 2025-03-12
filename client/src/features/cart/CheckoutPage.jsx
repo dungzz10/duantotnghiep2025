@@ -39,20 +39,19 @@ const CheckoutPage = () => {
 
     const finalOrder = {
       ...order,
-      paymentMethod: paymentMethod, 
+      paymentMethod: paymentMethod,
       finalTotal,
     };
 
     if (paymentMethod === "ATM_MOMO" || paymentMethod === "QR_MOMO") {
       try {
-        
         const amount = Math.round(order.total);
         const paymentType = paymentMethod === "ATM_MOMO" ? "atm" : "qr";
         const response = await fetch("http://localhost:5000/api/momo/payment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, 
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           credentials: "include",
           body: JSON.stringify({
@@ -90,7 +89,6 @@ const CheckoutPage = () => {
       }
     } else {
       try {
-        
         const response = await fetch(
           "http://localhost:5000/api/v1/orders/create",
           {
@@ -131,8 +129,7 @@ const CheckoutPage = () => {
               <Title level={2}>Hoá đơn</Title>
             </Col>
             <Col>
-              <Space>
-              </Space>
+              <Space></Space>
             </Col>
           </Row>
           <Row gutter={24}>
@@ -143,19 +140,9 @@ const CheckoutPage = () => {
                 <Text>Email: {order.user?.email}</Text>
                 <br />
                 <div className="addresses">
-                  <Text strong>Địa chỉ:</Text>
-                  {Array.isArray(order.user?.address) ? (
-                    order.user.address.map((addr, index) => (
-                      <div key={addr._id || index} className="ml-4 mt-2">
-                        <Text>
-                          {addr.addressType}: {addr.address}
-                        </Text>
-                      </div>
-                    ))
-                  ) : (
-                    <Text className="ml-4">{order.user?.address}</Text>
-                  )}
+                  <Text strong>Địa chỉ:  {order.user?.shippingAddress?.address}</Text>
                 </div>
+                <Text>Số điện thoại: {order.user?.phone}</Text>
               </Card>
             </Col>
             <Col span={12}>
@@ -163,9 +150,12 @@ const CheckoutPage = () => {
                 {order.products.map((product, index) => (
                   <div key={index} className="mb-2">
                     <Text>
-                      Tên: {product.title} x {product.quantity}
+                      Tên: {product.title}
                     </Text>
                     <br />
+                    <Text>Số lượng: {product.quantity}</Text><br />
+                    <Text>Màu: {product.color}</Text><br />
+                    <Text>Size: {product.size}</Text><br />
                     <Text>Giá :{product.price * product.quantity} VNĐ</Text>
                   </div>
                 ))}

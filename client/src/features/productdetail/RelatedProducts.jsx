@@ -5,7 +5,7 @@ import Card from '../product/Card';
 import { useAllProducts } from '../product/useProducts';
 
 const RelatedProducts = () => {
-    const { data, isLoading, isError } = useAllProducts();
+    const { data, isLoading, isError } = useAllProducts({ limit: 12});
 
     const responsive = {
         superLargeDesktop: { breakpoint: { max: 4000, min: 3000 }, items: 5 },
@@ -27,7 +27,7 @@ const RelatedProducts = () => {
     }
 
     return (
-        <div className='mt-[50px] md:mt-[100px] mb-[100px] md:mb-0'>
+        <div className='mt-[50px] md:mt-[100px] max-w-7xl mb-[100px] md:mb-0 w-full'>
             <div className='text-2xl font-bold mb-5'>Có thể bạn sẽ thích</div>
             <Carousel
                 responsive={responsive}
