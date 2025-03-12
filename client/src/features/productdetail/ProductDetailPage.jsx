@@ -48,42 +48,48 @@ const ProductDetailPage = () => {
       (size) => size.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
-
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      alert("Vui lòng chọn kích cỡ trước khi thêm vào giỏ hàng!");
+  const handleAddToCart = async () => {
+    if (!selectedSize || !selectedColor) {
+      alert("Vui lòng chọn đầy đủ màu sắc và kích thước!");
       return;
     }
-
+  
     const cartItem = {
-      id: data.product._id,
+      productId: data.product._id,
       title: data.product.title,
-      image: data.product.image?.length
-        ? data.product.image[0].url
-        : "https://via.placeholder.com/300",
+      image: data.product.image?.[0]?.url || "https://via.placeholder.com/300",
+      brand: data.product.brand,
       color: selectedColor,
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
     };
-
-    const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existingIndex = existingCart.findIndex(
-      (item) =>
-        item.id === cartItem.id &&
-        item.color === cartItem.color &&
-        item.size === cartItem.size
-    );
-
-    if (existingIndex !== -1) {
-      existingCart[existingIndex].quantity += 1;
-    } else {
-      existingCart.push(cartItem);
+  
+    
+    try {
+      const response = await fetch("http://localhost:5000/api/v1/carts/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(cartItem),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
+      } else {
+        alert(`Thêm vào giỏ hàng thất bại: ${data.message}`);
+      }
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
     }
-
-    localStorage.setItem("cart", JSON.stringify(existingCart));
-    alert("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
   };
+  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;

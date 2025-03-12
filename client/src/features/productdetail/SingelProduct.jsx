@@ -14,7 +14,7 @@ const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
   const [showSizeError, setShowSizeError] = useState(false);
-  console.log("data", data);
+  console.log("data", data, 111111111111111111);
   const productReviews = data?.reviews || [];
   const [isfavourite, setIsFavourite] = useState(false);
   //kiem tra xem san pham da co trong muc yeu thich hay chua
@@ -25,11 +25,24 @@ const SingelProduct = () => {
       const res = await api.get(`/favourite/isfavourite/${id}`);
       setIsFavourite(res.data.data);
     })();
-  }, []);
+  }, [id]);
 
   //them vao danh sach yeu thich
-  const addFavourite = async (productId) => {
-    console.log(productId, 1234512345);
+  const addFavourite = async () => {
+    await api.post(`/favourite/${id}`);
+    setIsFavourite(true);
+    alert("da them vao danh sach yeu thich");
+  };
+
+  // xoa khoi danh sch yeu thich
+
+  const removeFavourite = async (productId) => {
+    console.log(isfavourite, 12345345);
+
+    await api.delete(`/favourite/${productId}`);
+
+    setIsFavourite(false);
+    alert("da xoa khoi danh sach yeu thich");
   };
 
   // Cập nhật logic xử lý variants
@@ -69,7 +82,8 @@ const SingelProduct = () => {
       (size) => size.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
-
+  const availableStock = selectedVariant ? selectedVariant.quantity : 0;
+  
   const handleAddToCart = () => {
     if (!selectedSize) {
       setShowSizeError(true);
@@ -77,6 +91,7 @@ const SingelProduct = () => {
     }
     setShowSizeError(false);
     const cartItem = {
+      kho: availableStock,
       id: data.product._id,
       title: data.product.title,
       image: data.product.image?.length
@@ -86,6 +101,7 @@ const SingelProduct = () => {
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
+    
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -94,6 +110,7 @@ const SingelProduct = () => {
         item.id === cartItem.id &&
         item.color === cartItem.color &&
         item.size === cartItem.size
+
     );
 
     if (existingIndex !== -1) {
@@ -133,7 +150,15 @@ const SingelProduct = () => {
               {product.title}
             </div>
             {/* tiêu đề  */}
-
+            {selectedSize ? (
+              <div className="text-md font-medium text-black/[0.5] mt-2">
+                {availableStock > 0
+                  ? `Còn lại: ${availableStock} sản phẩm`
+                  : "Hết hàng"}
+              </div>
+            ) : (
+              <p></p>
+            )}
             {/* Giá sản phẩm */}
             <div className="mt-6">
               <span className="title-font font-medium text-2xl text-gray-900 mr-4">
@@ -242,6 +267,7 @@ const SingelProduct = () => {
             {/* WHISLIST BUTTON START */}
             {isfavourite ? (
               <button
+                onClick={() => removeFavourite(product._id)}
                 className="w-full py-4 rounded-full border border-black
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
@@ -251,7 +277,7 @@ const SingelProduct = () => {
               </button>
             ) : (
               <button
-                onClick={() => addFavourite(product.id)}
+                onClick={() => addFavourite()}
                 className="w-full py-4 rounded-full border border-black
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
