@@ -28,6 +28,7 @@ const LayoutAdmin = () => {
       {/* <PageContain></PageContain> */}
       {/* </Space> */}
       {/* <AppFooter></AppFooter> */}
+      <AppFooter/>
     </div>
   );
 };

@@ -22,7 +22,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // Cho phép frontend từ cổng 5173
+    origin: "http://localhost:5178", // Cho phép frontend từ cổng 5173
     credentials: true, // Nếu cần gửi cookies hoặc token
   })
 );
