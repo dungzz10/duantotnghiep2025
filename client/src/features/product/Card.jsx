@@ -2,21 +2,42 @@ import { Link } from "react-router-dom";
 import React from "react";
 
 const Card = ({ product }) => {
+  console.log(product);
   // Calculate discount percentage
-  const discountPercentage = product.discountPercentage || 
-    (product.originalPrice && product.discountPrice 
-      ? Math.round(((product.originalPrice - product.discountPrice) / product.originalPrice) * 100) 
+  const discountPercentage =
+    product.discountPercentage ||
+    (product.originalPrice && product.salePrice
+      ? Math.round(
+          100 -
+            ((product.originalPrice - product.salePrice) /
+              product.originalPrice) *
+              100
+        )
       : 20);
-  
+
+  // Get status badge color based on status
+  const getStatusBadgeColor = (status) => {
+    switch (status) {
+      case "sale":
+        return "bg-red-500";
+      case "sold out":
+        return "bg-gray-500";
+      case "new":
+        return "bg-green-500";
+      default:
+        return "bg-blue-500";
+    }
+  };
+
   return (
     <Link
       className="bg-white transform overflow-hidden duration-200 hover:scale-105 cursor-pointer relative border border-gray-200 rounded-md flex flex-col h-full"
       to={`/products/${product._id}`}
     >
       <div className="relative">
-        {product.isNew && (
-          <div className="absolute top-2 left-2 bg-black text-white text-xs font-bold px-2 py-1 z-10">
-            NEW
+        {product.status && (
+          <div className={`absolute top-2 right-2 ${getStatusBadgeColor(product.status)} text-white text-xs font-bold px-2 py-1 z-10 uppercase`}>
+            {product.status}
           </div>
         )}
         {discountPercentage > 0 && (
@@ -41,8 +62,10 @@ const Card = ({ product }) => {
         <h2 className="text-lg font-medium mb-1">{product.title}</h2>
         <div className="text-gray-500 text-sm mb-2">{product.brand}</div>
         <div className="flex items-center text-black/[0.9] mt-auto">
-          <p className="mr-2 text-lg font-semibold">${product.discountPrice || product.originalPrice}</p>
-          {product.discountPrice && (
+          <p className="mr-2 text-lg font-semibold">
+            ${product.originalPrice - product.salePrice }
+          </p>
+          {product.salePrice && (
             <p className="text-base font-medium line-through text-gray-400">
               ${product.originalPrice}
             </p>
@@ -52,17 +75,25 @@ const Card = ({ product }) => {
           <div className="flex items-center mt-2">
             <div className="flex">
               {[...Array(5)].map((_, i) => (
-                <span key={i} className="text-yellow-400">★</span>
+                <span key={i} className="text-yellow-400">
+                  ★
+                </span>
               ))}
             </div>
-            <span className="text-gray-500 text-sm ml-1">({product.ratingCount || 0})</span>
+            <span className="text-gray-500 text-sm ml-1">
+              ({product.ratingQuantity || 0})
+            </span>
           </div>
         )}
-        {product.sizeOptions && (
+        {product.tag && product.tag.length > 0 && (
           <div className="flex gap-2 mt-2">
-            {product.sizeOptions.map((size, index) => (
-              <div key={index} className="border border-gray-300 text-xs px-2 py-1 rounded">
-                {size}
+            {product.tag.map((variant, index) => (
+              <div
+                key={index}
+                className="border border-gray-300 text-xs px-7 py-1 rounded-full"
+                style={{ backgroundColor: variant.color === 'đỏ' ? '#ffdddd' : 'transparent' }}
+              >
+                {variant}
               </div>
             ))}
           </div>

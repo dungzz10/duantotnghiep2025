@@ -10,6 +10,10 @@ export default {
       screens: {
         "800px": "800px",
       },
+      maxWidth: {
+        '7xl': '110rem', 
+        '8xl': '96rem', 
+      },
     },
   },
   daisyui: {
