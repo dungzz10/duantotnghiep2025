@@ -67,7 +67,7 @@ const Card = ({ product }) => {
           </p>
           {product.salePrice && (
             <p className="text-base font-medium line-through text-gray-400">
-              ${product.originalPrice}
+            đ{product.originalPrice}
             </p>
           )}
         </div>
