@@ -1,5 +1,6 @@
 import axios from "axios";
 import toast from "react-hot-toast";
+import { data } from "react-router-dom";
 
 axios.defaults.baseURL = "http://localhost:5000/api/v1";
 axios.defaults.withCredentials = true; // Cho phép gửi cookie cùng request
@@ -145,6 +146,30 @@ const Account = {
   myAddress: async () => {
     try {
       const res = await request.get("user/my-addresses");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+  addAdress: async (data) => {
+    try {
+      const res = await request.post("user/add-address", data);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+  uppdateAdress: async (data) => {
+    try {
+      const res = await request.put("user/update-address", data);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+  deleteAdress: async (id) => {
+    try {
+      const res = await request.delete(`user/delete-address/${id}`);
       return res;
     } catch (error) {
       throw error;

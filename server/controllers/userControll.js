@@ -337,9 +337,10 @@ export const addAddress = CatchAsync(async (req, res, next) => {
   });
 });
 export const updateAddress = CatchAsync(async (req, res, next) => {
-  const { addressId, address, addressType } = req.body;
+  const { id, address, addressType } = req.body;
+  console.log(req.body)
 
-  if (!addressId || !address || !addressType) {
+  if (!id || !address || !addressType) {
     return next(new HandelError("Vui lòng cung cấp đầy đủ thông tin", 400));
   }
 
@@ -348,7 +349,7 @@ export const updateAddress = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Không tìm thấy người dùng", 404));
   }
 
-  const addressIndex = user.address.findIndex((a) => a._id.toString() === addressId);
+  const addressIndex = user.address.findIndex((a) => a._id.toString() === id);
   if (addressIndex === -1) {
     return next(new HandelError("Không tìm thấy địa chỉ", 404));
   }
