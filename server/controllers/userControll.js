@@ -325,6 +325,16 @@ export const addAddress = CatchAsync(async (req, res, next) => {
   if (!user) {
     return next(new HandelError("Không tìm thấy người dùng", 404));
   }
+  const addressExists = user.address.some(
+    (item) => item.address === address && item.addressType === addressType
+  );
+
+  if (addressExists) {
+    return res.status(400).json({
+      success: false,
+      message: "Địa chỉ này đã tồn tại.",
+    });
+  }
 
   user.address.push({ address, addressType });
 
