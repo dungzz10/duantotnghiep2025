@@ -10,7 +10,10 @@ const Banner = () => {
     queryFn: fetchBanners,
   });
 
-  if (isLoading) return <p className="text-center text-lg text-gray-600">Đang tải dữ liệu...</p>;
+  if (isLoading)
+    return (
+      <p className="text-center text-lg text-gray-600">Đang tải dữ liệu...</p>
+    );
 
   if (error) {
     return (
@@ -25,13 +28,22 @@ const Banner = () => {
           transitionTime={800}
         >
           <div className="relative">
-            <img className="w-full h-auto max-h-[400px] object-cover rounded-lg" src="./src/assets/slide-1.png" />
+            <img
+              className="w-full h-auto max-h-[400px] object-cover rounded-lg"
+              src="./src/assets/slide-1.png"
+            />
           </div>
           <div className="relative">
-            <img className="w-full h-auto max-h-[400px] object-cover rounded-lg" src="./src/assets/slide-2.png" />
+            <img
+              className="w-full h-auto max-h-[400px] object-cover rounded-lg"
+              src="./src/assets/slide-2.png"
+            />
           </div>
           <div className="relative">
-            <img className="w-full h-auto max-h-[400px] object-cover rounded-lg" src="./src/assets/slide-3.png" />
+            <img
+              className="w-full h-auto max-h-[400px] object-cover rounded-lg"
+              src="./src/assets/slide-3.png"
+            />
           </div>
         </Carousel>
       </div>
@@ -39,7 +51,7 @@ const Banner = () => {
   }
 
   return (
-    <div className="relative text-[20px] w-full max-w-[1360px] mx-auto text-white">
+    <div className="relative text-[20px] w-full h-fit mx-auto text-white">
       <Carousel
         autoPlay
         infiniteLoop
@@ -49,7 +61,11 @@ const Banner = () => {
         transitionTime={800}
       >
         {data?.banners?.map((banner) => (
-          <div key={banner._id} className="relative w-full h-[40vh] sm:h-[50vh] md:h-[60vh] lg:h-[70vh] max-h-[500px]">
+          <div
+            key={banner._id}
+            className="relative w-full max-w-full"
+            style={{ aspectRatio: "16 / 9" }} // Tỷ lệ 16:9 cho hình ảnh
+          >
             <img
               className="absolute top-0 left-0 w-full h-full object-cover rounded-lg shadow-lg"
               src={banner.image}
