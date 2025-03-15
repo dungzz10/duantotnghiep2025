@@ -2,7 +2,7 @@ import React from "react";
 
 const BannerFooter = () => {
   return (
-    <div className=" mx-auto px-4 py-10 my-5 bg-stone-100">
+    <div className=" mx-auto  px-4 py-20 my-5 mt-5 bg-stone-100">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
         <div className="flex justify-center sm:justify-start">
           <div className="flex items-center space-x-3">

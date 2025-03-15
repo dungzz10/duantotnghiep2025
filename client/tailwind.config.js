@@ -12,7 +12,7 @@ export default {
       },
       maxWidth: {
         '7xl': '110rem', 
-        '8xl': '96rem', 
+        '8xl': '120rem', 
       },
     },
   },

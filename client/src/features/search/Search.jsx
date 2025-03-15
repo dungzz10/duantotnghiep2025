@@ -24,7 +24,7 @@ const Search = () => {
   if (loading) return <p>loading ....</p>;
   return (
     <>
-      <div>Search</div>
+    
       {data && (
         <SearchWrapper
           data={data}
