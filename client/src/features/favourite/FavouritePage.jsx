@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { api } from "../../axios/api";
+import { Link } from "react-router-dom"; // Import Link từ react-router-dom
 
 const FavouritePage = () => {
   const [data, setData] = useState([]);
@@ -35,7 +36,7 @@ const FavouritePage = () => {
           <div className="flex justify-between items-center mb-4">
             <h2 className="font-semibold text-[40px]">Danh sách yêu thích</h2>
             <a
-              href="./shop.html"
+              href="/"
               className="border border-solid border-yellow-500 px-4 py-2 font-semibold text-base text-yellow-500 "
             >
               Xem tất cả sản phẩm
@@ -45,15 +46,20 @@ const FavouritePage = () => {
             {data && data.length > 0 ? (
               data.map((item) => (
                 <div key={item._id}>
-                  <div className="overflow-hidden">
-                    <img
-                      src={item.image[0]?.url}
-                      alt={item.title}
-                      className="hover:scale-125 duration-1000"
-                    />
-                  </div>
+                  <Link to={`/products/${item._id}`} className="block">
+                    <div className="overflow-hidden">
+                      <img
+                        src={item.image[0]?.url}
+                        alt={item.title}
+                        className="hover:scale-125 duration-1000"
+                      />
+                    </div>
+                    <div className="bg-[#F5F5F5] p-4">
+                      <h3 className="font-semibold text-xl">{item.title}</h3>
+                    </div>
+                  </Link>
+
                   <div className="bg-[#F5F5F5] p-4">
-                    <h3 className="font-semibold text-xl">{item.title}</h3>
                     <p className="text-[#898989] text-base mt-1 mb-2">
                       {item.description}
                     </p>
