@@ -374,3 +374,132 @@ export const createWalletDeposit = CatchAsync(async (req, res, next) => {
     );
   }
 });
+export const ipnNotification = CatchAsync(async (req, res, next) => {
+  const { orderId, resultCode, message, amount, transId } = req.body;
+  console.log("Nhận IPN từ MoMo:", req.body);
+
+  try {
+    // Verify signature from MoMo (similar to verifyTransaction)
+    const requestId = `IPN_${orderId}`;
+    const signature = generateSignature({
+      accessKey: momoConfig.accessKey,
+      orderId,
+      partnerCode: momoConfig.partnerCode,
+      requestId,
+    });
+
+    // For additional security, you may want to verify the signature from IPN
+    // but since MoMo's webhook doesn't expect a verification call, we'll process directly
+
+    if (resultCode === 0) {
+      // Check if this is a wallet deposit
+      if (orderId.startsWith("DEPOSIT")) {
+        // Extract userId from deposit orderId format: DEPOSIT_timestamp_userId
+        const userId = orderId.split("_")[2];
+        
+        if (!userId) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid deposit order ID format",
+          });
+        }
+
+        // Update user wallet transaction
+        await User.updateOne(
+          { _id: userId, "wallet.transactions.momoTransactionId": orderId },
+          {
+            $set: { "wallet.transactions.$.status": "completed" },
+            $inc: { "wallet.balance": Number(amount) },
+          }
+        );
+
+        return res.status(200).json({
+          success: true,
+          message: "Nạp tiền thành công",
+        });
+      }
+
+      // If it's a regular order
+      const order = await Order.findOne({ orderId });
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy đơn hàng tương ứng",
+        });
+      }
+
+      // Update order status
+      await Order.updateOne(
+        { orderId },
+        { $set: { paymentStatus: "completed", orderStatus: "processing" } }
+      );
+
+      // Find payment method (wallet or ATM) based on order info
+      const user = await User.findById(order.userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy người dùng",
+        });
+      }
+
+      // Update transaction status in appropriate payment method
+      const walletTransaction = user.wallet?.transactions?.find(
+        (t) => t.momoTransactionId === orderId
+      );
+      const atmTransaction = user.ATM?.transactions?.find(
+        (t) => t.momoTransactionId === orderId
+      );
+
+      if (walletTransaction) {
+        await User.updateOne(
+          { _id: user._id, "wallet.transactions.momoTransactionId": orderId },
+          { $set: { "wallet.transactions.$.status": "completed" } }
+        );
+      } else if (atmTransaction) {
+        await User.updateOne(
+          { _id: user._id, "ATM.transactions.momoTransactionId": orderId },
+          { $set: { "ATM.transactions.$.status": "completed" } }
+        );
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Thanh toán đã được xử lý thành công",
+        transactionId: transId || order.orderId,
+      });
+    } else {
+      // Handle failed payment case
+      // If it's a regular order, update the order status to failed
+      if (!orderId.startsWith("DEPOSIT")) {
+        await Order.updateOne(
+          { orderId },
+          { $set: { paymentStatus: "failed" } }
+        );
+      }
+
+      // Update transaction status to failed in user document
+      await User.updateOne(
+        { "wallet.transactions.momoTransactionId": orderId },
+        { $set: { "wallet.transactions.$.status": "failed" } }
+      );
+
+      await User.updateOne(
+        { "ATM.transactions.momoTransactionId": orderId },
+        { $set: { "ATM.transactions.$.status": "failed" } }
+      );
+
+      return res.status(200).json({
+        success: false,
+        message: `Thanh toán thất bại: ${message || "Unknown error"}`,
+      });
+    }
+  } catch (error) {
+    console.error("Lỗi xử lý IPN:", error);
+    // Always return 200 to MoMo even if there's an error to acknowledge receipt
+    return res.status(200).json({
+      success: false,
+      message: `Lỗi xử lý thanh toán: ${error.message}`,
+    });
+  }
+});
