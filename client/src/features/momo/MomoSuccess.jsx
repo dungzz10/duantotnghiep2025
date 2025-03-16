@@ -14,7 +14,7 @@ const MomoSuccess = () => {
         const params = new URLSearchParams(location.search);
         const orderId = params.get("orderId");
         const resultCode = params.get("resultCode");
-        
+
         console.log("token:", localStorage.getItem("token"));
 
         // Sửa lại cách gọi axios.get - chỉ có 2 tham số: URL và config object
@@ -24,10 +24,10 @@ const MomoSuccess = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-            withCredentials: true
+            withCredentials: true,
           }
         );
-        
+
         console.log("API response:", response.data);
         console.log("orderid", response.data.success, resultCode, orderId);
 
@@ -36,14 +36,10 @@ const MomoSuccess = () => {
           console.log("orderid", orderId.startsWith("DEPOSIT"), orderId);
 
           if (orderId.startsWith("DEPOSIT")) {
-            navigate("/wallet");
+            navigate("/profile");
           } else {
             navigate("/orders");
           }
-        } else {
-          // Xử lý khi response.data.success = false nhưng không có lỗi
-          message.error(response.data.message || "Xác thực thanh toán không thành công!");
-          navigate("/cart");
         }
       } catch (error) {
         console.error("Verification error:", error);
