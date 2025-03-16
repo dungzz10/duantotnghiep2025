@@ -83,7 +83,7 @@ const SingelProduct = () => {
     );
   }, [selectedColor, selectedSize, colorVariants]);
   const availableStock = selectedVariant ? selectedVariant.quantity : 0;
-  
+
   const handleAddToCart = () => {
     if (!selectedSize) {
       setShowSizeError(true);
@@ -101,7 +101,6 @@ const SingelProduct = () => {
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
-    
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -110,7 +109,6 @@ const SingelProduct = () => {
         item.id === cartItem.id &&
         item.color === cartItem.color &&
         item.size === cartItem.size
-
     );
 
     if (existingIndex !== -1) {
@@ -272,7 +270,7 @@ const SingelProduct = () => {
              text-lg font-medium transition-transform
              flex items-center justify-center gap-2 hover:opacity-75 mb-10"
               >
-                huy Yêu thích
+                Hủy yêu thích
                 <IoMdHeartEmpty size={20} />
               </button>
             ) : (
