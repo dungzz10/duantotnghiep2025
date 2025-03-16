@@ -34,7 +34,7 @@ const ShoeProductSelection = () => {
   ];
 
   return (
-    <div className="w-full  mx-auto  bg-white">
+    <div className="w-full  mx-auto  bg-white mt-40">
       <h1 className="text-3xl font-bold text-center mb-8 pb-2 border-b-2 border-gray-200">
         Chọn Phong Cách Của Bạn 
       </h1>

@@ -175,6 +175,22 @@ const Account = {
       throw error;
     }
   },
+  naptien: async (amount) => {
+    try {
+      const res = await request.post("user/payment/wallet/deposit", amount);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getWallet: async () => {
+    try {
+      const res = await request.get("user/wallet/balance");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 const Product = {
   getAllProducts: async (params) => {

@@ -1,5 +1,10 @@
-import { useMutation } from "@tanstack/react-query";
-import { profileApi, uppdatePasswordApi } from "./profileApi";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  getWalletApi,
+  naptienApi,
+  profileApi,
+  uppdatePasswordApi,
+} from "./profileApi";
 import { message } from "antd";
 import { useQueryClient } from "@tanstack/react-query";
 export const useProfileApi = () => {
@@ -24,4 +29,39 @@ export const useUppdatePasswordApi = () => {
     },
   });
   return { uppdatePass, isLoadingPass };
+};
+
+export const getWallet = () => {
+  const { data, isLoading: isLoadingVi } = useQuery({
+    queryKey: ["wallet"],
+    queryFn: async () => getWalletApi(),
+    onSuccess: () => {},
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  return { data, isLoadingVi };
+};
+
+export const useNaptien = () => {
+  const queryClient = useQueryClient();
+  const { mutate: naptien, isLoading: isLoadingNap } = useMutation({
+    mutationFn: async (data) => await naptienApi(data),
+    onSuccess: (response) => {
+      console.log(response)
+      if (response && response.data.payUrl) {
+        window.location.href = response.data.payUrl;
+      } else {
+        message.success("Nạp tiền thành công");
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+      }
+    },
+    onError: (error) => {
+      message.error("Deposit failed");
+      console.error("Deposit error:", error);
+    },
+  });
+
+  return { naptien, isLoadingNap };
 };
