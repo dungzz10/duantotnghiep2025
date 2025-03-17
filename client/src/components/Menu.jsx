@@ -4,15 +4,15 @@ import { Link } from "react-router-dom";
 import useFetchData from '../app/api/useFetchdata';
 
 const Menu = ({ showCatMenu, setShowCatMenu }) => {
-    const { data: categories } = useFetchData('categories');
+    const { data: categories, isLoading, error } = useFetchData('categories');
 
     const menu = [
         { id: 1, name: "Trang chủ", url: "/" },
-        { id: 1, name: "Sản phẩm", url: "/products" },
-        { id: 4, name: "Thương hiệu", url: "/branch" },
-        { id: 2, name: "Giới thiệu", url: "/gioi-thieu" },
-        { id: 3, name: "Danh mục", subMenu: true },
-        { id: 4, name: "Liên hệ", url: "/lien-he" },
+        { id: 2, name: "Sản phẩm", url: "/products" },
+        { id: 3, name: "Thương hiệu", url: "/branch" },
+        { id: 4, name: "Giới thiệu", url: "/gioi-thieu" },
+        { id: 5, name: "Danh mục", subMenu: true },
+        { id: 6, name: "Liên hệ", url: "/lien-he" },
     ];
 
     return (
@@ -28,15 +28,21 @@ const Menu = ({ showCatMenu, setShowCatMenu }) => {
                             <BsChevronDown size={14} />
                             {showCatMenu && (
                                 <ul className='bg-white absolute top-6 left-0 min-w-[250px] px-1 py-1 text-black shadow-lg'>
-                                    {categories && categories.length > 0 ? (
-                                        categories.map((category) => (
-                                            <li key={category.id} className='h-12 flex justify-between items-center px-3 hover:bg-black/[0.05] rounded-md'>
-                                                <Link to={`/danh-muc/${category._id}`} className="flex-1">{category.name}</Link>
-                                                <span className='opacity-50 text-sm'>{category.products.length}</span>
-                                            </li>
-                                        ))
-                                    ) : (
+                                    {isLoading ? (
                                         <li className='h-12 flex justify-center items-center px-3'>Loading...</li>
+                                    ) : error ? (
+                                        <li className='h-12 flex justify-center items-center px-3 text-red-500'>Error loading categories</li>
+                                    ) : (
+                                        categories && categories.length > 0 ? (
+                                            categories.map((category) => (
+                                                <li key={category._id} className='h-12 flex justify-between items-center px-3 hover:bg-black/[0.05] rounded-md'>
+                                                    <Link to={`/danh-muc/${category._id}`} className="flex-1">{category.name}</Link>
+                                                    <span className='opacity-50 text-sm'>{category.products?.length || 0}</span>
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <li className='h-12 flex justify-center items-center px-3'>No categories found</li>
+                                        )
                                     )}
                                 </ul>
                             )}

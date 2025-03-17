@@ -22,7 +22,7 @@ export const getAllCategory = async (req, res) => {
 };
 export const getAllCategorynoProduct = async (req, res) => {
   try {
-    const categories = await Category.find({});
+    const categories = await Category.find({}).populate("products");
     if (categories.length === 0) {
       return res.json({
         message: "Không có danh mục nào",
