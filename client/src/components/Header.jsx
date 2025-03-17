@@ -24,7 +24,7 @@ const Header = ({ user }) => {
       <div className="w-full bg-white py-2 border-b">
         <div className="container mx-auto flex justify-between items-center px-4">
           <div className="text-sm font-medium">
-            *New Winter Product 2023 <Link to="/shop" className="underline">Shop Now*</Link>
+            *Sản Phẩm mới 2025 <Link to="/shop" className="underline">Shop Now*</Link>
           </div>
           <Link to="/" className="hidden md:block">
             <img 
@@ -116,21 +116,21 @@ const Header = ({ user }) => {
                     <li>
                       <Link to="/profile">Profile</Link>
                     </li>
-                    <li>
+                    {/* <li>
                       <Link to="/my-store?tab=products">My Store</Link>
-                    </li>
-                    <li>
+                    </li> */}
+                    {/* <li>
                       <Link to="/payment-management">Payment Management</Link>
+                    </li> */}
+                    <li>
+                      <Link to="/adress">Địa Chỉ </Link>
                     </li>
                     <li>
-                      <Link to="/adress">Address</Link>
-                    </li>
-                    <li>
-                      <Link to="/order">Orders</Link>
+                      <Link to="/order">Đơn Hàng </Link>
                     </li>
                     <li>
                       <button onClick={handleLogout} className="text-red-600">
-                        Logout
+                        Đăng Xuất 
                       </button>
                     </li>
                   </ul>
