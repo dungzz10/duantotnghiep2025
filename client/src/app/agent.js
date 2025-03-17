@@ -191,6 +191,7 @@ const Account = {
       throw error;
     }
   },
+ 
 };
 const Product = {
   getAllProducts: async (params) => {
@@ -203,6 +204,7 @@ const Product = {
       throw error;
     }
   },
+  
   getOneProduct: async (id) => {
     try {
       const res = await request.get(`/product/${id}`);
@@ -225,6 +227,14 @@ const Categories = {
   getAllCategories: async () => {
     try {
       const res = await request.get("/categories/");
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getCate : async ()=>{
+    try {
+      const res = await request.get("categories/getall");
       return res;
     } catch (error) {
       throw error;

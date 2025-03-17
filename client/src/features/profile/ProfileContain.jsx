@@ -125,7 +125,7 @@ const ProfileContain = ({ user }) => {
               htmlFor=""
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Phone number
+              Số Diện Thoại 
             </label>
             <div className="flex items-center space-x-4">
               <input
