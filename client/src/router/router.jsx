@@ -37,6 +37,7 @@ import UserDetail from "../features/admin/customers/userdetail/UserDetail";
 import AddBanner from "../features/admin/banners/addBannerAdmimn/AddBanner";
 import OrderHistory from "../features/OrderHistory/OrderHistory";
 import PaymentSuccess from "../features/OrderHistory/PaymentSuccess";
+import ATMSuccess from "../features/OrderHistory/AtmSuccess";
 import EditBanner from "../features/admin/banners/updateBanner/updateBanner";
 import Search from "../features/search/Search";
 import UserAdminList from "../features/admin/adminer/listadmin/UserAdminList";
@@ -114,12 +115,16 @@ export const router = createBrowserRouter([
         element: <EmptyCart />,
       },
       {
-        path: "no-order",
+        path: "/no-order",
         element: <NoOrderPage />,
       },
       {
-        path: "/momo-success",
+        path: "/payment-success",
         element: <PaymentSuccess />,
+      },
+      {
+        path: "/atm-success",
+        element: <ATMSuccess />,
       },
       {
         path: "/order",

@@ -181,7 +181,6 @@ const CartPage = () => {
     });
 
     if (errors.length > 0) {
-      // Nếu có lỗi, hiển thị tất cả
       errors.forEach((err) => message.error(err));
       return;
     }
@@ -192,18 +191,16 @@ const CartPage = () => {
       message.error("Đã xảy ra lỗi khi xử lý đơn hàng");
     }
 
-    // Tính tổng tiền
     const total = selectedItems.reduce(
       (sum, item) => sum + item.quantity * item.price,
       0
     );
 
-    // Tạo dữ liệu đơn hàng + cập nhật kho còn lại
     const orderData = {
       user: {
         name: user.name,
         email: user.email,
-        phone: user.phone,
+        phone: user.phoneNumber,
         shippingAddress:
         user.address?.[0] || { address: "Chưa có địa chỉ", addressType: "" },
     },

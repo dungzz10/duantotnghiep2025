@@ -137,7 +137,7 @@ const CheckoutPage = () => {
               <Text><strong>Tên:</strong> {user?.name}</Text><br />
               <Text><strong>Email:</strong> {user?.email}</Text><br />
               <Text><strong>Địa chỉ:</strong> {user?.address?.[0]?.address}</Text><br />
-              <Text><strong>Số điện thoại:</strong> {user?.phone}</Text>
+              <Text><strong>Số điện thoại:</strong> {user?.phoneNumber}</Text>
             </Card>
           </Col>
 
