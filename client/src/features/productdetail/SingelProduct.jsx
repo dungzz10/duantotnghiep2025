@@ -9,7 +9,8 @@ import SizeGuide from "./sizeGuide";
 import RelatedProducts from "./RelatedProducts";
 import RatingStarts from "../../components/RatingStarts";
 import { api } from "../../axios/api";
-
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
@@ -17,6 +18,7 @@ const SingelProduct = () => {
   console.log("data", data, 111111111111111111);
   const productReviews = data?.reviews || [];
   const [isfavourite, setIsFavourite] = useState(false);
+    const navigate = useNavigate();
   //kiem tra xem san pham da co trong muc yeu thich hay chua
   console.log(id, 12345);
 
@@ -84,15 +86,15 @@ const SingelProduct = () => {
   }, [selectedColor, selectedSize, colorVariants]);
   const availableStock = selectedVariant ? selectedVariant.quantity : 0;
 
-  const handleAddToCart = () => {
-    if (!selectedSize) {
+  const handleAddToCart =  async () => {
+    if (!selectedSize || !selectedColor) {
       setShowSizeError(true);
       return;
     }
     setShowSizeError(false);
     const cartItem = {
       kho: availableStock,
-      id: data.product._id,
+      productId: data.product._id,
       title: data.product.title,
       image: data.product.image?.length
         ? data.product.image[0].url
@@ -101,12 +103,13 @@ const SingelProduct = () => {
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
       quantity: 1,
+      brand: data.product.brand,
     };
 
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
     const existingIndex = existingCart.findIndex(
       (item) =>
-        item.id === cartItem.id &&
+        item.productId === cartItem.productId && 
         item.color === cartItem.color &&
         item.size === cartItem.size
     );
@@ -118,7 +121,34 @@ const SingelProduct = () => {
     }
 
     localStorage.setItem("cart", JSON.stringify(existingCart));
-    alert("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
+
+    if (existingCart) {
+      try {
+        const response = await fetch("http://localhost:5000/api/v1/carts/add", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(cartItem),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          message.success("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
+          // navigate("/cart");
+        } else {
+          message.error(`Thêm vào giỏ hàng thất bại: ${result.message}`);
+        }
+      } catch (error) {
+        console.error("Lỗi khi thêm vào giỏ hàng:", error);
+        message.error("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
+      }
+    } else {
+      message.warning("Chưa có giỏ hàng trong localStorage!");
+    }
   };
 
   if (isLoading) return <div>Loading...</div>;

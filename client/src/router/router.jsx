@@ -14,7 +14,7 @@ import ContactPage from "../features/contacts/ContactPage";
 import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
 import Login from "../features/login/Login";
 import ProductPage from "../features/product/ProductPage";
-import ProductDetailPage from "../features/productdetail/ProductDetailPage";
+// import ProductDetailPage from "../features/productdetail/ProductDetailPage";
 import ProductNewsPage from "../features/productnews/ProductNewsPage";
 import ProductSalePage from "../features/productsale/ProductSalePage";
 import ProfilePage from "../features/profile/ProfilePage";

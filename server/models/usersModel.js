@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema(
     },
     cart: [
       {
+        kho: { type: String },
         productId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
