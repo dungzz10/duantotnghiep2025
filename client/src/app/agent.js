@@ -132,6 +132,7 @@ const Account = {
     } catch (error) {}
   },
   uppdateMe: (data) => {
+    console.log("phone",data)
     try {
       const res = request.put(`/user/me`, data);
       return res;

@@ -33,7 +33,9 @@ const ProfileContain = ({ user }) => {
   };
   const handleChangePhone = (e) => {
     e.preventDefault();
+    
     uppdateMe({ phone });
+    console.log(phone)
   };
   if (isLoading) return <p> loading ....</p>;
   if (isLoadingPass) return <p> loading ....</p>;

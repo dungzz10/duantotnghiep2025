@@ -33,15 +33,25 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
   }
 
   // Cho phép cập nhật các trường này
-  const allowedFields = ["name", "email", "photo", "address", "introduction","phoneNumber"];
+  const allowedFields = [
+    "name",
+    "email",
+    "photo",
+    "address",
+    "introduction",
+    "phone",
+  ];
   const updateData = {};
-
+  console.log(req.body);
   // Lọc và xử lý các trường được phép cập nhật
   Object.keys(req.body).forEach((field) => {
     if (allowedFields.includes(field)) {
-      // Với email, luôn chuyển về lowercase
+      //    // Với email, luôn chuyển về lowercase
       if (field === "email") {
         updateData[field] = req.body[field].toLowerCase();
+      } else if (field === "phone") {
+        // Map "phone" to "phoneNumber"
+        updateData["phoneNumber"] = req.body[field];
       } else {
         updateData[field] = req.body[field];
       }
@@ -68,7 +78,7 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
       photo: updatedUser.photo,
       introduction: updatedUser.introduction,
       address: updatedUser.address,
-      phoneNumber:updatedUser.phoneNumber
+      phoneNumber: updatedUser.phoneNumber,
     },
   });
 });
@@ -311,14 +321,16 @@ export const getMyAddresses = CatchAsync(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    addresses: user.address, 
+    addresses: user.address,
   });
 });
 export const addAddress = CatchAsync(async (req, res, next) => {
   const { address, addressType } = req.body;
 
   if (!address || !addressType) {
-    return next(new HandelError("Vui lòng nhập đầy đủ thông tin địa chỉ!", 400));
+    return next(
+      new HandelError("Vui lòng nhập đầy đủ thông tin địa chỉ!", 400)
+    );
   }
 
   const user = await User.findById(req.user.id);
@@ -348,7 +360,7 @@ export const addAddress = CatchAsync(async (req, res, next) => {
 });
 export const updateAddress = CatchAsync(async (req, res, next) => {
   const { id, address, addressType } = req.body;
-  console.log(req.body)
+  console.log(req.body);
 
   if (!id || !address || !addressType) {
     return next(new HandelError("Vui lòng cung cấp đầy đủ thông tin", 400));
@@ -382,7 +394,9 @@ export const deleteAddress = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Không tìm thấy người dùng", 404));
   }
 
-  const addressIndex = user.address.findIndex((a) => a._id.toString() === addressId);
+  const addressIndex = user.address.findIndex(
+    (a) => a._id.toString() === addressId
+  );
   if (addressIndex === -1) {
     return next(new HandelError("Không tìm thấy địa chỉ", 404));
   }
@@ -397,6 +411,3 @@ export const deleteAddress = CatchAsync(async (req, res, next) => {
     addresses: user.address,
   });
 });
-
-
-
