@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { momoConfig } from "../config/momoConfig.js";
+import { paymentConfig,getRedirectUrl  } from "../config/paymentConfig.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import User from "../models/usersModel.js";
 import HandelError from "../utils/Error.js";
@@ -11,7 +12,7 @@ const generateSignature = (params) => {
     .join("&");
 
   return crypto
-    .createHmac("sha256", momoConfig.secretKey)
+    .createHmac("sha256", paymentConfig.secretKey)
     .update(rawSignature)
     .digest("hex");
 };
@@ -40,16 +41,16 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
     const orderId = generateOrderId();
     const requestId = generateOrderId();
     const requestType = paymentType === "atm" ? "payWithATM" : "captureWallet";
-
+    const redirectUrl = getRedirectUrl(paymentType);
     const payload = {
-      accessKey: momoConfig.accessKey,
+      accessKey: paymentConfig.accessKey,
       amount: amount.toString(),
-      extraData: momoConfig.extraData || "",
-      ipnUrl: momoConfig.ipnUrl,
+      extraData: paymentConfig.extraData || "",
+      ipnUrl: paymentConfig.ipnUrl,
       orderId,
-      orderInfo: momoConfig.orderInfo || "Thanh toán qua MoMo",
-      partnerCode: momoConfig.partnerCode,
-      redirectUrl: momoConfig.redirectUrl,
+      orderInfo: paymentConfig.orderInfo || "Thanh toán qua MoMo",
+      partnerCode: paymentConfig.partnerCode,
+      redirectUrl,
       requestId,
       requestType,
     };
@@ -170,9 +171,9 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
 
     const requestId = `VERIFY_${orderId}`;
     const signature = generateSignature({
-      accessKey: momoConfig.accessKey,
+      accessKey: paymentConfig.accessKey,
       orderId,
-      partnerCode: momoConfig.partnerCode,
+      partnerCode: paymentConfig.partnerCode,
       requestId,
     });
 
@@ -182,7 +183,7 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          partnerCode: momoConfig.partnerCode,
+          partnerCode: paymentConfig.partnerCode,
           requestId,
           orderId,
           signature,
@@ -249,6 +250,7 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
             "Thanh toán thành công. Bạn sẽ được chuyển hướng về trang chủ sau 5 giây.",
           order: updatedOrder,
           transactions: user.wallet.transactions,
+          redirect: true
         });
       } else {
         return res.status(500).json({
@@ -256,20 +258,20 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
           message: "Cập nhật trạng thái đơn hàng thất bại.",
         });
       }
+    }else {
+      if (result.resultCode !== 0) {
+        return res.status(400).json({
+          success: false,
+          message: `Xác thực giao dịch thất bại: ${result.message}`,
+        });
+      }
+      if (transaction.status === "completed") {
+        return res.status(200).json({
+          success: true,
+          message: "Giao dịch đã được xác nhận trước đó.",
+        });
+      }
     }
-
-    if (result.resultCode === 7002) {
-      return res.status(400).json({
-        success: false,
-        message: "Lỗi xác thực chữ ký. Vui lòng thử lại.",
-      });
-    }
-
-    // Sửa lỗi message "Thành công" khi success là false
-    return res.status(400).json({
-      success: false,
-      message: result.message || "Giao dịch thất bại. Vui lòng thử lại.",
-    });
   } catch (error) {
     console.error("Verification error:", error);
     return res.status(500).json({

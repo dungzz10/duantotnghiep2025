@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Result, Spin, message } from "antd";
 
-const PaymentSuccess = () => {
+const ATMSuccess = () => {
   const location = useLocation();
   const navigate = useNavigate();  
   const [order, setOrder] = useState(null);
@@ -63,4 +63,4 @@ const PaymentSuccess = () => {
   );
 };
 
-export default PaymentSuccess;
+export default ATMSuccess;
