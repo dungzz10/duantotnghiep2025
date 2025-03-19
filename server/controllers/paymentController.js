@@ -505,3 +505,80 @@ export const ipnNotification = CatchAsync(async (req, res, next) => {
     });
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//  thanh toán bằng ví 
+export const createWalletPayment = CatchAsync(async (req, res, next) => {
+  const { amount,shippingAddress , products, finalTotal } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return next(new HandelError("Người dùng chưa xác thực", 401));
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(new HandelError("Người dùng không tồn tại", 404));
+  }
+
+  if (user.wallet.balance < finalTotal) {
+    return next(new HandelError("Số dư ví không đủ", 400));
+  }
+
+
+  user.wallet.balance -= finalTotal;
+  const orderId = `ORDER_${Date.now()}`;
+  const newOrder = await Order.create({
+    userId,
+    shippingAddress,
+    orderId,
+    amount: finalTotal,
+    finalTotal,
+    products,
+    paymentMethod: "WALLET",
+    paymentStatus: "completed",
+    orderStatus: "processing",
+    date: new Date(),
+  });
+
+  const transactionData = {
+    type: "muahang",
+    amount: finalTotal,
+    momoTransactionId: orderId,
+    status: "completed",
+    description: `Thanh toán đơn hàng ${orderId}`,
+    date: new Date(),
+  };
+
+  user.wallet.transactions.push(transactionData);
+  await user.save();
+
+  return res.status(200).json({
+    success: true,
+    message: "Thanh toán từ ví thành công",
+    data: { orderId, amount: finalTotal },
+    order: newOrder
+  });
+});

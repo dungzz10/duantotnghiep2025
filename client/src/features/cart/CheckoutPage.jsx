@@ -1,6 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Typography, Row, Col, Card, Radio, Space, message,Divider } from "antd";
+import {
+  Button,
+  Typography,
+  Row,
+  Col,
+  Card,
+  Radio,
+  Space,
+  message,
+  Divider,
+} from "antd";
 
 import NoOrderPage from "./NoOrderPage";
 
@@ -44,14 +54,51 @@ const CheckoutPage = () => {
       name: product.name || product.title || "Không có tên",
       price: product.price || 0,
       quantity: product.quantity || 1,
-      totalPrice:
-        product.totalPrice || product.price * product.quantity || 0,
+      totalPrice: product.totalPrice || product.price * product.quantity || 0,
       image: product.image || "",
       color: product.color || "Unknown",
       size: product.size || "Unknown",
     }));
-  
+    if (paymentMethod === "WALLET") {
+      const shippingAddressToSend = {
+        address: order.shippingAddress?.address || user?.address?.[0]?.address || "home",
+       
+      };
+      try {
+        const response = await fetch("http://localhost:5000/api/v1/orders/wallet/payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            amount: finalTotal,
+            finalTotal: finalTotal, 
+            orderId: `ORDER_${Date.now()}`,
+            orderInfo: `Thanh toán đơn hàng #${Date.now()}`,
+            shippingAddress: order.shippingAddress,
+            paymentMethod: "WALLET", 
+            products,
+          }),
+        });
+        const data = await response.json();
     
+        if (response.ok && data.success) {
+          message.success("Thanh toán từ ví thành công!");
+          localStorage.removeItem("cart");
+          localStorage.removeItem("order");
+          navigate("/");
+        } else {
+          message.error(`Thanh toán ví thất bại: ${data.message}`);
+        }
+      } catch (error) {
+        console.error("Lỗi thanh toán ví:", error);
+        message.error("Có lỗi xảy ra khi thanh toán từ ví!");
+      }
+    }
+    
+
     if (["ATM_MOMO", "QR_MOMO"].includes(paymentMethod)) {
       try {
         const paymentType = paymentMethod === "ATM_MOMO" ? "atm" : "qr";
@@ -87,23 +134,26 @@ const CheckoutPage = () => {
       }
     } else if (paymentMethod === "COD") {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/orders/create", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            products,
-            total: rawTotal,
-            shippingAddress: order.shippingAddress,
-            shippingFee,
-            voucherDiscount,
-            amount: finalTotal,
-          }),
-        });
-  
+        const response = await fetch(
+          "http://localhost:5000/api/v1/orders/create",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              products,
+              total: rawTotal,
+              shippingAddress: order.shippingAddress,
+              shippingFee,
+              voucherDiscount,
+              amount: finalTotal,
+            }),
+          }
+        );
+
         const data = await response.json();
         if (response.ok && data.success) {
           message.success("Thanh toán COD thành công! Đơn hàng đã được tạo.");
@@ -134,10 +184,21 @@ const CheckoutPage = () => {
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Card title="Thông tin khách hàng" size="small">
-              <Text><strong>Tên:</strong> {user?.name}</Text><br />
-              <Text><strong>Email:</strong> {user?.email}</Text><br />
-              <Text><strong>Địa chỉ:</strong> {user?.address?.[0]?.address}</Text><br />
-              <Text><strong>Số điện thoại:</strong> {user?.phoneNumber}</Text>
+              <Text>
+                <strong>Tên:</strong> {user?.name}
+              </Text>
+              <br />
+              <Text>
+                <strong>Email:</strong> {user?.email}
+              </Text>
+              <br />
+              <Text>
+                <strong>Địa chỉ:</strong> {user?.address?.[0]?.address}
+              </Text>
+              <br />
+              <Text>
+                <strong>Số điện thoại:</strong> {user?.phoneNumber}
+              </Text>
             </Card>
           </Col>
 
@@ -145,17 +206,39 @@ const CheckoutPage = () => {
             <Card title="Thông tin đơn hàng" size="small">
               {order.products.map((product, index) => (
                 <div key={index} className="mb-3 border-b pb-2">
-                  <Text><strong>Tên:</strong> {product.title}</Text><br />
-                  <Text><strong>Số lượng:</strong> {product.quantity}</Text><br />
-                  <Text><strong>Màu:</strong> {product.color}</Text><br />
-                  <Text><strong>Size:</strong> {product.size}</Text><br />
-                  <Text><strong>Giá:</strong> {product.price * product.quantity} VNĐ</Text>
+                  <Text>
+                    <strong>Tên:</strong> {product.title}
+                  </Text>
+                  <br />
+                  <Text>
+                    <strong>Số lượng:</strong> {product.quantity}
+                  </Text>
+                  <br />
+                  <Text>
+                    <strong>Màu:</strong> {product.color}
+                  </Text>
+                  <br />
+                  <Text>
+                    <strong>Size:</strong> {product.size}
+                  </Text>
+                  <br />
+                  <Text>
+                    <strong>Giá:</strong> {product.price * product.quantity} VNĐ
+                  </Text>
                 </div>
               ))}
               <Divider />
-              <Text><strong>Phí vận chuyển:</strong> {shippingFee} VNĐ</Text><br />
-              <Text><strong>Giảm giá:</strong> {voucherDiscount} VNĐ</Text><br />
-              <Title level={4} className="mt-2">Tổng cộng: {finalTotal} VNĐ</Title>
+              <Text>
+                <strong>Phí vận chuyển:</strong> {shippingFee} VNĐ
+              </Text>
+              <br />
+              <Text>
+                <strong>Giảm giá:</strong> {voucherDiscount} VNĐ
+              </Text>
+              <br />
+              <Title level={4} className="mt-2">
+                Tổng cộng: {finalTotal} VNĐ
+              </Title>
             </Card>
           </Col>
         </Row>
@@ -176,6 +259,8 @@ const CheckoutPage = () => {
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
                 <Space direction="vertical">
+                  <Radio value="WALLET">Thanh toán từ ví</Radio>
+
                   <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
                   <Radio value="ATM_MOMO">Chuyển khoản ATM MOMO</Radio>
                   <Radio value="QR_MOMO">Quét mã QR MoMo</Radio>

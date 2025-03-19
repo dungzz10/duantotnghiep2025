@@ -3,6 +3,7 @@ import { createCODOrder, getOrderById, getAllOrders,updateOrder, checkDeliveredO
     // deleteOrder
  } from "../controllers/orderController.js";
 import { isAuththenticated } from "../middlewares/auth.js";
+import { createWalletPayment } from "../controllers/paymentController.js";
 
 const orderRoutes = express.Router();
 
@@ -14,4 +15,5 @@ orderRoutes.post("/create",isAuththenticated, createCODOrder);
 orderRoutes.get("/:orderId", isAuththenticated, getOrderById);
 orderRoutes.patch("/orderStatus/:orderId", isAuththenticated, updateOrder);
 // orderRoutes.delete("/:orderId", isAuththenticated, deleteOrder);
+orderRoutes.post("/wallet/payment", isAuththenticated, createWalletPayment);
 export default orderRoutes;
