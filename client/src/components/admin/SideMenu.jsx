@@ -11,11 +11,9 @@ import {
   SettingOutlined,
   PhoneOutlined,
   MenuFoldOutlined,
-  MenuUnfoldOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import PageContain from "./PageContain";
 
 const menuItems = [
   { key: "/admin/dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
@@ -56,57 +54,43 @@ const menuItems = [
   },
 ];
 
-const Sidebar = () => {
+const SideMEnu = ({ isCollapsed, onToggleSidebar }) => {
   const navigate = useNavigate();
-  const [collapsed, setCollapsed] = useState(false);
-  const [openKeys, setOpenKeys] = useState([]); // State lưu menu nào đang mở
+  const [openKeys, setOpenKeys] = useState([]);
 
   const handleOpenChange = (keys) => {
-    setOpenKeys(keys); // Khi click vào menu cha, nó mở rộng hoặc xếp gọn
+    setOpenKeys(keys);
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar Desktop */}
-      <div
-        className={` md:flex flex-col transition-all duration-300 ${
-          collapsed ? "w-16" : "w-64"
-        } flex-shrink-0 bg-gray-900 text-white shadow-xl`}
-      >
-        {/* Logo + Toggle Button */}
-        <div className="flex items-center justify-between px-4 py-5">
-          <span className="text-2xl font-bold tracking-wide">
-            {collapsed ? "🛠" : "AdminPanel"}
-          </span>
-          <button
-            className="text-lg p-2 bg-gray-800 rounded-full hover:bg-gray-700 transition"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          </button>
-        </div>
+    <div className="h-full flex flex-col">
+      {/* Nút Toggle */}
+      <div className="flex items-center justify-between px-4 py-4">
+        <span className="text-2xl font-bold tracking-wide">
+          {isCollapsed ? "" : "AdminPanel"}
+        </span>
 
-        {/* Menu với Dropdown */}
-        <Menu
-          mode="inline"
-          theme="dark"
-          className="w-full text-white"
-          items={menuItems}
-          onClick={(item) => navigate(item.key)}
-          inlineCollapsed={collapsed}
-          openKeys={collapsed ? [] : openKeys} // Khi collapsed thì menu con đóng hết
-          onOpenChange={handleOpenChange} // Xử lý toggle dropdown
-        />
+        <button 
+          onClick={onToggleSidebar} 
+          className="text-xl p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+        >
+          {isCollapsed ? <MenuFoldOutlined /> : <MenuFoldOutlined />}
+        </button>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-grow flex-col">
-        <div className="flex-grow p-5">
-          <PageContain />
-        </div>
-      </div>
+      {/* Menu */}
+      <Menu
+        mode="inline"
+        theme="dark"
+        className="w-full text-white"
+        items={menuItems}
+        onClick={(item) => navigate(item.key)}
+        inlineCollapsed={isCollapsed}
+        openKeys={isCollapsed ? [] : openKeys}
+        onOpenChange={handleOpenChange}
+      />
     </div>
   );
 };
 
-export default Sidebar;
+export default SideMEnu;

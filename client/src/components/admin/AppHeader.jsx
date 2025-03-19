@@ -65,14 +65,14 @@ const AppHeader = ({ admin }) => {
   );
 
   return (
-    <header className="flex items-center justify-between p-4 w-full bg-gradient-to-r from-blue-700 to-purple-700 text-white shadow-md">
+    <header className="flex items-center justify-between p-2 w-full bg-gradient-to-r from-blue-700 to-purple-700 text-white shadow-md">
       {/* Logo & Tiêu đề */}
-      <div className="flex items-center space-x-3">
+      <div className="ml-4">
         <Link to="/">
-          <Image width={45} src="/logo.png" preview={false} alt="Logo" className="rounded-md" />
+          <Image width={45} src="/src/assets/logo.svg" preview={false} alt="Logo" className="rounded-md" />
         </Link>
-        <Typography.Title level={3} className="text-white">SHOES SHOP</Typography.Title>
       </div>
+        <Typography.Title level={3} className="text-white">SHOES SHOP</Typography.Title>
 
       <Space size="large">
         {/* Thông báo đơn hàng mới */}

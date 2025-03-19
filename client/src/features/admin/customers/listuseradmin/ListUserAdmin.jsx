@@ -171,7 +171,7 @@ const ListUserAdmin = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-5">
+      <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">Danh sách người dùng </h1>
         <Link to="/admin/adduseradmin" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
           Thêm tài khoản user
