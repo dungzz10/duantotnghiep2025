@@ -39,7 +39,16 @@ const Order = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setOrders(response.data.orders);
+
+      const normalizedOrders = response.data.orders.map((order) => ({
+        ...order,
+        products: order.products || [],
+        shippingFee: order.shippingFee || 0,
+        voucherDiscount: order.voucherDiscount || 0,
+        finalTotal: order.finalTotal || 0,
+      }));
+
+      setOrders(normalizedOrders);
     } catch (error) {
       console.error("Error fetching orders:", error);
       message.error("Có lỗi xảy ra khi tải đơn hàng.");
@@ -77,7 +86,10 @@ const Order = () => {
       shipped: { color: "orange", text: "Đang vận chuyển" },
       cancelled: { color: "red", text: "Đã hủy" },
     };
-    const { color, text } = statusMap[orderStatus] || { color: "default", text: orderStatus };
+    const { color, text } = statusMap[orderStatus] || {
+      color: "default",
+      text: orderStatus,
+    };
     return <Tag color={color}>{text}</Tag>;
   };
 
@@ -139,7 +151,9 @@ const Order = () => {
       key: "payment",
       render: (text, record) =>
         record.paymentMethod && record.paymentStatus
-          ? `${record.paymentMethod} (${paymentStatusMap[record.paymentStatus] || record.paymentStatus})`
+          ? `${record.paymentMethod} (${
+              paymentStatusMap[record.paymentStatus] || record.paymentStatus
+            })`
           : "Không xác định",
     },
     {
@@ -243,7 +257,8 @@ const Order = () => {
                 </Button>,
               ]
         }
-        width={900}
+        width="80%" 
+        style={{ top: 40 }}
       >
         {selectedOrder && (
           <div>
@@ -282,7 +297,8 @@ const Order = () => {
                       <strong>Tên:</strong> {selectedOrder.userId.name}
                     </p>
                     <p>
-                      <strong>Số điện thoại:</strong> {selectedOrder.userId.phone}
+                      <strong>Số điện thoại:</strong>{" "}
+                      {selectedOrder.userId.phoneNumber}
                     </p>
                     <p>
                       <strong>Email:</strong> {selectedOrder.userId.email}
@@ -306,64 +322,80 @@ const Order = () => {
             <h2>
               <strong>Sản phẩm trong đơn hàng:</strong>
             </h2>
-            <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-              {selectedOrder.products.map((item, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    display: "flex",
-                    gap: "20px",
-                    marginBottom: "15px",
-                    alignItems: "center",
-                  }}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
+            <div
+              style={{
+                maxHeight: "500px",
+                overflowY: "auto",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "15px",
+              }}
+            >
+              {selectedOrder.products &&
+                selectedOrder.products.map((item, idx) => (
+                  <div
+                    key={idx}
                     style={{
-                      width: "100px",
-                      height: "100px",
-                      objectFit: "cover",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      border: "1px solid #f0f0f0",
                       borderRadius: "10px",
+                      padding: "10px",
+                      width: "calc(33.33% - 15px)", // Chia đều 3 cột
+                      boxSizing: "border-box",
                     }}
-                  />
-                  <div style={{ display: "flex", flexDirection: "column" }}>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Tên:</strong> {item.name}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Màu sắc:</strong> {item.color}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Số lượng:</strong> {item.quantity}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Kích thước:</strong> {item.size}
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Giá:</strong> {item.price} VNĐ
-                    </p>
-                    <p style={{ margin: 0, padding: "2px 0" }}>
-                      <strong>Loại sản phẩm:</strong> {item.productId.condition}
-                    </p>
+                  >
+                    <img
+                      src={item.image || "placeholder_image_url"}
+                      alt={item.name || "Unknown"}
+                      style={{
+                        width: "100%",
+                        height: "200px",
+                        objectFit: "cover",
+                        borderRadius: "10px",
+                        marginBottom: "10px",
+                      }}
+                    />
+                    <div style={{ textAlign: "center" }}>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>Tên:</strong> {item.name || "Không có tên"}
+                      </p>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>Màu sắc:</strong>{" "}
+                        {item.color || "Không xác định"}
+                      </p>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>Số lượng:</strong> {item.quantity || 0}
+                      </p>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>Kích thước:</strong>{" "}
+                        {item.size || "Không xác định"}
+                      </p>
+                      <p style={{ margin: "5px 0" }}>
+                        <strong>Giá:</strong> {item.price || 0} VNĐ
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
             </div>
             <Row gutter={16}>
               <Col span={12}>
                 <p>
-                  <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee} VNĐ
+                  <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee}{" "}
+                  VNĐ
                 </p>
               </Col>
               <Col span={12}>
                 <p>
-                  <strong>Giảm giá Voucher:</strong> {selectedOrder.voucherDiscount} VNĐ
+                  <strong>Giảm giá Voucher:</strong>{" "}
+                  {selectedOrder.voucherDiscount} VNĐ
                 </p>
               </Col>
             </Row>
             <p>
-              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal} VNĐ
+              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal +selectedOrder.shippingFee}{" "}
+              VNĐ
             </p>
           </div>
         )}

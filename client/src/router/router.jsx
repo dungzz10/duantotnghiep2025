@@ -9,7 +9,7 @@ import Order from "../features/admin/orders/Order";
 import BranchPage from "../features/branch/BranchPage";
 import CartPage from "../features/cart/CartPage";
 import CheckoutPage from "../features/cart/CheckoutPage";
-import EmptyCart from "../features/cart/EmptyCart";
+// import EmptyCart from "../features/cart/EmptyCart";
 import ContactPage from "../features/contacts/ContactPage";
 import ForgotPassword from "../features/forgotpassword/ForgotPasswordPage";
 import Login from "../features/login/Login";
@@ -110,10 +110,10 @@ export const router = createBrowserRouter([
         path: "/cart/checkout",
         element: <CheckoutPage />,
       },
-      {
-        path: "/cart/emptycart",
-        element: <EmptyCart />,
-      },
+      // {
+      //   path: "/cart/emptycart",
+      //   element: <EmptyCart />,
+      // },
       {
         path: "/no-order",
         element: <NoOrderPage />,

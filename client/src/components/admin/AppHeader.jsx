@@ -57,7 +57,7 @@ const AppHeader = ({ admin }) => {
       ) : (
         visibleOrders.map((order) => (
           <p key={order._id} className="px-3 py-2 text-gray-700 border-b">
-            🛒 Đơn #{order._id} - {order?.userId?.name || "Khách hàng"} - 🕒 {moment(order.date).format("HH:mm DD/MM/YYYY")}
+            🛒 Đơn mới của {order?.userId?.name || "Khách hàng"} - 🕒 {moment(order.date).format("HH:mm DD/MM/YYYY")}
           </p>
         ))
       )}

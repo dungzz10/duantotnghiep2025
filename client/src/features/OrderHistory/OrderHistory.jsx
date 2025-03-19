@@ -74,12 +74,22 @@ const OrderHistory = () => {
 
   const columns = [
     { title: "#", dataIndex: "idx", key: "idx" },
-    { title: "Tên sản phẩm", dataIndex: "_id", key: "_id" },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "products",
+      key: "products",
+      render: (products) => (products.length > 0 ? products[0].name : "Không có sản phẩm"),
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "products",
+      key: "quantity",
+      render: (products) => products.reduce((sum, item) => sum + item.quantity, 0),
+    },
     {
       title: "Tổng tiền",
       dataIndex: "amount",
       key: "amount",
-      sorter: (a, b) => a.amount - b.amount,
       render: (amount) => `${amount} VNĐ`,
     },
     {
@@ -92,7 +102,6 @@ const OrderHistory = () => {
       title: "Ngày đặt",
       dataIndex: "date",
       key: "date",
-      sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (date) => (date ? format(new Date(date), "MM/dd/yyyy") : "N/A"),
     },
     {
@@ -142,12 +151,11 @@ const OrderHistory = () => {
               <Option value="processing">Đang xử lý</Option>
               <Option value="shipped">Đang vận chuyển</Option>
               <Option value="delivered">Đã giao</Option>
-              <Option value="cancelled">Đã huỷ</Option>
             </Select>
           )}
         </div>
         <Button type="white" onClick={() => setViewCancelled(!viewCancelled)}>
-          {viewCancelled ? "Chi tiết đơn" : "Đơn đã huỷ "}
+          {viewCancelled ? "Đơn của bạn" : "Đơn đã huỷ "}
         </Button>
       </div>
 
@@ -176,6 +184,8 @@ const OrderHistory = () => {
             </Button>
           ),
         ]}
+        width="80%" 
+        style={{ top: 100 }}
       >
         {selectedOrder && (
           <div>
@@ -207,8 +217,8 @@ const OrderHistory = () => {
                     src={item.image}
                     alt={item.name}
                     style={{
-                      width: "100px",
-                      height: "100px",
+                      width: "150px",
+                      height: "150px",
                       objectFit: "cover",
                       borderRadius: "10px",
                     }}

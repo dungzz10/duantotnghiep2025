@@ -59,31 +59,57 @@ const CheckoutPage = () => {
       color: product.color || "Unknown",
       size: product.size || "Unknown",
     }));
-    if (paymentMethod === "WALLET") {
-      const shippingAddressToSend = {
-        address: order.shippingAddress?.address || user?.address?.[0]?.address || "home",
-       
-      };
+
+    if (["COD", "WALLET"].includes(paymentMethod)) {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/orders/wallet/payment", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            amount: finalTotal,
-            finalTotal: finalTotal, 
-            orderId: `ORDER_${Date.now()}`,
-            orderInfo: `Thanh toán đơn hàng #${Date.now()}`,
-            shippingAddress: order.shippingAddress,
-            paymentMethod: "WALLET", 
-            products,
-          }),
-        });
+        const inventoryResponse = await fetch(
+          "http://localhost:5000/api/v1/orders/updateKho",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({ products }),
+          }
+        );
+
+        const inventoryData = await inventoryResponse.json();
+        if (!inventoryResponse.ok || !inventoryData.success) {
+          message.error(`Cập nhật tồn kho thất bại: ${inventoryData.message}`);
+          return;
+        }
+      } catch (error) {
+        console.error("Lỗi cập nhật tồn kho:", error);
+        message.error("Có lỗi xảy ra khi cập nhật tồn kho!");
+        return;
+      }
+    }
+    if (paymentMethod === "WALLET") {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/v1/orders/wallet/payment",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              amount: finalTotal,
+              finalTotal: finalTotal,
+              orderId: `ORDER_${Date.now()}`,
+              orderInfo: `Thanh toán đơn hàng #${Date.now()}`,
+              shippingAddress: order.shippingAddress,
+              paymentMethod: "WALLET",
+              products,
+            }),
+          }
+        );
         const data = await response.json();
-    
+
         if (response.ok && data.success) {
           message.success("Thanh toán từ ví thành công!");
           localStorage.removeItem("cart");
@@ -97,7 +123,6 @@ const CheckoutPage = () => {
         message.error("Có lỗi xảy ra khi thanh toán từ ví!");
       }
     }
-    
 
     if (["ATM_MOMO", "QR_MOMO"].includes(paymentMethod)) {
       try {
@@ -156,6 +181,18 @@ const CheckoutPage = () => {
 
         const data = await response.json();
         if (response.ok && data.success) {
+          await fetch("http://localhost:5000/api/v1/carts/delete", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              items: [],
+              orderProducts: products,
+            }),
+          });
           message.success("Thanh toán COD thành công! Đơn hàng đã được tạo.");
           localStorage.removeItem("cart");
           localStorage.removeItem("order");
@@ -204,29 +241,31 @@ const CheckoutPage = () => {
 
           <Col xs={24} md={12}>
             <Card title="Thông tin đơn hàng" size="small">
-              {order.products.map((product, index) => (
-                <div key={index} className="mb-3 border-b pb-2">
-                  <Text>
-                    <strong>Tên:</strong> {product.title}
-                  </Text>
-                  <br />
-                  <Text>
-                    <strong>Số lượng:</strong> {product.quantity}
-                  </Text>
-                  <br />
-                  <Text>
-                    <strong>Màu:</strong> {product.color}
-                  </Text>
-                  <br />
-                  <Text>
-                    <strong>Size:</strong> {product.size}
-                  </Text>
-                  <br />
-                  <Text>
-                    <strong>Giá:</strong> {product.price * product.quantity} VNĐ
-                  </Text>
-                </div>
-              ))}
+              {order.products &&
+                order.products.map((product, index) => (
+                  <div key={index} className="mb-3 border-b pb-2">
+                    <Text>
+                      <strong>Tên:</strong> {product.title}
+                    </Text>
+                    <br />
+                    <Text>
+                      <strong>Số lượng:</strong> {product.quantity}
+                    </Text>
+                    <br />
+                    <Text>
+                      <strong>Màu:</strong> {product.color}
+                    </Text>
+                    <br />
+                    <Text>
+                      <strong>Size:</strong> {product.size}
+                    </Text>
+                    <br />
+                    <Text>
+                      <strong>Giá:</strong> {product.price * product.quantity}{" "}
+                      VNĐ
+                    </Text>
+                  </div>
+                ))}
               <Divider />
               <Text>
                 <strong>Phí vận chuyển:</strong> {shippingFee} VNĐ

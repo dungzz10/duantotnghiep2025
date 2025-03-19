@@ -2,6 +2,7 @@ import Order from "../models/orderModel.js";
 import HandelError from "../utils/Error.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import mongoose from "mongoose";
+import Product from "../models/productModel.js";
 
 const validStatuses = [
   "pending",
@@ -225,6 +226,71 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
     order,
   });
 });
+export const updateKho = CatchAsync(async (req, res, next) => {
+  const { products } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    return res.status(401).json({
+      success: false,
+      message: "Người dùng chưa xác thực.",
+    });
+  }
+
+  try {
+    for (const product of products) {
+      const { productId, color, size, quantity } = product;
+
+      const productDoc = await Product.findById(productId);
+      if (!productDoc) {
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy sản phẩm với ID: ${productId}`,
+        });
+      }
+
+      const variant = productDoc.variants.find(
+        (v) => v.color.toLowerCase() === color.toLowerCase()
+      );
+      if (!variant) {
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy biến thể với màu: ${color} cho sản phẩm ${productId}`,
+        });
+      }
+
+      const sizeObj = variant.sizes.find((s) => String(s.size) === String(size));
+      if (!sizeObj) {
+        return res.status(404).json({
+          success: false,
+          message: `Không tìm thấy kích thước: ${size} cho sản phẩm ${productId} với màu ${color}`,
+        });
+      }
+      if (sizeObj.quantity < quantity) {
+        return res.status(400).json({
+          success: false,
+          message: `Số lượng tồn kho không đủ cho sản phẩm ${productId} với màu ${color} và kích thước ${size}`,
+        });
+      }
+
+      sizeObj.quantity -= quantity;
+
+      await productDoc.save();
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Tồn kho đã được cập nhật thành công.",
+    });
+  } catch (error) {
+    console.error("Lỗi cập nhật tồn kho:", error);
+    return res.status(500).json({
+      success: false,
+      message: `Lỗi cập nhật tồn kho: ${error.message}`,
+    });
+  }
+});
+
 
 // export const deleteOrder = CatchAsync(async (req, res, next) => {
 //   const { orderId } = req.params;
