@@ -106,6 +106,8 @@ const userSchema = new mongoose.Schema(
               "deposit",
               "withdraw",
               "transfer",
+              "ruttien",
+
               "muahang",
               "momo_payment",
             ], // Update enum to include new type

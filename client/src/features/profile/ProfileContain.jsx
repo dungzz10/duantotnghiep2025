@@ -82,7 +82,7 @@ const ProfileContain = ({ user }) => {
           <FiEdit2 className="text-blue-500" />
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Introduction
+             Giới thiệu 
             </label>
             <div className="flex items-center space-x-4">
               <textarea

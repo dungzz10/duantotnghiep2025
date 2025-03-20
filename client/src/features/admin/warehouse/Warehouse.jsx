@@ -15,6 +15,7 @@ import {
   Divider,
   Card,
 } from "antd";
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 
@@ -57,6 +58,7 @@ const Warehouse = () => {
   const [editForm] = Form.useForm();
   const queryClient = useQueryClient();
   const [searchText, setSearchText] = useState("");
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ["products"],
@@ -363,7 +365,7 @@ const Warehouse = () => {
               Xóa
             </Button>
           </Popconfirm>
-          <Button onClick={() => handleViewDetails(record)}>
+          <Button onClick={() => navigate(`/admin/products/detail/${record._id}`)}>
             Xem chi tiết
           </Button>
         </div>

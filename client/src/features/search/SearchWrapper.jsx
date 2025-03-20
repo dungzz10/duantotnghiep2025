@@ -73,7 +73,7 @@ function SearchWrapper(props) {
       {filterIndex === 0 && (
         <div className="w-full ring-1 rounded-md bg-slate-100 ring-slate-400 p-6">
           <h2 className="font-bold text-left">
-            All Categories ({catArray.length})
+            Tất Cả Danh mục  ({catArray.length})
           </h2>
           <div className="divider my-1 border-slate-400"></div>
           <div className="flex gap-2 flex-wrap">
@@ -96,7 +96,7 @@ function SearchWrapper(props) {
       {filterIndex === 1 && (
         <div className="w-full ring-1 rounded-md bg-slate-100 ring-slate-400 p-6">
           <h2 className="font-bold text-left">
-            All Brands ({brandArray.length})
+            Tất Cả Nhãn Hiệu  ({brandArray.length})
           </h2>
           <div className="divider my-1 border-slate-400"></div>
           <div className="flex gap-4 flex-wrap items-center">
@@ -118,7 +118,7 @@ function SearchWrapper(props) {
       {/* Price Filter */}
       {filterIndex === 2 && (
         <div className="w-full ring-1 rounded-md bg-slate-100 ring-slate-400 p-6">
-          <h2 className="font-bold text-left">Filter by Price</h2>
+          <h2 className="font-bold text-left">Lọc Theo Giá </h2>
           <div className="flex gap-3 my-2">
             <label
               className={`cursor-pointer px-3 py-1 rounded-md ${

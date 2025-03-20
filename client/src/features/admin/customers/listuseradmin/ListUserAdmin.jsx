@@ -116,8 +116,9 @@ const ListUserAdmin = () => {
           Modal.confirm({
             title: `${active ? "Vô hiệu hóa" : "Kích hoạt"} tài khoản`,
             icon: <ExclamationCircleOutlined />,
-            content: `Bạn có chắc chắn muốn ${active ? "vô hiệu hóa" : "kích hoạt"
-              } tài khoản của "${record.name}"?`,
+            content: `Bạn có chắc chắn muốn ${
+              active ? "vô hiệu hóa" : "kích hoạt"
+            } tài khoản của "${record.name}"?`,
             okText: "Xác nhận",
             okType: active ? "danger" : "primary",
             cancelText: "Hủy",
@@ -145,16 +146,17 @@ const ListUserAdmin = () => {
     },
     {
       title: "Balance",
-      dataIndex: "accountBalance",
       key: "balance",
+      render: (text, record) => (record.wallet ? record.wallet.balance : 0),
     },
+
     {
       title: "Actions",
       key: "actions",
       render: (_, record) => (
         <Space size="middle">
           <a href={`/admin/detail/${record._id}`}>Xem chi tiết</a>
-           {/* <a href={`/admin/edit/${record._id}`} style={{ color: "#1890ff" }}>
+          {/* <a href={`/admin/edit/${record._id}`} style={{ color: "#1890ff" }}>
         cập nhật
       </a> */}
           {/* <a href={`/admin/customers/edit/${record._id}`}>Edit</a>
@@ -172,8 +174,13 @@ const ListUserAdmin = () => {
   return (
     <div>
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-800">Danh sách người dùng </h1>
-        <Link to="/admin/adduseradmin" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+        <h1 className="text-2xl font-semibold text-gray-800">
+          Danh sách người dùng{" "}
+        </h1>
+        <Link
+          to="/admin/adduseradmin"
+          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+        >
           Thêm tài khoản user
         </Link>
       </div>
