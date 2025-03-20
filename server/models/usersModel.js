@@ -66,6 +66,18 @@ const userSchema = new mongoose.Schema(
         price: Number,
         quantity: Number,
         brand: String,
+        variants: [
+          {
+            color: String,
+            sizes: [
+              {
+                size: String,
+                quantity: Number,
+                price: Number,
+              },
+            ],
+          },
+        ],
       },
     ],
     phoneNumber: {

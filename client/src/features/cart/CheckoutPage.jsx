@@ -111,6 +111,17 @@ const CheckoutPage = () => {
         const data = await response.json();
 
         if (response.ok && data.success) {
+          await fetch("http://localhost:5000/api/v1/carts/deleteCart", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              orderProducts: products,
+            }),
+          });
           message.success("Thanh toán từ ví thành công!");
           localStorage.removeItem("cart");
           localStorage.removeItem("order");
@@ -181,7 +192,7 @@ const CheckoutPage = () => {
 
         const data = await response.json();
         if (response.ok && data.success) {
-          await fetch("http://localhost:5000/api/v1/carts/delete", {
+          await fetch("http://localhost:5000/api/v1/carts/deleteCart", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -189,7 +200,6 @@ const CheckoutPage = () => {
             },
             credentials: "include",
             body: JSON.stringify({
-              items: [],
               orderProducts: products,
             }),
           });

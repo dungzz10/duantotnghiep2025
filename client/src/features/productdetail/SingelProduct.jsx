@@ -110,6 +110,7 @@ const SingelProduct = () => {
       kho: availableStock,
       productId: data.product._id,
       title: data.product.title,
+      variants: data.product.variants,
       image: data.product.image?.length
         ? data.product.image[0].url
         : "https://via.placeholder.com/300",
