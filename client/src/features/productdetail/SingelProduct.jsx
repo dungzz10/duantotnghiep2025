@@ -21,6 +21,7 @@ const SingelProduct = () => {
   const productReviews = data?.reviews || [];
   const [isfavourite, setIsFavourite] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  console.log("quantity",quantity);
   const navigate = useNavigate();
   //kiem tra xem san pham da co trong muc yeu thich hay chua
   console.log(id, 12345);
@@ -117,7 +118,7 @@ const SingelProduct = () => {
       color: selectedColor,
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
-      quantity: 1,
+      quantity: quantity,
       brand: data.product.brand,
     };
 
