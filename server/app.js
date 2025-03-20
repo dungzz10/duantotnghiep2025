@@ -15,6 +15,7 @@ import momoRoutes from "./routers/momoPayment.js";
 import orderRoutes from "./routers/orderRoutes.js";
 import RouterFavourite from "./routers/favourite.js";
 import cartRoutes from "./routers/cartRoutes.js";
+import ThongkeRouters from "./routers/thongkeRouter.js";
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ app.get("/test", (req, res) => {
   res.status(200).send("Hello, welcome to Brokang Market");
 });
 app.use("/api/momo", momoRoutes);
+app.use("/api/v1/thongke", ThongkeRouters);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/carts", cartRoutes);
 app.use("/api/v1/user", userRouter);

@@ -259,7 +259,7 @@ export const deactivateUserAdmin = CatchAsync(async (req, res, next) => {
 
   const updatedUser = await User.findByIdAndUpdate(
     userId,
-    { active: false },
+    { active: !user.active },
     { new: true, runValidators: true }
   );
 

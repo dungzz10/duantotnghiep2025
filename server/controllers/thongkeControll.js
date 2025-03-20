@@ -9,18 +9,30 @@ export const topUsers = CatchAsync(async (req, res, next) => {
   const users = await Order.aggregate([
     {
       $match: {
-        date: { $gte: new Date(startDate), $lte: new Date(endDate) }, // Lọc theo khoảng thời gian
+        date: { $gte: new Date(startDate), $lte: new Date(endDate) }, 
       },
     },
     {
-      $group: {
-        _id: "$userId", // Nhóm theo userId
-        totalOrders: { $sum: 1 }, // Đếm số đơn hàng
+      $lookup: {
+        from: "users", 
+        localField: "userId", 
+        foreignField: "_id", 
+        as: "userDetails", 
       },
     },
-    { $sort: { totalOrders: -1 } }, // Sắp xếp giảm dần theo số lượng đơn hàng
-    { $limit: 10 }, // Lấy 10 người dùng có số đơn hàng nhiều nhất
+    { $unwind: "$userDetails" }, 
+    {
+      $group: {
+        _id: "$userId", 
+        name: { $first: "$userDetails.name" }, 
+        totalOrders: { $sum: 1 }, 
+      },
+    },
+    { $sort: { totalOrders: -1 } }, 
+    { $limit: 10 }, 
   ]);
+
+  console.log(users);
 
   res.status(200).json({
     success: true,
@@ -42,12 +54,14 @@ export const topProducts = CatchAsync(async (req, res, next) => {
     {
       $group: {
         _id: "$products.productId", // Nhóm theo productId
+        title: { $first: "$products.title" }, // Lấy tên sản phẩm
         totalQuantity: { $sum: "$products.quantity" }, // Tổng số lượng sản phẩm bán được
       },
     },
     { $sort: { totalQuantity: -1 } },
     { $limit: 10 },
   ]);
+  console.log(products);
 
   res.status(200).json({
     success: true,
@@ -95,7 +109,7 @@ export const orderSuccessRate = CatchAsync(async (req, res, next) => {
         totalOrders: { $sum: 1 },
         successfulOrders: {
           $sum: {
-            $cond: [{ $eq: ["$orderStatus", "completed"] }, 1, 0], // Đếm số đơn hàng thành công
+            $cond: [{ $eq: ["$orderStatus", "delivered"] }, 1, 0], // Đếm số đơn hàng thành công
           },
         },
       },
