@@ -10,6 +10,7 @@ import {
   Space,
   message,
   Divider,
+  Select,
 } from "antd";
 
 import NoOrderPage from "./NoOrderPage";
@@ -22,6 +23,7 @@ const CheckoutPage = () => {
   const [user, setUser] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [shippingFee, setShippingFee] = useState(0);
+  const [selectedAddress, setSelectedAddress] = useState(null);
   useEffect(() => {
     const storedOrder = JSON.parse(localStorage.getItem("order"));
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -31,6 +33,9 @@ const CheckoutPage = () => {
       setOrder(storedOrder);
       setUser(storedUser);
       setShippingFee(storedOrder.shippingFee || 30000);
+      if (storedUser?.address?.length > 0) {
+        setSelectedAddress(storedUser.address[0].address);
+      }
     }
   }, [navigate]);
 
@@ -239,9 +244,36 @@ const CheckoutPage = () => {
                 <strong>Email:</strong> {user?.email}
               </Text>
               <br />
-              <Text>
-                <strong>Địa chỉ:</strong> {user?.address?.[0]?.address}
-              </Text>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginTop: "8px",
+                }}
+              >
+                <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
+                <Select
+                  style={{ flex: 1 }}
+                  value={selectedAddress}
+                  onChange={(value) => {
+                    setSelectedAddress(value);
+                    setOrder((prev) => ({
+                      ...prev,
+                      shippingAddress: {
+                        ...prev.shippingAddress,
+                        address: value,
+                      },
+                    }));
+                  }}
+                >
+                  {user?.address?.map((addr, idx) => (
+                    <Select.Option key={idx} value={addr.address}>
+                      {addr.address}
+                    </Select.Option>
+                  ))}
+                </Select>
+              </div>
               <br />
               <Text>
                 <strong>Số điện thoại:</strong> {user?.phoneNumber}

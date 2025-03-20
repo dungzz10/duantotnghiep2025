@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
-import { Table, Input, Select, Tag, Modal, Button, message } from "antd";
+import { Table, Input, Select, Tag, Modal, Button, message, Steps } from "antd";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
+import dayjs from "dayjs";
 
 const { Option } = Select;
 
@@ -13,7 +14,7 @@ const OrderHistory = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [viewCancelled, setViewCancelled] = useState(false);
-
+  const { Step } = Steps;
   const fetchOrders = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -67,10 +68,28 @@ const OrderHistory = () => {
       shipped: { color: "orange", text: "Đang vận chuyển" },
       cancelled: { color: "red", text: "Đã hủy" },
     };
-    const { color, text } = statusMap[orderStatus] || { color: "default", text: orderStatus };
+    const { color, text } = statusMap[orderStatus] || {
+      color: "default",
+      text: orderStatus,
+    };
     return <Tag color={color}>{text}</Tag>;
   };
-
+  const getCurrentStep = (status) => {
+    switch (status) {
+      case "pending":
+        return 0;
+      case "processing":
+        return 1;
+      case "shipped":
+        return 2;
+      case "delivered":
+        return 3;
+      case "cancelled":
+        return 4;
+      default:
+        return 0;
+    }
+  };
 
   const columns = [
     { title: "#", dataIndex: "idx", key: "idx" },
@@ -78,13 +97,15 @@ const OrderHistory = () => {
       title: "Tên sản phẩm",
       dataIndex: "products",
       key: "products",
-      render: (products) => (products.length > 0 ? products[0].name : "Không có sản phẩm"),
+      render: (products) =>
+        products.length > 0 ? products[0].name : "Không có sản phẩm",
     },
     {
       title: "Số lượng",
       dataIndex: "products",
       key: "quantity",
-      render: (products) => products.reduce((sum, item) => sum + item.quantity, 0),
+      render: (products) =>
+        products.reduce((sum, item) => sum + item.quantity, 0),
     },
     {
       title: "Tổng tiền",
@@ -154,7 +175,7 @@ const OrderHistory = () => {
             </Select>
           )}
         </div>
-        <Button type="white" onClick={() => setViewCancelled(!viewCancelled)}>
+        <Button type="dashed" onClick={() => setViewCancelled(!viewCancelled)}>
           {viewCancelled ? "Đơn của bạn" : "Đơn đã huỷ "}
         </Button>
       </div>
@@ -173,67 +194,211 @@ const OrderHistory = () => {
         footer={[
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Đóng
-          </Button>,
-          selectedOrder && selectedOrder.orderStatus !== "cancelled" && (
-            <Button
-              key="cancel"
-              type="danger"
-              onClick={() => handleCancelOrder(selectedOrder._id)}
-            >
-              Hủy đơn
-            </Button>
-          ),
+          </Button>
         ]}
-        width="80%" 
-        style={{ top: 100 }}
+        width="80%"
+        style={{ top: 20 }}
       >
         {selectedOrder && (
-          <div>
-            <p>
-              <strong>Mã đơn:</strong> {selectedOrder.orderId}
-            </p>
-            <p>
-              <strong>Ngày đặt:</strong>{" "}
-              {format(new Date(selectedOrder.date), "MM/dd/yyyy")}
-            </p>
-            <p>
-              <strong>Trạng thái:</strong> {getStatusTag(selectedOrder.orderStatus)}
-            </p>
-            <h4>
-              <strong>Sản phẩm:</strong>
-            </h4>
-            <div style={{ maxHeight: "500px", overflowY: "auto" }}>
-              {selectedOrder.products.map((item, idx) => (
+          <div style={{ padding: "10px" }}>
+            <div
+              style={{
+                marginBottom: "20px",
+                borderBottom: "1px solid #f0f0f0",
+                paddingBottom: "10px",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "8px",
+                }}
+              >
+                <p style={{ margin: 0 }}>
+                  <strong>Trạng thái:</strong>{" "}
+                  {getStatusTag(selectedOrder.orderStatus)}
+                </p>
+
                 <div
-                  key={idx}
+                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
+                >
+                  <p style={{ margin: 0 }}>
+                    <strong>Mã đơn:</strong> {selectedOrder.orderId}
+                  </p>
+                  {selectedOrder.orderStatus === "processing" && (
+                    <Tag
+                      color="volcano"
+                      style={{ fontWeight: 500, padding: "4px 10px" }}
+                    >
+                      Đang chuẩn bị hàng
+                    </Tag>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <Steps
+              current={getCurrentStep(selectedOrder.orderStatus)}
+              style={{ marginBottom: "20px" }}
+            >
+              <Step
+                title="Đơn Hàng Đã Đặt"
+                description={format(
+                  new Date(selectedOrder.date),
+                  "HH:mm dd-MM-yyyy"
+                )}
+              />
+              <Step
+                title="Đơn Hàng Đã Thanh Toán"
+                description={
+                  selectedOrder.orderStatus !== "pending"
+                    ? selectedOrder.paymentTime
+                      ? `Đã thanh toán lúc ${format(
+                          new Date(selectedOrder.paymentTime),
+                          "HH:mm dd-MM-yyyy"
+                        )}`
+                      : "Đã thanh toán"
+                    : "Chưa thanh toán"
+                }
+              />
+              <Step
+                title="Vận Chuyển"
+                description={
+                  ["shipped", "delivered", "completed"].includes(
+                    selectedOrder.orderStatus
+                  )
+                    ? selectedOrder.shippingTime
+                      ? format(
+                          new Date(selectedOrder.shippingTime),
+                          "HH:mm dd-MM-yyyy"
+                        )
+                      : "Đã vận chuyển"
+                    : "Chưa vận chuyển"
+                }
+              />
+
+              <Step
+                title="Chờ Giao Hàng"
+                description={
+                  ["delivered", "completed"].includes(selectedOrder.orderStatus)
+                    ? selectedOrder.deliveryTime
+                      ? format(
+                          new Date(selectedOrder.deliveryTime),
+                          "HH:mm dd-MM-yyyy"
+                        )
+                      : "Đã giao hàng"
+                    : "Chưa giao hàng"
+                }
+              />
+              <Step
+                title={
+                  selectedOrder.orderStatus === "cancelled"
+                    ? "Đã huỷ"
+                    : "Đánh Giá"
+                }
+                description={
+                  selectedOrder.orderStatus === "cancelled"
+                    ? "Đơn hàng đã bị hủy"
+                    : "Chưa đánh giá"
+                }
+                icon={<EyeOutlined />}
+              />
+            </Steps>
+            <div
+              style={{
+                backgroundColor: "#fff8e1",
+                border: "1px solid #f0f0f0",
+                borderRadius: "8px",
+                padding: "16px",
+                marginBottom: "24px",
+              }}
+            >
+              {selectedOrder?.date && (
+                <div
                   style={{
-                    display: "flex",
-                    gap: "20px",
-                    marginBottom: "15px",
-                    alignItems: "center",
+                    backgroundColor: "#fff8e1",
+                    border: "1px solid #f0f0f0",
+                    borderRadius: "8px",
+                    padding: "16px",
+                    marginBottom: "24px",
                   }}
                 >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={{
-                      width: "150px",
-                      height: "150px",
-                      objectFit: "cover",
-                      borderRadius: "10px",
-                    }}
-                  />
-                  <span style={{ fontSize: "16px" }}>
-                    <p> Tên giày: {item.name}</p>
-                    <p>Số lượng: {item.quantity}</p>
-                    <p>Giá sản phẩm {item.price} VNĐ</p>
-                    <p>Size: {item.size}</p>
-                    <p>Màu: {item.color}</p>
-                  </span>
+                  <p style={{ marginBottom: "8px" }}>
+                    Đơn hàng sẽ được chuẩn bị và chuyển đi trước{" "}
+                    <strong style={{ color: "#007bff" }}>
+                      {dayjs(selectedOrder.date)
+                        .add(2, "day")
+                        .format("DD-MM-YYYY")}
+                    </strong>
+                    .
+                  </p>
+                  <p style={{ marginBottom: "12px" }}>
+                    🚚 Giao nhanh đúng hẹn: nhận Voucher 15.000đ nếu đơn hàng
+                    được giao đến bạn sau ngày{" "}
+                    <strong>
+                      {dayjs(selectedOrder.date)
+                        .add(5, "day")
+                        .format("DD-MM-YYYY")}
+                    </strong>
+                    . <a href="#">Xem thêm</a>
+                  </p>
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <Button type="default">Liên Hệ Người Bán</Button>
+                    <Button
+                      danger
+                      onClick={() => handleCancelOrder(selectedOrder._id)}
+                    >
+                      Hủy Đơn Hàng
+                    </Button>
+                  </div>
                 </div>
-              ))}
+              )}
             </div>
-            <p>
+            <strong>Sản phẩm: </strong>
+            {selectedOrder.products.map((item, idx) => (
+              <div
+                key={idx}
+                style={{
+                  display: "flex",
+                  gap: "15px",
+                  marginBottom: "15px",
+                  border: "1px solid #f0f0f0",
+                  borderRadius: "8px",
+                  padding: "10px",
+                }}
+              >
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={{
+                    width: "120px",
+                    height: "120px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+                <div>
+                  <p>
+                    <strong>Tên:</strong> {item.name}
+                  </p>
+                  <p>
+                    <strong>Số lượng:</strong> {item.quantity}
+                  </p>
+                  <p>
+                    <strong>Giá:</strong> {item.price} VNĐ
+                  </p>
+                  <p>
+                    <strong>Size:</strong> {item.size}
+                  </p>
+                  <p>
+                    <strong>Màu:</strong> {item.color}
+                  </p>
+                </div>
+              </div>
+            ))}
+            <p style={{ borderTop: "1px solid #f0f0f0", paddingTop: "10px" }}>
               <strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ
             </p>
           </div>
