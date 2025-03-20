@@ -14,6 +14,8 @@ import { useNavigate } from "react-router-dom";
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
+  const [quantityError, setQuantityError] = useState("");
+
   const [showSizeError, setShowSizeError] = useState(false);
   console.log("data", data, 111111111111111111);
   const productReviews = data?.reviews || [];
@@ -229,39 +231,101 @@ const SingelProduct = () => {
             </div>
             {/* số lượng tăng giảm  */}
             {selectedSize ? (
-              <div className="flex items-center mb-4">
-                <span className="mr-3">Số lượng:</span>
+              <div className="flex flex-col mb-4">
+                <div className="flex items-center">
+                  <span className="mr-3">Số lượng:</span>
 
-                {/* Nút giảm số lượng */}
-                <button
-                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
-                  onClick={decrementQuantity}
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
+                  {/* Nút giảm số lượng */}
+                  <button
+                    className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none rounded-l"
+                    onClick={() => {
+                      decrementQuantity();
+                      setQuantityError(""); // Xóa thông báo lỗi khi giảm số lượng
+                    }}
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
 
-                {/* Input hiển thị số lượng */}
-                <input
-                  type="text"
-                  className="w-12 py-1 text-center border-x border-gray-300 focus:outline-none"
-                  value={quantity}
-                  readOnly
-                />
+                  <input
+                    type="text"
+                    className="w-12 py-1 text-center border-x border-gray-300 focus:outline-none"
+                    value={quantity}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Chỉ cho phép nhập số
+                      if (/^[0-9]*$/.test(value)) {
+                        const newValue = value === "" ? "" : parseInt(value);
+                        if (value === "") {
+                          setQuantity("");
+                          setQuantityError("");
+                        } else if (!isNaN(newValue) && newValue > 0) {
+                          if (
+                            selectedVariant &&
+                            newValue > selectedVariant.quantity
+                          ) {
+                            setQuantity(selectedVariant.quantity);
+                            setQuantityError(
+                              `Số lượng tối đa là ${selectedVariant.quantity}`
+                            );
+                            // Tự động ẩn thông báo lỗi sau 3 giây
+                            setTimeout(() => setQuantityError(""), 3000);
+                          } else {
+                            setQuantity(newValue);
+                            setQuantityError("");
+                          }
+                        }
+                      }
+                    }}
+                    onBlur={() => {
+                      if (quantity === "" || quantity < 1) {
+                        setQuantity(1);
+                        setQuantityError("");
+                      }
+                    }}
+                  />
 
-                {/* Nút tăng số lượng */}
-                <button
-                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
-                  onClick={incrementQuantity}
-                  disabled={
-                    selectedVariant && quantity >= selectedVariant.quantity
-                  }
-                >
-                  +
-                </button>
+                  {/* Nút tăng số lượng */}
+                  <button
+                    className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none rounded-r"
+                    onClick={() => {
+                      if (
+                        selectedVariant &&
+                        quantity >= selectedVariant.quantity
+                      ) {
+                        setQuantityError(
+                          `Số lượng tối đa là ${selectedVariant.quantity}`
+                        );
+                        // Tự động ẩn thông báo lỗi sau 3 giây
+                        setTimeout(() => setQuantityError(""), 3000);
+                      } else {
+                        incrementQuantity();
+                        setQuantityError("");
+                      }
+                    }}
+                    disabled={
+                      selectedVariant && quantity >= selectedVariant.quantity
+                    }
+                  >
+                    +
+                  </button>
+                </div>
+
+                {/* Hiển thị thông báo lỗi */}
+                {quantityError && (
+                  <div className="text-red-500 text-sm mt-1 animate-pulse">
+                    {quantityError}
+                  </div>
+                )}
+
+                {/* Hiển thị thông tin số lượng còn lại */}
+                <div className="text-sm text-gray-500 mt-1">
+                  {selectedVariant && selectedVariant.quantity > 0
+                    ? `Còn lại: ${selectedVariant.quantity} sản phẩm`
+                    : "Hết hàng"}
+                </div>
               </div>
             ) : null}
-
             {/* PRODUCT SIZE RANGEW START */}
             <div className="mb-10">
               {/* HEADING START */}
