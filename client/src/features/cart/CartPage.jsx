@@ -73,7 +73,7 @@ const CartPage = () => {
     if (value < 1) return;
 
     try {
-      
+      // chưa thể cập nhật số lượng sản phẩm đang test lỗi
       // await axios.post("/carts/update", {
       //   productId,
       //   color: variant.color,
