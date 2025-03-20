@@ -111,7 +111,7 @@ const OrderHistory = () => {
       title: "Tổng tiền",
       dataIndex: "amount",
       key: "amount",
-      render: (amount) => `${amount} VNĐ`,
+      render: (amount) => `${amount.toLocaleString("vi-VN")} VNĐ`,
     },
     {
       title: "Trạng thái",
@@ -194,7 +194,7 @@ const OrderHistory = () => {
         footer={[
           <Button key="close" onClick={() => setIsModalVisible(false)}>
             Đóng
-          </Button>
+          </Button>,
         ]}
         width="80%"
         style={{ top: 20 }}
@@ -306,101 +306,122 @@ const OrderHistory = () => {
                 icon={<EyeOutlined />}
               />
             </Steps>
-            <div
-              style={{
-                backgroundColor: "#fff8e1",
-                border: "1px solid #f0f0f0",
-                borderRadius: "8px",
-                padding: "16px",
-                marginBottom: "24px",
-              }}
-            >
-              {selectedOrder?.date && (
-                <div
-                  style={{
-                    backgroundColor: "#fff8e1",
-                    border: "1px solid #f0f0f0",
-                    borderRadius: "8px",
-                    padding: "16px",
-                    marginBottom: "24px",
-                  }}
-                >
-                  <p style={{ marginBottom: "8px" }}>
-                    Đơn hàng sẽ được chuẩn bị và chuyển đi trước{" "}
-                    <strong style={{ color: "#007bff" }}>
-                      {dayjs(selectedOrder.date)
-                        .add(2, "day")
-                        .format("DD-MM-YYYY")}
-                    </strong>
-                    .
-                  </p>
-                  <p style={{ marginBottom: "12px" }}>
-                    🚚 Giao nhanh đúng hẹn: nhận Voucher 15.000đ nếu đơn hàng
-                    được giao đến bạn sau ngày{" "}
-                    <strong>
-                      {dayjs(selectedOrder.date)
-                        .add(5, "day")
-                        .format("DD-MM-YYYY")}
-                    </strong>
-                    . <a href="#">Xem thêm</a>
-                  </p>
-                  <div style={{ display: "flex", gap: "10px" }}>
-                    <Button type="default">Liên Hệ Người Bán</Button>
-                    <Button
-                      danger
-                      onClick={() => handleCancelOrder(selectedOrder._id)}
-                    >
-                      Hủy Đơn Hàng
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-            <strong>Sản phẩm: </strong>
-            {selectedOrder.products.map((item, idx) => (
+            {selectedOrder?.date && (
               <div
-                key={idx}
                 style={{
-                  display: "flex",
-                  gap: "15px",
-                  marginBottom: "15px",
+                  backgroundColor: "#fff8e1",
                   border: "1px solid #f0f0f0",
                   borderRadius: "8px",
-                  padding: "10px",
+                  padding: "16px",
+                  marginBottom: "24px",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
-                <img
-                  src={item.image}
-                  alt={item.name}
+                <p style={{ marginBottom: "8px" }}>
+                  Đơn hàng sẽ được chuẩn bị và chuyển đi trước{" "}
+                  <strong style={{ color: "#007bff" }}>
+                    {dayjs(selectedOrder.date)
+                      .add(2, "day")
+                      .format("DD-MM-YYYY")}
+                  </strong>
+                  .
+                </p>
+                <p style={{ marginBottom: "12px" }}>
+                  🚚 Giao nhanh đúng hẹn: nhận Voucher 15.000đ nếu đơn hàng được
+                  giao đến bạn sau ngày{" "}
+                  <strong>
+                    {dayjs(selectedOrder.date)
+                      .add(5, "day")
+                      .format("DD-MM-YYYY")}
+                  </strong>
+                  . <a href="#">Xem thêm</a>
+                </p>
+
+                <div
                   style={{
-                    width: "120px",
-                    height: "120px",
-                    objectFit: "cover",
-                    borderRadius: "8px",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    marginTop: "auto",
+                    gap: "10px",
                   }}
-                />
-                <div>
-                  <p>
-                    <strong>Tên:</strong> {item.name}
-                  </p>
-                  <p>
-                    <strong>Số lượng:</strong> {item.quantity}
-                  </p>
-                  <p>
-                    <strong>Giá:</strong> {item.price} VNĐ
-                  </p>
-                  <p>
-                    <strong>Size:</strong> {item.size}
-                  </p>
-                  <p>
-                    <strong>Màu:</strong> {item.color}
-                  </p>
+                >
+                  <Button type="default">Liên Hệ Người Bán</Button>
+                  <Button
+                    danger
+                    onClick={() => handleCancelOrder(selectedOrder._id)}
+                  >
+                    Hủy Đơn Hàng
+                  </Button>
                 </div>
               </div>
-            ))}
-            <p style={{ borderTop: "1px solid #f0f0f0", paddingTop: "10px" }}>
-              <strong>Tổng tiền:</strong> {selectedOrder.amount} VNĐ
-            </p>
+            )}
+            <div>
+              <strong>Sản phẩm: </strong>
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "16px",
+                  marginTop: "10px",
+                }}
+              >
+                {selectedOrder.products.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      width: "250px",
+                      border: "1px solid #f0f0f0",
+                      borderRadius: "8px",
+                      padding: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                    }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      style={{
+                        width: "100%",
+                        height: "150px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        marginBottom: "8px",
+                      }}
+                    />
+                    <div style={{ width: "100%" }}>
+                      <p>
+                        <strong>Tên:</strong> {item.name}
+                      </p>
+                      <p>
+                        <strong>Số lượng:</strong> {item.quantity}
+                      </p>
+                      <p>
+                        <strong>Giá:</strong>{" "}
+                        {item.price.toLocaleString("vi-VN")} VNĐ
+                      </p>
+                      <p>
+                        <strong>Size:</strong> {item.size}
+                      </p>
+                      <p>
+                        <strong>Màu:</strong> {item.color}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p
+                style={{
+                  borderTop: "1px solid #f0f0f0",
+                  paddingTop: "10px",
+                  marginTop: "15px",
+                }}
+              >
+                <strong>Tổng tiền:</strong>{" "}
+                {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
+              </p>
+            </div>
           </div>
         )}
       </Modal>
