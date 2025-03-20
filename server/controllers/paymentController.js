@@ -1,10 +1,11 @@
 import crypto from "crypto";
 import { momoConfig } from "../config/momoConfig.js";
-import { paymentConfig,getRedirectUrl  } from "../config/paymentConfig.js";
+import { paymentConfig, getRedirectUrl } from "../config/paymentConfig.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import User from "../models/usersModel.js";
 import HandelError from "../utils/Error.js";
 import Order from "../models/orderModel.js";
+import Product from "../models/productModel.js";
 
 const generateSignature = (params) => {
   const rawSignature = Object.entries(params)
@@ -244,13 +245,59 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
       const updatedOrder = await Order.findById(order._id);
 
       if (updatedOrder && updatedOrder.paymentStatus === "completed") {
+
+        await User.updateOne(
+          { _id: user._id },
+          {
+            $pull: {
+              cart: {
+                $or: updatedOrder.products.map((p) => ({
+                  productId: p.productId,
+                  color: p.color,
+                  size: p.size,
+                })),
+              },
+            },
+          }
+        );
+        
+        for (const product of updatedOrder.products) {
+          const { productId, color, size, quantity } = product;
+        
+          await Product.updateOne(
+            {
+              _id: productId,
+              "variants.color": color,
+              "variants.sizes.size": size,
+            },
+            {
+              $inc: {
+                "variants.$[colorFilter].sizes.$[sizeFilter].quantity": -quantity,
+              },
+            },
+            {
+              arrayFilters: [
+                { "colorFilter.color": color },
+                { "sizeFilter.size": size },
+              ],
+            }
+          );
+        }
+
+        let transactions = [];
+
+        if (walletTransaction) {
+          transactions = user.wallet.transactions;
+        } else if (atmTransaction) {
+          transactions = user.ATM.transactions;
+        }
         return res.status(200).json({
           success: true,
           message:
             "Thanh toán thành công. Bạn sẽ được chuyển hướng về trang chủ sau 5 giây.",
           order: updatedOrder,
-          transactions: user.wallet.transactions,
-          redirect: true
+          transactions,
+          redirect: true,
         });
       } else {
         return res.status(500).json({
@@ -258,7 +305,7 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
           message: "Cập nhật trạng thái đơn hàng thất bại.",
         });
       }
-    }else {
+    } else {
       if (result.resultCode !== 0) {
         return res.status(400).json({
           success: false,
@@ -398,7 +445,7 @@ export const ipnNotification = CatchAsync(async (req, res, next) => {
       if (orderId.startsWith("DEPOSIT")) {
         // Extract userId from deposit orderId format: DEPOSIT_timestamp_userId
         const userId = orderId.split("_")[2];
-        
+
         if (!userId) {
           return res.status(400).json({
             success: false,
@@ -506,32 +553,9 @@ export const ipnNotification = CatchAsync(async (req, res, next) => {
   }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//  thanh toán bằng ví 
+//  thanh toán bằng ví
 export const createWalletPayment = CatchAsync(async (req, res, next) => {
-  const { amount,shippingAddress , products, finalTotal } = req.body;
+  const { amount, shippingAddress, products, finalTotal } = req.body;
   const userId = req.user?.id;
 
   if (!userId) {
@@ -546,7 +570,6 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
   if (user.wallet.balance < finalTotal) {
     return next(new HandelError("Số dư ví không đủ", 400));
   }
-
 
   user.wallet.balance -= finalTotal;
   const orderId = `ORDER_${Date.now()}`;
@@ -579,6 +602,6 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
     success: true,
     message: "Thanh toán từ ví thành công",
     data: { orderId, amount: finalTotal },
-    order: newOrder
+    order: newOrder,
   });
 });
