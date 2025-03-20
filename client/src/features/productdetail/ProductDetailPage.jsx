@@ -8,9 +8,8 @@ import RatingStarts from "../../components/RatingStarts";
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
-  console.log("data",data)
+  console.log("data", data);
   const productReviews = data?.reviews || [];
-
 
   const colorVariants = useMemo(() => {
     // console.log(data?.product);
@@ -29,6 +28,7 @@ const ProductDetailPage = () => {
 
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
+  const [quantity, setQuantity] = useState(1);
 
   // Tự động chọn màu đầu tiên
   React.useEffect(() => {
@@ -48,12 +48,27 @@ const ProductDetailPage = () => {
       (size) => size.size === selectedSize
     );
   }, [selectedColor, selectedSize, colorVariants]);
+
+  // Xử lý tăng giảm số lượng
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
+
+  const incrementQuantity = () => {
+    const maxQuantity = selectedVariant?.quantity || 10;
+    if (quantity < maxQuantity) {
+      setQuantity(quantity + 1);
+    }
+  };
+
   const handleAddToCart = async () => {
     if (!selectedSize || !selectedColor) {
       alert("Vui lòng chọn đầy đủ màu sắc và kích thước!");
       return;
     }
-  
+
     const cartItem = {
       productId: data.product._id,
       title: data.product.title,
@@ -62,10 +77,9 @@ const ProductDetailPage = () => {
       color: selectedColor,
       size: selectedSize,
       price: selectedVariant?.price || data.product.originalPrice,
-      quantity: 1,
+      quantity: quantity,
     };
-  
-    
+
     try {
       const response = await fetch("http://localhost:5000/api/v1/carts/add", {
         method: "POST",
@@ -76,9 +90,9 @@ const ProductDetailPage = () => {
         credentials: "include",
         body: JSON.stringify(cartItem),
       });
-  
+
       const data = await response.json();
-  
+
       if (response.ok) {
         alert("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
       } else {
@@ -89,7 +103,6 @@ const ProductDetailPage = () => {
       alert("Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
     }
   };
-  
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
@@ -155,6 +168,38 @@ const ProductDetailPage = () => {
                 )}
               </span>
             </div>
+            {/* số lượng  */}
+            <div className="flex items-center mb-4">
+              <span className="mr-3">Số lượng:</span>
+
+              {/* Nút giảm số lượng */}
+              <button
+                className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
+                onClick={decrementQuantity}
+                disabled={quantity <= 1}
+              >
+                -
+              </button>
+
+              {/* Input hiển thị số lượng */}
+              <input
+                type="text"
+                className="w-12 py-1 text-center border-x border-gray-300 focus:outline-none"
+                value={quantity}
+                readOnly
+              />
+
+              {/* Nút tăng số lượng */}
+              <button
+                className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
+                onClick={incrementQuantity}
+                disabled={
+                  selectedVariant && quantity >= selectedVariant.quantity
+                }
+              >
+                +
+              </button>
+            </div>
 
             {/* Chọn màu & kích cỡ */}
             <div className="flex mt-6 items-center pb-5 border-b-2 border-gray-200 mb-5">
@@ -204,11 +249,41 @@ const ProductDetailPage = () => {
               </div>
             </div>
             <RatingStarts rating={product.rating} />
+
             {/* Hiển thị số lượng */}
-            <div className="text-gray-600">
+            <div className="text-gray-600 mb-4">
               {selectedVariant
                 ? `Số lượng còn lại: ${selectedVariant.quantity}`
                 : "Vui lòng chọn màu & kích cỡ"}
+            </div>
+
+            {/* Chọn số lượng */}
+            <div className="flex items-center mb-4">
+              <span className="mr-3">Số lượng:</span>
+              <div className="flex items-center border border-gray-300 rounded">
+                <button
+                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
+                  onClick={decrementQuantity}
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+                <input
+                  type="text"
+                  className="w-12 py-1 text-center border-x border-gray-300 focus:outline-none"
+                  value={quantity}
+                  readOnly
+                />
+                <button
+                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
+                  onClick={incrementQuantity}
+                  disabled={
+                    selectedVariant && quantity >= selectedVariant.quantity
+                  }
+                >
+                  +
+                </button>
+              </div>
             </div>
 
             {/* Thêm vào giỏ hàng */}

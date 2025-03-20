@@ -18,7 +18,8 @@ const SingelProduct = () => {
   console.log("data", data, 111111111111111111);
   const productReviews = data?.reviews || [];
   const [isfavourite, setIsFavourite] = useState(false);
-    const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
   //kiem tra xem san pham da co trong muc yeu thich hay chua
   console.log(id, 12345);
 
@@ -77,7 +78,18 @@ const SingelProduct = () => {
   const availableSizes = useMemo(() => {
     return colorVariants[selectedColor]?.map((size) => size.size) || [];
   }, [selectedColor, colorVariants]);
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      setQuantity(quantity - 1);
+    }
+  };
 
+  const incrementQuantity = () => {
+    const maxQuantity = selectedVariant?.quantity || 10;
+    if (quantity < maxQuantity) {
+      setQuantity(quantity + 1);
+    }
+  };
   // Tìm variant được chọn
   const selectedVariant = useMemo(() => {
     return colorVariants[selectedColor]?.find(
@@ -86,7 +98,7 @@ const SingelProduct = () => {
   }, [selectedColor, selectedSize, colorVariants]);
   const availableStock = selectedVariant ? selectedVariant.quantity : 0;
 
-  const handleAddToCart =  async () => {
+  const handleAddToCart = async () => {
     if (!selectedSize || !selectedColor) {
       setShowSizeError(true);
       return;
@@ -109,7 +121,7 @@ const SingelProduct = () => {
     const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
     const existingIndex = existingCart.findIndex(
       (item) =>
-        item.productId === cartItem.productId && 
+        item.productId === cartItem.productId &&
         item.color === cartItem.color &&
         item.size === cartItem.size
     );
@@ -212,9 +224,43 @@ const SingelProduct = () => {
             <div className="text-md font-medium text-black/[0.5]">
               Đã bao gồm thuế
             </div>
-            <div className="text-md font-medium text-black/[0.5] mb-20">
+            <div className="text-md font-medium text-black/[0.5] mb-10">
               {`(Bao gồm tất cả các loại thuế và phí áp dụng)`}
             </div>
+            {/* số lượng tăng giảm  */}
+            {selectedSize ? (
+              <div className="flex items-center mb-4">
+                <span className="mr-3">Số lượng:</span>
+
+                {/* Nút giảm số lượng */}
+                <button
+                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
+                  onClick={decrementQuantity}
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+
+                {/* Input hiển thị số lượng */}
+                <input
+                  type="text"
+                  className="w-12 py-1 text-center border-x border-gray-300 focus:outline-none"
+                  value={quantity}
+                  readOnly
+                />
+
+                {/* Nút tăng số lượng */}
+                <button
+                  className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-lg font-semibold focus:outline-none"
+                  onClick={incrementQuantity}
+                  disabled={
+                    selectedVariant && quantity >= selectedVariant.quantity
+                  }
+                >
+                  +
+                </button>
+              </div>
+            ) : null}
 
             {/* PRODUCT SIZE RANGEW START */}
             <div className="mb-10">
