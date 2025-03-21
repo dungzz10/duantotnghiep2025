@@ -27,44 +27,49 @@ export const getNewOrders = CatchAsync(async (req, res, next) => {
       .lean();
 
     if (!orders || orders.length === 0) {
-      return res.status(404).json({ success: false, message: "Không có đơn hàng mới trong 3 phút gần đây." });
+      return res.status(404).json({
+        success: false,
+        message: "Không có đơn hàng mới trong 3 phút gần đây.",
+      });
     }
 
     res.status(200).json({ success: true, newOrders: orders });
   } catch (error) {
     console.error("Lỗi khi lấy đơn hàng mới:", error);
-    res.status(500).json({ success: false, message: "Lỗi server khi lấy đơn hàng mới." });
+    res
+      .status(500)
+      .json({ success: false, message: "Lỗi server khi lấy đơn hàng mới." });
   }
 });
-
 
 // Kiểm tra xem người dùng có đơn hàng đã giao với sản phẩm này chưa
 export const checkDeliveredOrder = async (req, res) => {
   const { userId, productId } = req.query;
 
   if (!productId || !userId) {
-      return res.status(400).json({ message: "Thiếu productId hoặc userId" });
+    return res.status(400).json({ message: "Thiếu productId hoặc userId" });
   }
 
   try {
-      // Kiểm tra đơn hàng có sản phẩm và đã giao chưa
-      const order = await Order.findOne({
-          userId: userId,
-          "products.productId": productId, // Kiểm tra trong mảng products
-          orderStatus: "delivered"
-      });
+    // Kiểm tra đơn hàng có sản phẩm và đã giao chưa
+    const order = await Order.findOne({
+      userId: userId,
+      "products.productId": productId, // Kiểm tra trong mảng products
+      orderStatus: "delivered",
+    });
 
-      if (!order) {
-          return res.status(404).json({ message: "Đơn hàng chưa được giao hoặc không tồn tại" });
-      }
+    if (!order) {
+      return res
+        .status(404)
+        .json({ message: "Đơn hàng chưa được giao hoặc không tồn tại" });
+    }
 
-      return res.status(200).json({ message: "Đơn hàng đã được giao" });
+    return res.status(200).json({ message: "Đơn hàng đã được giao" });
   } catch (error) {
-      console.error("Lỗi kiểm tra đơn hàng đã giao:", error);
-      return res.status(500).json({ message: "Lỗi server" });
+    console.error("Lỗi kiểm tra đơn hàng đã giao:", error);
+    return res.status(500).json({ message: "Lỗi server" });
   }
 };
-
 
 export const getAllOrders = CatchAsync(async (req, res, next) => {
   const { id: userId, role } = req.user;
@@ -74,26 +79,32 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
   }
   let filter = { userId };
 
-  if ((role === "admin" || role === "superadmin") && req.query.adminView === "true") {
+  if (
+    (role === "admin" || role === "superadmin") &&
+    req.query.adminView === "true"
+  ) {
     filter = {};
   }
-  
+
   const orders = await Order.find(filter)
-  .populate({
-    path: "userId",
-    select: "-password -passwordResetToken -passwordResetExpires",
-  })
-  .populate({
-    path: "products.productId",
-    select: "-__v -isDeleted", 
-  })
+    .populate({
+      path: "userId",
+      select: "-password -passwordResetToken -passwordResetExpires",
+    })
+    .populate({
+      path: "products.productId",
+      select: "-__v -isDeleted",
+    })
     .lean();
 
   if (!orders || orders.length === 0) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
   orders.sort((a, b) => {
-    return validStatuses.indexOf(a.orderStatus) - validStatuses.indexOf(b.orderStatus);
+    return (
+      validStatuses.indexOf(a.orderStatus) -
+      validStatuses.indexOf(b.orderStatus)
+    );
   });
 
   res.status(200).json({ success: true, orders });
@@ -109,15 +120,15 @@ export const getOrderById = CatchAsync(async (req, res, next) => {
   }
 
   const order = await Order.findById(orderId)
-  .populate({
-    path: "userId",
-    select: "-password -passwordResetToken -passwordResetExpires",
-  })
-  .populate({
-    path: "products.productId",
-    select: "-__v -isDeleted", 
-  })
-  .lean();
+    .populate({
+      path: "userId",
+      select: "-password -passwordResetToken -passwordResetExpires",
+    })
+    .populate({
+      path: "products.productId",
+      select: "-__v -isDeleted",
+    })
+    .lean();
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
@@ -156,7 +167,7 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     `${Math.random().toString(36).toUpperCase().slice(2, 6)}-${Math.floor(
       10000 + Math.random() * 90000
     )}`;
-    
+
   const orderId = generateOrderId();
 
   const newOrder = await Order.create({
@@ -206,15 +217,27 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   }
 
   if (newStatusIndex < currentStatusIndex) {
-    return next(new HandelError("Không thể cập nhật trạng thái ngược lại", 400));
+    return next(
+      new HandelError("Không thể cập nhật trạng thái ngược lại", 400)
+    );
   }
 
   if (order.orderStatus === "cancelled") {
-    return next(new HandelError("Đơn hàng đã bị hủy và không thể cập nhật", 400));
+    return next(
+      new HandelError("Đơn hàng đã bị hủy và không thể cập nhật", 400)
+    );
   }
-  
-  if (order.orderStatus === "delivered" && !["returned", "refunded"].includes(orderStatus)) {
-    return next(new HandelError("Đơn hàng đã giao, chỉ có thể cập nhật thành trạng thái hoàn tiền", 400));
+
+  if (
+    order.orderStatus === "delivered" &&
+    !["returned", "refunded"].includes(orderStatus)
+  ) {
+    return next(
+      new HandelError(
+        "Đơn hàng đã giao, chỉ có thể cập nhật thành trạng thái hoàn tiền",
+        400
+      )
+    );
   }
 
   order.orderStatus = orderStatus;
@@ -259,7 +282,9 @@ export const updateKho = CatchAsync(async (req, res, next) => {
         });
       }
 
-      const sizeObj = variant.sizes.find((s) => String(s.size) === String(size));
+      const sizeObj = variant.sizes.find(
+        (s) => String(s.size) === String(size)
+      );
       if (!sizeObj) {
         return res.status(404).json({
           success: false,
@@ -291,22 +316,74 @@ export const updateKho = CatchAsync(async (req, res, next) => {
   }
 });
 
+export const deleteOrder = CatchAsync(async (req, res, next) => {
+  const { orderId } = req.body;
 
-// export const deleteOrder = CatchAsync(async (req, res, next) => {
-//   const { orderId } = req.params;
+  const order = await Order.findById(orderId);
 
-//   const order = await Order.findById(orderId);
+  if (!order) {
+    return next(new HandelError("Không tìm thấy đơn hàng", 404));
+  }
 
-//   if (!order) {
-//     return next(new HandelError("Không tìm thấy đơn hàng", 404));
-//   }
+  if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
+    return res.json({
+      message: "Không thể hủy đơn hàng",
+    });
+  }
 
-//   order.orderStatus = "cancelled";
-//   await order.save();
+  if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
+    return res.json({
+      message: "Không thể hủy đơn hàng do đang trong quá trình thanh toán",
+    });
+  }
 
-//   res.status(200).json({
-//     success: true,
-//     message: "Đơn hàng đã được hủy thành công",
-//     order,
-//   });
-// });
+  if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
+    // Nếu là COD hoặc thanh toán thất bại, đơn hàng sẽ bị hủy ngay
+    order.orderStatus = "cancelled";
+    await order.save();
+    return res.status(200).json({
+      success: true,
+      message: "Đơn hàng đã được hủy thành công",
+      order,
+    });
+  } else if (
+    order.paymentMethod !== "COD" &&
+    order.paymentStatus === "completed"
+  ) {
+    // Logic hoàn tiền khi thanh toán thành công qua MoMo (hoặc các phương thức thanh toán trực tuyến khác)
+
+    try {
+      const refundResponse = await requestRefund(
+        order.orderId,
+        order.transId,
+        order.amount
+      );
+      if (refundResponse && refundResponse.resultCode === 0) {
+        // Cập nhật trạng thái đơn hàng thành "cancelled" sau khi hoàn tiền thành công
+        order.orderStatus = "cancelled";
+        await order.save();
+
+        return res.status(200).json({
+          success: true,
+          message: "Đơn hàng đã được hủy và hoàn tiền thành công",
+          order,
+        });
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: "Lỗi khi hoàn tiền",
+        });
+      }
+    } catch (error) {
+      return next(
+        new HandelError("Không thể hoàn tiền, vui lòng thử lại sau", 500)
+      );
+    }
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Đơn hàng đã được hủy thành công",
+    order,
+  });
+});
