@@ -320,6 +320,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.body;
 
   const order = await Order.findById(orderId);
+  console.log(order, 9999);
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
@@ -327,61 +328,27 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
 
   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
     return res.json({
-      message: "Không thể hủy đơn hàng",
+      message: "Khong the huy don hang",
     });
   }
 
   if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
     return res.json({
-      message: "Không thể hủy đơn hàng do đang trong quá trình thanh toán",
+      message: "Khong the huy don hang do dang trong qua trinh thanh",
     });
   }
 
   if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
-    // Nếu là COD hoặc thanh toán thất bại, đơn hàng sẽ bị hủy ngay
     order.orderStatus = "cancelled";
     await order.save();
-    return res.status(200).json({
-      success: true,
-      message: "Đơn hàng đã được hủy thành công",
-      order,
-    });
   } else if (
-    order.paymentMethod !== "COD" &&
+    order.paymentMethod !== "COD" ||
     order.paymentStatus === "completed"
   ) {
-    // Logic hoàn tiền khi thanh toán thành công qua MoMo (hoặc các phương thức thanh toán trực tuyến khác)
-
-    try {
-      const refundResponse = await requestRefund(
-        order.orderId,
-        order.transId,
-        order.amount
-      );
-      if (refundResponse && refundResponse.resultCode === 0) {
-        // Cập nhật trạng thái đơn hàng thành "cancelled" sau khi hoàn tiền thành công
-        order.orderStatus = "cancelled";
-        await order.save();
-
-        return res.status(200).json({
-          success: true,
-          message: "Đơn hàng đã được hủy và hoàn tiền thành công",
-          order,
-        });
-      } else {
-        return res.status(500).json({
-          success: false,
-          message: "Lỗi khi hoàn tiền",
-        });
-      }
-    } catch (error) {
-      return next(
-        new HandelError("Không thể hoàn tiền, vui lòng thử lại sau", 500)
-      );
-    }
+    // lolgic hoan tien
   }
 
-  return res.status(200).json({
+  res.status(200).json({
     success: true,
     message: "Đơn hàng đã được hủy thành công",
     order,
