@@ -21,7 +21,7 @@ const SingelProduct = () => {
   const productReviews = data?.reviews || [];
   const [isfavourite, setIsFavourite] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  console.log("quantity",quantity);
+  console.log("quantity", quantity);
   const navigate = useNavigate();
   //kiem tra xem san pham da co trong muc yeu thich hay chua
   console.log(id, 12345);
@@ -396,12 +396,16 @@ const SingelProduct = () => {
             {/* ADD TO CARD BUTTON START */}
             <button
               className="w-full py-4 rounded-full bg-black
-                    text-white text-lg font-medium transition-transform
-                    active:scale-95 mb-3 hover:opacity-75"
+        text-white text-lg font-medium transition-transform
+        active:scale-95 mb-3 hover:opacity-75 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleAddToCart}
+              disabled={!selectedVariant || selectedVariant.quantity === 0}
             >
-              Thêm vào giỏ hàng
+              {selectedVariant && selectedVariant.quantity === 0
+                ? "Hết hàng"
+                : "Thêm vào giỏ hàng"}
             </button>
+
             {/* ADD TO CARD BUTTON END */}
 
             {/* WHISLIST BUTTON START */}
@@ -432,8 +436,7 @@ const SingelProduct = () => {
             <div>
               <div className="text-lg font-bold mb-5">Chi tiết sản phẩm</div>
               <div className="text-md mb-5">
-                Mô tả sản phẩm này sẽ giúp bạn trải nghiệm tốt nhất khi chơi
-                golf.
+               {data.product.description}
               </div>
             </div>
           </div>

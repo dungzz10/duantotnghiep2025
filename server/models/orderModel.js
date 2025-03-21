@@ -88,6 +88,49 @@ const orderSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+orderSchema.post("save", async function (doc, next) {
+  const Product = mongoose.model("Product");
+
+  for (const item of doc.products) {
+    const product = await Product.findById(item.product);
+    if (!product) continue;
+
+    // Tìm biến thể đúng màu
+    const variant = product.variants.find(v => v.color === item.color);
+    if (!variant) continue;
+
+    // Tìm đúng size
+    const sizeObj = variant.sizes.find(s => s.size === item.size);
+    if (!sizeObj) continue;
+
+    // Trừ số lượng tồn kho
+    sizeObj.quantity = Math.max(0, sizeObj.quantity - item.quantity);
+
+    // Cập nhật lại status dựa trên logic cũ
+    const allSoldOut =
+      product.variants?.length > 0 &&
+      product.variants.every(
+        (v) =>
+          Array.isArray(v.sizes) &&
+          v.sizes.length > 0 &&
+          v.sizes.every(
+            (s) => typeof s.quantity === "number" && s.quantity === 0
+          )
+      );
+
+    if (allSoldOut) {
+      product.status = "sold out";
+    } else if (product.salePrice && product.salePrice > 0) {
+      product.status = "sale";
+    } else {
+      product.status = "new";
+    }
+
+    await product.save(); // Lưu lại sản phẩm sau khi cập nhật
+  }
+
+  next();
+});
 
 const Order = mongoose.model("Order", orderSchema);
 export default Order;

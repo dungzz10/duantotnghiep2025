@@ -117,21 +117,35 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre("save", function (next) {
-  if (this.salePrice && this.salePrice > 0) {
+  // Tính toán allSoldOut trước
+  const allSoldOut =
+    this.variants?.length > 0 &&
+    this.variants.every(
+      (variant) =>
+        Array.isArray(variant.sizes) &&
+        variant.sizes.length > 0 &&
+        variant.sizes.every(
+          (size) => typeof size.quantity === "number" && size.quantity === 0
+        )
+    );
+
+  // Ưu tiên sold out nếu hết hàng
+  if (allSoldOut) {
+    this.status = "sold out";
+  } else if (this.salePrice && this.salePrice > 0) {
     this.status = "sale";
   } else {
     this.status = "new";
   }
 
-  const allSoldOut = this.variants.every((variant) =>
-    variant.sizes.every((size) => size.quantity === 0)
-  );
-
-  if (allSoldOut) {
-    this.status = "sold out";
-  }
-
   next();
 });
+
+
+  // if (allSoldOut) {
+  //   this.status = "sold out";
+  // }
+
+
 
 export default mongoose.model("Product", productSchema);
