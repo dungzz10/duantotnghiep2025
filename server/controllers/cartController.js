@@ -1,6 +1,6 @@
 import User from "../models/usersModel.js";
 import Product from "../models/productModel.js";
-import mongoose from "mongoose"; 
+import mongoose from "mongoose";
 
 export const addToCart = async (req, res) => {
   try {
@@ -89,8 +89,8 @@ export const getCartDetails = async (req, res) => {
 };
 // Cập nhật số lượng sản phẩm trong giỏ hàng(cập nhật cả bên cart trong model user để lấy được số lượng đồng bộ với sản phẩm và giỏ hàng)
 export const update = async (req, res) => {
-  const userId = req.user._id; 
-  const { productId, color, size, quantity } = req.body;  
+  const userId = req.user._id;
+  const { productId, color, size, quantity } = req.body;
   try {
     const user = await User.findById(userId);
     if (!user) {
@@ -122,7 +122,9 @@ export const update = async (req, res) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).json({ message: "Không tìm thấy sản phẩm trong giỏ" });
+      return res
+        .status(404)
+        .json({ message: "Không tìm thấy sản phẩm trong giỏ" });
     }
 
     return res.status(200).json({
@@ -167,7 +169,9 @@ export const deleteCart = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi deleteFromCart:", error);
-    res.status(500).json({ message: "Lỗi server khi xoá sản phẩm khỏi giỏ hàng" });
+    res
+      .status(500)
+      .json({ message: "Lỗi server khi xoá sản phẩm khỏi giỏ hàng" });
   }
 };
 
@@ -203,6 +207,8 @@ export const clearCart = async (req, res) => {
     });
   } catch (error) {
     console.error("Lỗi clearCartAfterOrder:", error);
-    res.status(500).json({ success: false, message: "Lỗi server khi xoá giỏ hàng" });
+    res
+      .status(500)
+      .json({ success: false, message: "Lỗi server khi xoá giỏ hàng" });
   }
 };

@@ -7,7 +7,6 @@ import {
   checkDeliveredOrder,
   getNewOrders,
   updateKho,
-  deleteOrder,
   // deleteOrder
 } from "../controllers/orderController.js";
 import { isAuththenticated } from "../middlewares/auth.js";
@@ -16,8 +15,6 @@ import { createWalletPayment } from "../controllers/paymentController.js";
 const orderRoutes = express.Router();
 
 orderRoutes.get("/check-delivered", isAuththenticated, checkDeliveredOrder);
-orderRoutes.delete("/delete", isAuththenticated, deleteOrder);
-
 orderRoutes.get("/", isAuththenticated, getAllOrders);
 orderRoutes.get("/new", isAuththenticated, getNewOrders);
 orderRoutes.post("/create", isAuththenticated, createCODOrder);

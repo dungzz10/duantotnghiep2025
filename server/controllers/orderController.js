@@ -316,41 +316,41 @@ export const updateKho = CatchAsync(async (req, res, next) => {
   }
 });
 
-export const deleteOrder = CatchAsync(async (req, res, next) => {
-  const { orderId } = req.body;
+// export const deleteOrder = CatchAsync(async (req, res, next) => {
+//   const { orderId } = req.body;
 
-  const order = await Order.findById(orderId);
-  console.log(order, 9999);
+//   const order = await Order.findById(orderId);
+//   console.log(order, 9999);
 
-  if (!order) {
-    return next(new HandelError("Không tìm thấy đơn hàng", 404));
-  }
+//   if (!order) {
+//     return next(new HandelError("Không tìm thấy đơn hàng", 404));
+//   }
 
-  if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
-    return res.json({
-      message: "Khong the huy don hang",
-    });
-  }
+//   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
+//     return res.json({
+//       message: "Khong the huy don hang",
+//     });
+//   }
 
-  if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
-    return res.json({
-      message: "Khong the huy don hang do dang trong qua trinh thanh",
-    });
-  }
+//   if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
+//     return res.json({
+//       message: "Khong the huy don hang do dang trong qua trinh thanh",
+//     });
+//   }
 
-  if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
-    order.orderStatus = "cancelled";
-    await order.save();
-  } else if (
-    order.paymentMethod !== "COD" ||
-    order.paymentStatus === "completed"
-  ) {
-    // lolgic hoan tien
-  }
+//   if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
+//     order.orderStatus = "cancelled";
+//     await order.save();
+//   } else if (
+//     order.paymentMethod !== "COD" ||
+//     order.paymentStatus === "completed"
+//   ) {
+//     // lolgic hoan tien
+//   }
 
-  res.status(200).json({
-    success: true,
-    message: "Đơn hàng đã được hủy thành công",
-    order,
-  });
-});
+//   res.status(200).json({
+//     success: true,
+//     message: "Đơn hàng đã được hủy thành công",
+//     order,
+//   });
+// });
