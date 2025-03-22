@@ -4,6 +4,7 @@ import { Table, Input, Select, Tag, Modal, Button, message, Steps } from "antd";
 import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 import dayjs from "dayjs";
+import { api } from "../../axios/api";
 
 const { Option } = Select;
 
@@ -34,12 +35,16 @@ const OrderHistory = () => {
 
   const handleCancelOrder = async (id) => {
     try {
-      await axios.patch(`/orders/orderStatus/${id}`, {
-        orderStatus: "cancelled",
-      });
+      // await axios.patch(`/orders/orderStatus/${id}`, {
+      //   orderStatus: "cancelled",
+      // });
+      // message.success(`Đơn ${id} đã được hủy.`);
+      // fetchOrders();
+      // setIsModalVisible(false);
+      await api.delete(`/orders/${id}`);
       message.success(`Đơn ${id} đã được hủy.`);
       fetchOrders();
-      setIsModalVisible(false);
+      console.log(id, 9999);
     } catch (error) {
       console.error("Error canceling order:", error);
       message.error("Có lỗi xảy ra khi hủy đơn hàng.");

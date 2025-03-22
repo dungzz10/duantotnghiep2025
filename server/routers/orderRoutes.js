@@ -7,6 +7,7 @@ import {
   checkDeliveredOrder,
   getNewOrders,
   updateKho,
+  deleteOrder,
   // deleteOrder
 } from "../controllers/orderController.js";
 import { isAuththenticated } from "../middlewares/auth.js";
@@ -21,6 +22,6 @@ orderRoutes.post("/create", isAuththenticated, createCODOrder);
 orderRoutes.post("/updateKho", isAuththenticated, updateKho);
 orderRoutes.get("/:orderId", isAuththenticated, getOrderById);
 orderRoutes.patch("/orderStatus/:orderId", isAuththenticated, updateOrder);
-// orderRoutes.delete("/:orderId", isAuththenticated, deleteOrder);
+orderRoutes.delete("/:orderId", isAuththenticated, deleteOrder);
 orderRoutes.post("/wallet/payment", isAuththenticated, createWalletPayment);
 export default orderRoutes;

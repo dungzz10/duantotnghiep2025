@@ -316,41 +316,158 @@ export const updateKho = CatchAsync(async (req, res, next) => {
   }
 });
 
-// export const deleteOrder = CatchAsync(async (req, res, next) => {
-//   const { orderId } = req.body;
+export const deleteOrder = CatchAsync(async (req, res, next) => {
+  const { orderId } = req.params;
 
-//   const order = await Order.findById(orderId);
-//   console.log(order, 9999);
+  console.log(orderId, 8888);
 
-//   if (!order) {
-//     return next(new HandelError("Không tìm thấy đơn hàng", 404));
-//   }
+  const order = await Order.findById(orderId);
+  console.log(order, 77777);
 
-//   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
-//     return res.json({
-//       message: "Khong the huy don hang",
-//     });
-//   }
+  if (!order) {
+    return next(new HandelError("Không tìm thấy đơn hàng", 404));
+  }
 
-//   if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
-//     return res.json({
-//       message: "Khong the huy don hang do dang trong qua trinh thanh",
-//     });
-//   }
+  if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
+    return res.json({
+      message: "Khong the huy don hang",
+    });
+  }
 
-//   if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
-//     order.orderStatus = "cancelled";
-//     await order.save();
-//   } else if (
-//     order.paymentMethod !== "COD" ||
-//     order.paymentStatus === "completed"
-//   ) {
-//     // lolgic hoan tien
-//   }
+  if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
+    return res.json({
+      message: "Khong the huy don hang do dang trong qua trinh thanh",
+    });
+  }
 
-//   res.status(200).json({
-//     success: true,
-//     message: "Đơn hàng đã được hủy thành công",
-//     order,
-//   });
-// });
+  if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
+    order.orderStatus = "cancelled";
+
+    for (const item of order.products) {
+      // Giả sử `items` là mảng chứa các sản phẩm trong đơn hàng
+      const productDoc = await Product.findById(item.productId); // Tìm sản phẩm tương ứng
+      if (productDoc) {
+        const variant = productDoc.variants.find(
+          (v) => v.color.toLowerCase() === item.color.toLowerCase()
+        ); // Tìm biến thể theo màu sắc
+
+        if (variant) {
+          const sizeObj = variant.sizes.find(
+            (s) => String(s.size) === String(item.size)
+          ); // Tìm kích thước trong biến thể
+
+          if (sizeObj) {
+            sizeObj.quantity += item.quantity; // Cộng lại số lượng tồn kho
+            await productDoc.save(); // Lưu sản phẩm
+          }
+        }
+      }
+    }
+
+    await order.save();
+  } else if (
+    order.paymentMethod !== "COD" ||
+    order.paymentStatus === "completed"
+  ) {
+    order.orderStatus = "cancelled";
+
+    for (const item of order.products) {
+      // Giả sử `items` là mảng chứa các sản phẩm trong đơn hàng
+      const productDoc = await Product.findById(item.productId); // Tìm sản phẩm tương ứng
+      if (productDoc) {
+        const variant = productDoc.variants.find(
+          (v) => v.color.toLowerCase() === item.color.toLowerCase()
+        ); // Tìm biến thể theo màu sắc
+
+        if (variant) {
+          const sizeObj = variant.sizes.find(
+            (s) => String(s.size) === String(item.size)
+          ); // Tìm kích thước trong biến thể
+
+          if (sizeObj) {
+            sizeObj.quantity += item.quantity; // Cộng lại số lượng tồn kho
+            await productDoc.save(); // Lưu sản phẩm
+          }
+        }
+      }
+    }
+
+    await order.save();
+    // lolgic hoan tien
+
+    try {
+      const payload = {
+        accessKey: paymentConfig.accessKey,
+        partnerCode: paymentConfig.partnerCode,
+        orderId: order.orderId,
+        requestId: `REFUND_${order.orderId}`,
+        amount: order.finalTotal.toString(),
+        lang: "vi",
+      };
+
+      payload.signature = generateSignature(payload);
+
+      const response = await fetch(
+        "https://test-payment.momo.vn/v2/gateway/api/refund",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const jsonResponse = await response.json();
+
+      if (!response.ok || jsonResponse.resultCode !== 0) {
+        throw new Error(
+          `MoMo Error: ${jsonResponse.message || response.statusText}`
+        );
+      }
+
+      order.paymentStatus = "refunded";
+      await order.save();
+
+      //Update so du
+      await User.updateOne(
+        { _id: order.userId },
+        { $inc: { "wallet.balance": order.finalTotal } }
+      );
+    } catch (error) {
+      throw new Error(`Lỗi hoàn tiền: ${error.message}`);
+    }
+
+    const refundPayload = {
+      partnerCode: momoConfig.partnerCode,
+      accessKey: momoConfig.accessKey,
+      requestId: orderId,
+      amount: order.amount.toString(),
+      orderId: orderId,
+      orderInfo: "Hoàn tiền cho đơn hàng",
+      redirectUrl: momoConfig.redirectUrl,
+      ipnUrl: momoConfig.ipnUrl,
+      requestType: "refund",
+    };
+
+    refundPayload.signature = generateSignature(refundPayload);
+    console.log("MoMo Refund Payload:", refundPayload);
+
+    const response = await fetch(
+      "https://test-payment.momo.vn/v2/gateway/api/refund",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(refundPayload),
+      }
+    );
+
+    // Xử lý phản hồi
+    const responseData = await response.json();
+    console.log("MoMo Refund Response:", responseData);
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Đơn hàng đã được hủy thành công",
+    order,
+  });
+});
