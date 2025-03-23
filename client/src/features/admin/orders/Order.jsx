@@ -143,7 +143,7 @@ const Order = () => {
       dataIndex: "amount",
       key: "amount",
       sorter: (a, b) => a.amount - b.amount,
-      render: (amount) => `${amount} VNĐ`,
+      render: (amount) => `${amount.toLocaleString("vi-VN")} VNĐ`,
     },
     {
       title: "Phương thức thanh toán",
@@ -373,7 +373,7 @@ const Order = () => {
                         {item.size || "Không xác định"}
                       </p>
                       <p style={{ margin: "5px 0" }}>
-                        <strong>Giá:</strong> {item.price || 0} VNĐ
+                        <strong>Giá:</strong> {item.price.toLocaleString("vi-VN")} VNĐ
                       </p>
                     </div>
                   </div>
@@ -382,19 +382,19 @@ const Order = () => {
             <Row gutter={16}>
               <Col span={12}>
                 <p>
-                  <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee}{" "}
+                  <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee.toLocaleString("vi-VN")}{" "}
                   VNĐ
                 </p>
               </Col>
               <Col span={12}>
                 <p>
                   <strong>Giảm giá Voucher:</strong>{" "}
-                  {selectedOrder.voucherDiscount} VNĐ
+                  {selectedOrder.voucherDiscount.toLocaleString("vi-VN")} VNĐ
                 </p>
               </Col>
             </Row>
             <p>
-              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal +selectedOrder.shippingFee}{" "}
+              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal.toLocaleString("vi-VN")}{" "}
               VNĐ
             </p>
           </div>
