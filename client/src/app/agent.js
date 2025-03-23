@@ -184,6 +184,15 @@ const Account = {
       throw error;
     }
   },
+  ruttien: async (amount) => {
+    try {
+      const res = await request.post("user/payment/wallet/withdraw", amount);
+      return res;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   getWallet: async () => {
     try {
       const res = await request.get("user/wallet/balance");

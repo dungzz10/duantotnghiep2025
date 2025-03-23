@@ -30,3 +30,10 @@ export const naptienApi = async (data) => {
     throw error;
   }
 };
+export const ruttienApi = async (data) => {
+  try {
+    return await agent.Account.ruttien(data);
+  } catch (error) {
+    throw error;
+  }
+}

@@ -630,46 +630,6 @@ export const withdrawFromWallet = CatchAsync(async (req, res, next) => {
 
   // Tạo ID cho yêu cầu rút tiền
   const orderId = `WITHDRAW_${Date.now()}_${userId}`;
-  const requestId = `REQ_${Date.now()}_${userId}`;
-
-  // Tạo payload cho yêu cầu rút tiền
-  const payload = {
-    accessKey: momoConfig.accessKey,
-    amount: total.toString(),
-    orderId,
-    partnerCode: momoConfig.partnerCode,
-    requestId,
-    requestType: "withdraw", // Đảm bảo requestType là "withdraw"
-    extraData: "withdrawal",
-    ipnUrl: momoConfig.ipnUrl,
-    redirectUrl: momoConfig.redirectUrl,
-  };
-
-  // Tạo chữ ký
-  payload.signature = generateSignature(payload);
-  console.log("MoMo Withdraw Payload:", payload);
-
-  // Gửi yêu cầu rút tiền đến MoMo
-  const response = await fetch(
-    "https://test-payment.momo.vn/v2/gateway/api/create",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }
-  );
-
-  const jsonResponse = await response.json();
-  console.log("MoMo Withdraw Response:", jsonResponse);
-
-  if (!response.ok || jsonResponse.resultCode !== 0) {
-    return next(
-      new HandelError(
-        `MoMo Error: ${jsonResponse.message || response.statusText}`,
-        500
-      )
-    );
-  }
 
   // Cập nhật thông tin giao dịch vào cơ sở dữ liệu
   await User.findByIdAndUpdate(userId, {
@@ -683,15 +643,12 @@ export const withdrawFromWallet = CatchAsync(async (req, res, next) => {
         date: new Date(),
       },
     },
+    $inc: { "wallet.balance": -total },
   });
-
-  // Trừ số tiền khỏi ví
-  user.wallet.balance -= total;
-  await user.save();
 
   return res.status(200).json({
     success: true,
-    message: "Yêu cầu rút tiền thành công",
-    data: { orderId, amount: total, payUrl: jsonResponse.payUrl },
+    message: "Yêu cầu rút tiền thành công. Vui lòng chờ admin xử lý.",
+    data: { orderId, amount: total },
   });
 });

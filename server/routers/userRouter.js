@@ -33,6 +33,7 @@ import {
   verifyTransaction,
   getWalletBalance,
   createWalletDeposit,
+  withdrawFromWallet,
 } from "../controllers/paymentController.js";
 
 const userRouter = express.Router();
@@ -83,6 +84,11 @@ userRouter.post(
   "/payment/wallet/deposit",
   isAuththenticated,
   createWalletDeposit
+);
+userRouter.post(
+  "/payment/wallet/withdraw",
+  isAuththenticated,
+  withdrawFromWallet
 );
 userRouter.get("/wallet/balance", isAuththenticated, getWalletBalance);
 

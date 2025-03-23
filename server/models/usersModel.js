@@ -107,6 +107,7 @@ const userSchema = new mongoose.Schema(
               "withdraw",
               "transfer",
               "ruttien",
+              "withdrawal",
 
               "muahang",
               "momo_payment",

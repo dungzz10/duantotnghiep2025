@@ -3,6 +3,7 @@ import {
   getWalletApi,
   naptienApi,
   profileApi,
+  ruttienApi,
   uppdatePasswordApi,
 } from "./profileApi";
 import { message } from "antd";
@@ -65,3 +66,25 @@ export const useNaptien = () => {
 
   return { naptien, isLoadingNap };
 };
+export const useRuttien = () => {
+  const queryClient = useQueryClient();
+  const { mutate: ruttien, isLoading: isLoadingRut } = useMutation({
+    mutationFn: async (data) => await ruttienApi(data),
+    onSuccess: (response) => {
+      console.log(response)
+      if (response && response.data.payUrl) {
+        window.location.href = response.data.payUrl;
+      } else {
+        message.success("Rút TIền  thành công");
+        queryClient.invalidateQueries({queryKey: ["user"]});
+      }
+    },
+    onError: (error) => {
+      // message.error("Deposit failed");
+      console.error("Deposit error:", error);
+    },
+  });
+
+  return { ruttien, isLoadingRut };
+};
+
