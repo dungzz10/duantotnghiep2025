@@ -169,7 +169,7 @@ const Order = () => {
       key: "date",
       sorter: (a, b) => new Date(a.date) - new Date(b.date),
       render: (date) => {
-        return date ? format(new Date(date), "MM/dd/yyyy") : "N/A";
+        return date ? format(new Date(date), "dd/MM/yyyy") : "N/A";
       },
     },
     {

@@ -101,6 +101,15 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
   orders.sort((a, b) => {
+    if (
+      (a.orderStatus === "pending" && b.orderStatus === "pending") ||
+      (a.orderStatus === "processing" && b.orderStatus === "processing") ||
+      (a.orderStatus === "shipped" && b.orderStatus === "shipped") ||
+      (a.orderStatus === "delivered" && b.orderStatus === "delivered") ||
+      (a.orderStatus === "cancelled" && b.orderStatus === "cancelled")
+    ) {
+      return new Date(b.date) - new Date(a.date);
+    }
     return (
       validStatuses.indexOf(a.orderStatus) -
       validStatuses.indexOf(b.orderStatus)
@@ -144,11 +153,11 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     products,
     total,
     shippingAddress,
-    shippingFee = 0,
+    shippingFee,
     voucherDiscount = 0,
     amount,
   } = req.body;
-  const finalTotal = total - voucherDiscount;
+  const finalTotal = total + shippingFee - voucherDiscount;
 
   const userId = req.user?.id;
   if (!userId) {
@@ -221,6 +230,11 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
       new HandelError("Không thể cập nhật trạng thái ngược lại", 400)
     );
   }
+
+  if (order.orderStatus === "shipped" && orderStatus === "cancelled") {
+    return next(new HandelError("Đơn hàng đang giao không thể huỷ", 400));
+  }
+
 
   if (order.orderStatus === "cancelled") {
     return next(

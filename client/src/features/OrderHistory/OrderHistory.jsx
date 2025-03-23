@@ -69,8 +69,8 @@ const OrderHistory = () => {
     const statusMap = {
       delivered: { color: "green", text: "Đã giao" },
       pending: { color: "orange", text: "Chưa thanh toán" },
-      processing: { color: "orange", text: "Đang xử lý" },
-      shipped: { color: "orange", text: "Đang vận chuyển" },
+      processing: { color: "green", text: "Đã thanh toán" },
+      shipped: { color: "blue", text: "Đang vận chuyển" },
       cancelled: { color: "red", text: "Đã hủy" },
     };
     const { color, text } = statusMap[orderStatus] || {
@@ -128,7 +128,7 @@ const OrderHistory = () => {
       title: "Ngày đặt",
       dataIndex: "date",
       key: "date",
-      render: (date) => (date ? format(new Date(date), "MM/dd/yyyy") : "N/A"),
+      render: (date) => (date ? format(new Date(date), "dd/MM/yyyy") : "N/A"),
     },
     {
       title: "",
@@ -355,6 +355,7 @@ const OrderHistory = () => {
                   <Button
                     danger
                     onClick={() => handleCancelOrder(selectedOrder._id)}
+                    disabled={selectedOrder.orderStatus === "cancelled" ||selectedOrder.orderStatus === "delivered" }
                   >
                     Hủy Đơn Hàng
                   </Button>
