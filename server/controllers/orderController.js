@@ -256,13 +256,19 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
       )
     );
   }
+  
 
   order.orderStatus = orderStatus;
   await order.save();
 
-  res.status(200).json({
+  await User.updateOne(
+    { _id: order.userId },
+    { $inc: { "wallet.balance": order.finalTotal } }
+  );
+
+  return res.status(200).json({
     success: true,
-    message: "Đơn hàng đã được cập nhật thành công",
+    message: "Đơn hàng đã được hủy thành công, và tiền đã được hoàn vào ví",
     order,
   });
 });
@@ -338,7 +344,6 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
  
 
   console.log(orderId, 8888);
-
   const order = await Order.findById(orderId);
   console.log(order, 77777);
 
@@ -358,7 +363,8 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
     });
   }
 
-  if (order.paymentMethod === "COD" || order.paymentStatus === "failed") {
+  if (order.paymentMethod === "WALLET"&&order.paymentMethod === "ATM_MOMO" && order.paymentMethod === "MoMo"&& order.paymentMethod === "COD" || order.paymentStatus === "failed") {
+
     order.orderStatus = "cancelled";
 
     for (const item of order.products) {
@@ -382,11 +388,9 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
     }
 
     await order.save();
-
-    // Cập nhật trực tiếp số dư ví người dùng
     await User.updateOne(
       { _id: order.userId },
-      { $inc: { "wallet.balance": order.finalTotal } } // Cộng tiền vào ví
+      { $inc: { "wallet.balance": order.finalTotal } } 
     );
 
     return res.status(200).json({
@@ -419,10 +423,9 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
 
     await order.save();
 
-    // Cập nhật trực tiếp số dư ví người dùng
     await User.updateOne(
       { _id: order.userId },
-      { $inc: { "wallet.balance": order.finalTotal } } // Cộng tiền vào ví
+      { $inc: { "wallet.balance": order.finalTotal } } 
     );
 
     return res.status(200).json({

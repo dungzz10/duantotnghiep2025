@@ -35,14 +35,15 @@ const OrderHistory = () => {
 
   const handleCancelOrder = async (id) => {
     try {
-      await axios.patch(`/orders/orderStatus/${id}`, {
-        orderStatus: "cancelled",
-      });
+      // await axios.patch(`/orders/orderStatus/${id}`, {
+      //   orderStatus: "cancelled",
+      // });
+      // message.success(`Đơn ${id} đã được hủy.`);
+      await api.delete(`/orders/${id}`);
       message.success(`Đơn ${id} đã được hủy.`);
       fetchOrders();
       setIsModalVisible(false);
-      // await api.delete(`/orders/${id}`);
-      // message.success(`Đơn ${id} đã được hủy.`);
+      
       fetchOrders();
       console.log(id, 9999);
     } catch (error) {
