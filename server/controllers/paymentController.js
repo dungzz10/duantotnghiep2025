@@ -606,7 +606,7 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
   });
 });
 
-////////// rut tien
+////////// rut tien từ ví về momo
 
 export const withdrawFromWallet = CatchAsync(async (req, res, next) => {
   const { amount } = req.body;
