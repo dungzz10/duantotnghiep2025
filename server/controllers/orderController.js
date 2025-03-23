@@ -17,8 +17,10 @@ export const getNewOrders = CatchAsync(async (req, res, next) => {
     const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
 
     const orders = await Order.find({
-      orderStatus: "pending",
-      date: { $gte: threeMinutesAgo },
+      $or: [
+        { orderStatus: "pending", date: { $gte: threeMinutesAgo } },
+        { orderStatus: "processing", date: { $gte: threeMinutesAgo } },
+      ],
     })
       .sort({ date: -1 })
       .limit(7)
