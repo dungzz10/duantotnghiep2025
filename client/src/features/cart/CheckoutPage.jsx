@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { PlusOutlined } from "@ant-design/icons";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import {
   Button,
-  Typography,
-  Row,
-  Col,
   Card,
-  Radio,
-  Space,
-  message,
+  Col,
   Divider,
+  Radio,
+  Row,
   Select,
+  Space,
+  Typography,
+  message,
 } from "antd";
 
-import NoOrderPage from "./NoOrderPage";
 import { getAddress } from "../adress/useAddresApi";
+import NoOrderPage from "./NoOrderPage";
+import AddressForm from "../adress/AddressForm";
 
 const { Title, Text } = Typography;
 
@@ -26,6 +29,20 @@ const CheckoutPage = () => {
   const [shippingFee, setShippingFee] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const { data, isLoading } = getAddress();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [editingAddress, setEditingAddress] = useState(null);
+  const [isUpdatePhone, setIsUpdatePhone] = useState(false);
+
+  const handleOpenModal = (address = null) => {
+    setEditingAddress(address);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalVisible(false);
+    setEditingAddress(null);
+  };
+  console.log(selectedAddress, 888888);
 
   useEffect(() => {
     const storedOrder = JSON.parse(localStorage.getItem("order"));
@@ -41,7 +58,8 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     if (data && data.addresses && data.addresses.length > 0) {
-      setSelectedAddress(data.addresses[0].address);
+      const lastAddress = data.addresses[data.addresses.length - 1].address;
+      setSelectedAddress(lastAddress);
 
       if (order) {
         setOrder((prev) => ({
@@ -133,6 +151,9 @@ const CheckoutPage = () => {
             }),
           }
         );
+
+        console.log(response, 1234567);
+
         const data = await response.json();
 
         if (response.ok && data.success) {
@@ -244,6 +265,10 @@ const CheckoutPage = () => {
 
   if (!order) return null;
 
+  const updatePhone = () => {
+    setIsUpdatePhone(!isUpdatePhone);
+  };
+
   return (
     <div className="w-full max-w-screen-xl mx-auto p-4 md:p-8">
       <Card className="shadow-lg" bordered>
@@ -252,7 +277,7 @@ const CheckoutPage = () => {
         {/* Update the Select component to use data from API */}
         <Row gutter={24}>
           <Col xs={24} md={12}>
-            <Card title="Thông tin khách hàng" size="small">
+            <Card title="Thông tin người nhận" size="small">
               <Text>
                 <strong>Tên:</strong> {user?.name}
               </Text>
@@ -269,32 +294,77 @@ const CheckoutPage = () => {
                   marginTop: "8px",
                 }}
               >
-                <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
-                <Select
-                  style={{ flex: 1 }}
-                  value={selectedAddress}
-                  onChange={(value) => {
-                    setSelectedAddress(value);
-                    setOrder((prev) => ({
-                      ...prev,
-                      shippingAddress: {
-                        ...prev.shippingAddress,
-                        address: value,
-                      },
-                    }));
-                  }}
-                >
-                  {data?.addresses?.map((addr, idx) => (
-                    <Select.Option key={idx} value={addr.address}>
-                      {addr.address}
-                    </Select.Option>
-                  ))}
-                </Select>
+                {" "}
+                <div className="display: block">
+                  <div className="flex justify-between items-center mb-4">
+                    <Button
+                      type="primary"
+                      icon={<PlusOutlined />}
+                      onClick={() => handleOpenModal()}
+                    >
+                      Thêm địa chỉ
+                    </Button>
+                  </div>
+                  <div>
+                    <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
+                    <Select
+                      style={{ flex: 1 }}
+                      value={selectedAddress}
+                      onChange={(value) => {
+                        setSelectedAddress(value);
+                        setOrder((prev) => ({
+                          ...prev,
+                          shippingAddress: {
+                            ...prev.shippingAddress,
+                            address: value,
+                          },
+                        }));
+                      }}
+                    >
+                      {data?.addresses?.map((addr, idx) => (
+                        <Select.Option key={idx} value={addr.address}>
+                          {addr.address}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </div>
+                </div>
               </div>
+              <AddressForm
+                visible={isModalVisible}
+                onClose={handleCloseModal}
+                address={editingAddress}
+              />
               <br />
-              <Text>
-                <strong>Số điện thoại:</strong> {user?.phoneNumber}
-              </Text>
+
+              <button
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => updatePhone()}
+              >
+                Số điện thoại khác
+              </button>
+              {isUpdatePhone ? (
+                <div>
+                  <label
+                    for="phone"
+                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                  >
+                    Phone number
+                  </label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    placeholder="123-45-678"
+                    pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
+                    required
+                  />
+                </div>
+              ) : (
+                <div>
+                  <strong>Số điện thoại:</strong> {user?.phoneNumber}
+                </div>
+              )}
             </Card>
           </Col>
 

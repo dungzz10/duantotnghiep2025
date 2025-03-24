@@ -16,7 +16,7 @@ const cookieOptions = {
 };
 // Đăng ký người dùng (signup)
 export const signup = CatchAsync(async (req, res, next) => {
-  const { email, password, name } = req.body;
+  const { email, password, name, phoneNumber } = req.body;
 
   // Kiểm tra nếu người dùng đã tồn tại
   let user = await User.findOne({ email });
@@ -25,7 +25,7 @@ export const signup = CatchAsync(async (req, res, next) => {
   }
 
   // Tạo người dùng trực tiếp, bỏ qua bước active
-  user = await User.create({ email, password, name });
+  user = await User.create({ email, password, name, phoneNumber });
 
   // Tạo subscriber trong Novu
   await novu.subscribers.identify(user._id, {
