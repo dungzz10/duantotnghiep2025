@@ -72,7 +72,7 @@ const SideMEnu = ({ isCollapsed, onToggleSidebar }) => {
 
         <button 
           onClick={onToggleSidebar} 
-          className="text-xl p-2 bg-gray-200 rounded-md hover:bg-gray-300 transition"
+          className="text-xl p-2 bg-blue-800 rounded-md hover:bg-blue-900 transition"
         >
           {isCollapsed ? <MenuFoldOutlined /> : <MenuFoldOutlined />}
         </button>

@@ -69,10 +69,10 @@ const AppHeader = ({ admin }) => {
       {/* Logo & Tiêu đề */}
       <div className="ml-4">
         <Link to="/">
-          <Image width={45} src="/src/assets/logo.svg" preview={false} alt="Logo" className="rounded-md" />
+          <Image width={100} src="/src/assets/theshoes.png" preview={false} alt="Logo" className="rounded-md" />
         </Link>
       </div>
-        <Typography.Title level={3} className="text-white">SHOES SHOP</Typography.Title>
+        <Typography.Title level={3} className="text-white font-semibold">THE SHOES </Typography.Title>
 
       <Space size="large">
         {/* Thông báo đơn hàng mới */}

@@ -28,9 +28,9 @@ const Header = ({ user }) => {
           </div>
           <Link to="/" className="hidden md:block">
             <img 
-              src="/src/assets/logo.svg" 
+              src="/src/assets/theshoes.png" 
               alt="Beautico" 
-              className="h-10"
+              className="h-20"
             />
           </Link>
           <div className="flex items-center space-x-2">
@@ -72,9 +72,9 @@ const Header = ({ user }) => {
             {/* Mobile Logo - Center */}
             <Link to="/" className="md:hidden">
               <img 
-                src="/src/assets/logo.svg" 
+                src="/src/assets/theshoes.png" 
                 alt="Beautico" 
-                className="h-8"
+                className="h-12 ml-20"
               />
             </Link>
 

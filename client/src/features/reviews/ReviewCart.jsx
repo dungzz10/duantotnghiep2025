@@ -55,7 +55,7 @@ const ReviewCart = ({ productReviews }) => {
             <div >
                 <button
                     onClick={handleOpenReviewModal}
-                    className="px-6 py-3 bg-primary text-white rounded-md mt-9">
+                    className="px-6 py-3 bg-blue-900 text-white rounded-md mt-9">
                     Thêm đánh giá </button>
             </div>
 

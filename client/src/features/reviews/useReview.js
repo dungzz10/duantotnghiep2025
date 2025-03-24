@@ -3,6 +3,7 @@ import axios from "axios";
 export const postReview = async (reviewData) => {
     try {
         console.log("Dữ liệu gửi lên server:", reviewData); // Log kiểm tra
+
         const response = await axios.post("http://localhost:5000/api/v1/reviews", reviewData, {
             headers: { "Content-Type": "application/json" },
         });
@@ -28,3 +29,13 @@ export const checkDeliveredOrder = async (userId, productId) => {
         return false;
     }
 };
+
+export const getTotalReviewsByProduct = async(productId) =>{
+    try {
+        const response = await axios.get(`http://localhost:5000/api/v1/reviews/total/${productId}`);
+        return response.data.ratingQuantity;
+    } catch (error) {
+        console.error("Lỗi lấy tổng số review:", error.response?.data || error.message);
+        return 0;
+    }
+}

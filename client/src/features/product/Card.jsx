@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 import React from "react";
+import RatingStarts from "../../components/RatingStarts";
+import { getTotalReviewsByProduct } from "../reviews/useReview";
+import { useState, useEffect } from "react";
 
 const Card = ({ product }) => {
+  const [totalReviews, setTotalReviews] = useState(0);
   console.log(product);
   // Calculate discount percentage
   const discountPercentage =
@@ -28,6 +32,14 @@ const Card = ({ product }) => {
         return "bg-blue-500";
     }
   };
+
+  useEffect(() => {
+    const fetchTotalReviews = async() =>{
+      const total = await getTotalReviewsByProduct(product._id);
+      setTotalReviews(total);
+    };
+    fetchTotalReviews();
+  }, [product._id]);
 
   return (
     <Link
@@ -71,20 +83,8 @@ const Card = ({ product }) => {
             </p>
           )}
         </div>
-        {product.rating && (
-          <div className="flex items-center mt-2">
-            <div className="flex">
-              {[...Array(5)].map((_, i) => (
-                <span key={i} className="text-yellow-400">
-                  ★
-                </span>
-              ))}
-            </div>
-            <span className="text-gray-500 text-sm ml-1">
-              ({product.ratingQuantity || 0})
-            </span>
-          </div>
-        )}
+        <RatingStarts rating={product.rating} />
+        <span className="text-sm text-gray-500 ml-2">({totalReviews})</span>
         {product.tag && product.tag.length > 0 && (
           <div className="flex gap-2 mt-2">
             {product.tag.map((variant, index) => (

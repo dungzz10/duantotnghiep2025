@@ -179,7 +179,7 @@ const SingelProduct = () => {
         <div className="flex flex-col lg:flex-row md:px-10 gap-[50px] lg:gap-[100px]">
           {/* left colums start */}
           <div
-            className="w-full md:w-auto flex-[1.5] max-w-[500px] lg:max-w-full
+            className="w-full md:w-auto flex-[1.5] max-w-[500px] lg:max-w-[700px]
     mx-auto lg:mx-0
     "
           >
