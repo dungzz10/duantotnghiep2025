@@ -69,10 +69,9 @@ const CheckoutPage = () => {
   const handlePayment = async () => {
     if (!order) return;
 
-    if (!order.shippingAddress?.address) {
+    if (order.shippingAddress?.address) {
       order.shippingAddress = {
-        ...order.shippingAddress,
-        address: selectedAddress || "home",
+        address: selectedAddress,
       };
     }
     const products = order.products.map((product) => ({

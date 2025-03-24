@@ -23,11 +23,12 @@ const Order = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingStatus, setEditingStatus] = useState(
     selectedOrder?.orderStatus || "pending"
   );
-
+  console.log("selectedOrder", selectedOrder);
   const fetchOrders = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -257,7 +258,7 @@ const Order = () => {
                 </Button>,
               ]
         }
-        width="80%" 
+        width="80%"
         style={{ top: 40 }}
       >
         {selectedOrder && (
@@ -308,10 +309,8 @@ const Order = () => {
                       {selectedOrder.userId.introduction || "Không có"}
                     </p>
                     <p>
-                      <strong>Địa chỉ:</strong>{" "}
-                      {selectedOrder.userId.address
-                        ?.map((addr) => `${addr.address} (${addr.addressType})`)
-                        .join(", ")}
+                      <strong>Địa chỉ:</strong>{selectedOrder.shippingAddress.addressType} {selectedOrder.shippingAddress.address}
+                    
                     </p>
                   </div>
                 )}
@@ -373,7 +372,8 @@ const Order = () => {
                         {item.size || "Không xác định"}
                       </p>
                       <p style={{ margin: "5px 0" }}>
-                        <strong>Giá:</strong> {item.price.toLocaleString("vi-VN")} VNĐ
+                        <strong>Giá:</strong>{" "}
+                        {item.price.toLocaleString("vi-VN")} VNĐ
                       </p>
                     </div>
                   </div>
@@ -382,8 +382,8 @@ const Order = () => {
             <Row gutter={16}>
               <Col span={12}>
                 <p>
-                  <strong>Phí vận chuyển:</strong> {selectedOrder.shippingFee.toLocaleString("vi-VN")}{" "}
-                  VNĐ
+                  <strong>Phí vận chuyển:</strong>{" "}
+                  {selectedOrder.shippingFee.toLocaleString("vi-VN")} VNĐ
                 </p>
               </Col>
               <Col span={12}>
@@ -394,8 +394,8 @@ const Order = () => {
               </Col>
             </Row>
             <p>
-              <strong>Tổng tiền cuối cùng:</strong> {selectedOrder.finalTotal.toLocaleString("vi-VN")}{" "}
-              VNĐ
+              <strong>Tổng tiền cuối cùng:</strong>{" "}
+              {selectedOrder.finalTotal.toLocaleString("vi-VN")} VNĐ
             </p>
           </div>
         )}
