@@ -14,6 +14,7 @@ import {
 } from "antd";
 
 import NoOrderPage from "./NoOrderPage";
+import { getAddress } from "../adress/useAddresApi";
 
 const { Title, Text } = Typography;
 
@@ -24,6 +25,8 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [shippingFee, setShippingFee] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(null);
+  const { data, isLoading } = getAddress();
+
   useEffect(() => {
     const storedOrder = JSON.parse(localStorage.getItem("order"));
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -33,11 +36,29 @@ const CheckoutPage = () => {
       setOrder(storedOrder);
       setUser(storedUser);
       setShippingFee(storedOrder.shippingFee || 30000);
-      if (storedUser?.address?.length > 0) {
-        setSelectedAddress(storedUser.address[0].address);
-      }
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (data && data.addresses && data.addresses.length > 0) {
+      setSelectedAddress(data.addresses[0].address);
+
+      if (order) {
+        setOrder((prev) => ({
+          ...prev,
+          shippingAddress: {
+            ...prev.shippingAddress,
+            address: data.addresses[0].address,
+          },
+        }));
+      }
+    }
+  }, [data]);
+
+  console.log("address", data);
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (!order) return <NoOrderPage />;
 
@@ -51,7 +72,7 @@ const CheckoutPage = () => {
     if (!order.shippingAddress?.address) {
       order.shippingAddress = {
         ...order.shippingAddress,
-        address: "home",
+        address: selectedAddress || "home",
       };
     }
     const products = order.products.map((product) => ({
@@ -227,12 +248,9 @@ const CheckoutPage = () => {
   return (
     <div className="w-full max-w-screen-xl mx-auto p-4 md:p-8">
       <Card className="shadow-lg" bordered>
-        <Row justify="space-between" align="middle" className="mb-6">
-          <Col>
-            <Title level={2}>Hoá đơn</Title>
-          </Col>
-        </Row>
+        {/* Most of the JSX remains the same */}
 
+        {/* Update the Select component to use data from API */}
         <Row gutter={24}>
           <Col xs={24} md={12}>
             <Card title="Thông tin khách hàng" size="small">
@@ -267,7 +285,7 @@ const CheckoutPage = () => {
                     }));
                   }}
                 >
-                  {user?.address?.map((addr, idx) => (
+                  {data?.addresses?.map((addr, idx) => (
                     <Select.Option key={idx} value={addr.address}>
                       {addr.address}
                     </Select.Option>
