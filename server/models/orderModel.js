@@ -6,6 +6,11 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+
+  customerPhone: {
+    type: Number,
+  },
+
   orderId: {
     type: String,
     required: true,
@@ -40,7 +45,7 @@ const orderSchema = new mongoose.Schema({
       },
       totalPrice: {
         type: Number,
-        required: true, 
+        required: true,
       },
       image: String,
     },
@@ -57,19 +62,19 @@ const orderSchema = new mongoose.Schema({
   },
   shippingFee: {
     type: Number,
-    default: 30000, 
+    default: 30000,
   },
   voucherDiscount: {
     type: Number,
-    default: 0, 
+    default: 0,
   },
   finalTotal: {
     type: Number,
-    required: true, 
+    required: true,
   },
   paymentMethod: {
     type: String,
-    enum: ["COD", "ATM_MOMO", "WALLET","MoMo"],
+    enum: ["COD", "ATM_MOMO", "WALLET", "MoMo"],
     required: true,
   },
   paymentStatus: {
@@ -77,7 +82,7 @@ const orderSchema = new mongoose.Schema({
     enum: ["pending", "completed", "failed"],
     default: "pending",
   },
-  transactionId: String, 
+  transactionId: String,
   orderStatus: {
     type: String,
     enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
@@ -96,11 +101,11 @@ orderSchema.post("save", async function (doc, next) {
     if (!product) continue;
 
     // Tìm biến thể đúng màu
-    const variant = product.variants.find(v => v.color === item.color);
+    const variant = product.variants.find((v) => v.color === item.color);
     if (!variant) continue;
 
     // Tìm đúng size
-    const sizeObj = variant.sizes.find(s => s.size === item.size);
+    const sizeObj = variant.sizes.find((s) => s.size === item.size);
     if (!sizeObj) continue;
 
     // Trừ số lượng tồn kho

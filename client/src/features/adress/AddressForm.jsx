@@ -15,7 +15,6 @@ const AddressForm = ({ visible, onClose, address }) => {
 
   const isEditing = !!address;
 
- 
   useEffect(() => {
     if (visible) {
       if (address) {
@@ -26,7 +25,7 @@ const AddressForm = ({ visible, onClose, address }) => {
       } else {
         form.resetFields();
         form.setFieldsValue({
-          addressType: 'home',
+          addressType: "home",
         });
       }
     }
@@ -36,26 +35,25 @@ const AddressForm = ({ visible, onClose, address }) => {
   const handleSave = async (values) => {
     try {
       if (isEditing) {
-        await uppdate({ 
-          data: { 
-            id: address.id, 
-            address: values.address, 
-            addressType: values.addressType 
-          } 
+        await uppdate({
+          data: {
+            id: address.id,
+            address: values.address,
+            addressType: values.addressType,
+          },
         });
-      
       } else {
-        await add({ 
-          data: { 
-            address: values.address, 
-            addressType: values.addressType 
-          } 
+        await add({
+          data: {
+            address: values.address,
+            addressType: values.addressType,
+          },
         });
-        message.success('Thêm địa chỉ thành công');
+        message.success("Thêm địa chỉ thành công");
       }
       onClose();
     } catch (error) {
-      message.error('Có lỗi xảy ra. Vui lòng thử lại sau.');
+      message.error("Có lỗi xảy ra. Vui lòng thử lại sau.");
       console.error("Lỗi xử lý địa chỉ:", error);
     }
   };
@@ -63,13 +61,13 @@ const AddressForm = ({ visible, onClose, address }) => {
   // Xử lý xóa địa chỉ
   const handleDelete = async () => {
     if (!address) return;
-    
+
     try {
       await deletee(address.id);
-      message.success('Đã xóa địa chỉ thành công');
+      message.success("Đã xóa địa chỉ thành công");
       onClose();
     } catch (error) {
-      message.error('Không thể xóa địa chỉ');
+      message.error("Không thể xóa địa chỉ");
       console.error("Lỗi xóa địa chỉ:", error);
     }
   };
@@ -77,11 +75,11 @@ const AddressForm = ({ visible, onClose, address }) => {
   // Hiển thị modal xác nhận xóa
   const showDeleteConfirm = () => {
     Modal.confirm({
-      title: 'Bạn có chắc chắn muốn xóa địa chỉ này?',
-      content: 'Hành động này không thể hoàn tác.',
-      okText: 'Xóa',
-      okType: 'danger',
-      cancelText: 'Hủy',
+      title: "Bạn có chắc chắn muốn xóa địa chỉ này?",
+      content: "Hành động này không thể hoàn tác.",
+      okText: "Xóa",
+      okType: "danger",
+      cancelText: "Hủy",
       onOk() {
         return handleDelete();
       },
@@ -97,41 +95,37 @@ const AddressForm = ({ visible, onClose, address }) => {
       destroyOnClose={true}
       maskClosable={false}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        onFinish={handleSave}
-      >
+      <Form form={form} layout="vertical" onFinish={handleSave}>
         <Form.Item
           name="address"
           label="Địa chỉ"
-          rules={[{ required: true, message: 'Vui lòng nhập địa chỉ!' }]}
+          rules={[{ required: true, message: "Vui lòng nhập địa chỉ!" }]}
         >
           <Input placeholder="Nhập địa chỉ của bạn" />
         </Form.Item>
-        
+
         <Form.Item
           name="addressType"
           label="Loại địa chỉ"
-          rules={[{ required: true, message: 'Vui lòng chọn loại địa chỉ!' }]}
+          rules={[{ required: true, message: "Vui lòng chọn loại địa chỉ!" }]}
         >
           <Select placeholder="Chọn loại địa chỉ">
-            {addressTypes.map(type => (
-              <Option key={type} value={type}>{type}</Option>
+            {addressTypes.map((type) => (
+              <Option key={type} value={type}>
+                {type}
+              </Option>
             ))}
           </Select>
         </Form.Item>
-        
+
         <Form.Item className="mb-0">
           <div className="flex justify-between">
-            <Button onClick={onClose}>
-              Hủy
-            </Button>
-            
+            <Button onClick={onClose}>Hủy</Button>
+
             <Space>
               {isEditing && (
-                <Button 
-                  danger 
+                <Button
+                  danger
                   type="primary"
                   icon={<DeleteOutlined />}
                   onClick={showDeleteConfirm}
@@ -140,9 +134,9 @@ const AddressForm = ({ visible, onClose, address }) => {
                   Xóa
                 </Button>
               )}
-              
-              <Button 
-                type="primary" 
+
+              <Button
+                type="primary"
                 htmlType="submit"
                 icon={<SaveOutlined />}
                 loading={isAdding || isUpdating}
