@@ -23,7 +23,6 @@ const Order = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
-
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingStatus, setEditingStatus] = useState(
     selectedOrder?.orderStatus || "pending"
@@ -41,6 +40,8 @@ const Order = () => {
         }
       );
 
+      console.log(response, 9799787878);
+
       const normalizedOrders = response.data.orders.map((order) => ({
         ...order,
         products: order.products || [],
@@ -50,6 +51,7 @@ const Order = () => {
       }));
 
       setOrders(normalizedOrders);
+      console.log(orders, 1111111111);
     } catch (error) {
       console.error("Error fetching orders:", error);
       message.error("Có lỗi xảy ra khi tải đơn hàng.");
@@ -284,36 +286,59 @@ const Order = () => {
                     <Option value="processing">Đang xử lý</Option>
                     <Option value="shipped">Đang vận chuyển</Option>
                     <Option value="delivered">Đã giao</Option>
-                    <Option value="cancelled">Đã huỷ</Option>
+                    <Option value="cancelled">Đã hủy</Option>
                   </Select>
                 </p>
               </Col>
+
+              {/* Thông tin khách hàng và người nhận nằm bên cạnh nhau */}
               <Col span={12}>
-                <h2>
-                  <strong>Thông tin khách hàng:</strong>
-                </h2>
-                {selectedOrder.userId && (
-                  <div style={{ marginBottom: "15px" }}>
-                    <p>
-                      <strong>Tên:</strong> {selectedOrder.userId.name}
-                    </p>
-                    <p>
-                      <strong>Số điện thoại:</strong>{" "}
-                      {selectedOrder.userId.phoneNumber}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {selectedOrder.userId.email}
-                    </p>
-                    <p>
-                      <strong>Giới thiệu:</strong>{" "}
-                      {selectedOrder.userId.introduction || "Không có"}
-                    </p>
-                    <p>
-                      <strong>Địa chỉ:</strong>{selectedOrder.shippingAddress.addressType} {selectedOrder.shippingAddress.address}
-                    
-                    </p>
-                  </div>
-                )}
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <h2>
+                      <strong>Thông tin khách hàng:</strong>
+                    </h2>
+                    {selectedOrder.userId && (
+                      <div style={{ marginBottom: "15px" }}>
+                        <p>
+                          <strong>Tên:</strong> {selectedOrder.userId.name}
+                        </p>
+                        <p>
+                          <strong>Số điện thoại:</strong>{" "}
+                          {selectedOrder.userId.phoneNumber}
+                        </p>
+                        <p>
+                          <strong>Email:</strong> {selectedOrder.userId.email}
+                        </p>
+                      </div>
+                    )}
+                  </Col>
+
+                  <Col span={12}>
+                    <h2>
+                      <strong>Thông tin người nhận:</strong>
+                    </h2>
+                    {selectedOrder && (
+                      <div style={{ marginBottom: "15px" }}>
+                        <p>
+                          <strong>Tên:</strong> {selectedOrder.customerName}
+                        </p>
+                        <p>
+                          <strong>Số điện thoại:</strong>{" "}
+                          {selectedOrder.customerPhone}
+                        </p>
+
+                        <p>
+                          <p>
+                            <strong>Địa chỉ:</strong>
+                            {selectedOrder.shippingAddress.addressType}{" "}
+                            {selectedOrder.shippingAddress.address}
+                          </p>
+                        </p>
+                      </div>
+                    )}
+                  </Col>
+                </Row>
               </Col>
             </Row>
 

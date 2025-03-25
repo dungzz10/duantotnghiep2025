@@ -6,6 +6,9 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
+  customerName: {
+    type: String,
+  },
 
   customerPhone: {
     type: Number,

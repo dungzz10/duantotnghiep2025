@@ -32,6 +32,8 @@ const CheckoutPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isUpdatePhone, setIsUpdatePhone] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setcustomerPhone] = useState("");
 
   const handleOpenModal = (address = null) => {
     setEditingAddress(address);
@@ -42,11 +44,16 @@ const CheckoutPage = () => {
     setIsModalVisible(false);
     setEditingAddress(null);
   };
-  console.log(selectedAddress, 888888);
 
   useEffect(() => {
     const storedOrder = JSON.parse(localStorage.getItem("order"));
     const storedUser = JSON.parse(localStorage.getItem("user"));
+
+    if (storedUser) {
+      setCustomerName(storedUser?.name || "");
+      setcustomerPhone(storedUser?.phoneNumber || "");
+    }
+
     if (!storedOrder) {
       navigate("/no-order");
     } else {
@@ -86,7 +93,8 @@ const CheckoutPage = () => {
 
   const handlePayment = async () => {
     if (!order) return;
-
+    const Name = `${customerName}`;
+    const Phone = `${customerPhone}`;
     if (order.shippingAddress?.address) {
       order.shippingAddress = {
         address: selectedAddress,
@@ -171,6 +179,7 @@ const CheckoutPage = () => {
           message.success("Thanh toán từ ví thành công!");
           localStorage.removeItem("cart");
           localStorage.removeItem("order");
+
           navigate("/");
         } else {
           message.error(`Thanh toán ví thất bại: ${data.message}`);
@@ -232,6 +241,8 @@ const CheckoutPage = () => {
               shippingFee,
               voucherDiscount,
               amount: finalTotal,
+              Name,
+              Phone,
             }),
           }
         );
@@ -279,7 +290,16 @@ const CheckoutPage = () => {
           <Col xs={24} md={12}>
             <Card title="Thông tin người nhận" size="small">
               <Text>
-                <strong>Tên:</strong> {user?.name}
+                {/* <strong>Tên:</strong> {user?.name} */}
+
+                <label>Ten nguoi nhan</label>
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="nhap ten nguoi nhan"
+                  required
+                />
               </Text>
               <br />
               <Text>
@@ -337,34 +357,14 @@ const CheckoutPage = () => {
               />
               <br />
 
-              <button
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => updatePhone()}
-              >
-                Số điện thoại khác
-              </button>
-              {isUpdatePhone ? (
-                <div>
-                  <label
-                    for="phone"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Phone number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="123-45-678"
-                    pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-                    required
-                  />
-                </div>
-              ) : (
-                <div>
-                  <strong>Số điện thoại:</strong> {user?.phoneNumber}
-                </div>
-              )}
+              <label>so dien thoai</label>
+              <input
+                type="text"
+                value={customerPhone}
+                onChange={(e) => setcustomerPhone(e.target.value)}
+                placeholder="nhap so dien thoai"
+                required
+              />
             </Card>
           </Col>
 

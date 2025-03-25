@@ -3,7 +3,7 @@ import HandelError from "../utils/Error.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import mongoose from "mongoose";
 import Product from "../models/productModel.js";
-import User from "../models/usersModel.js"
+import User from "../models/usersModel.js";
 
 const validStatuses = [
   "pending",
@@ -159,7 +159,12 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     shippingFee,
     voucherDiscount = 0,
     amount,
+    Name,
+    Phone,
   } = req.body;
+
+  console.log(Name, Phone, 8989);
+
   const finalTotal = total + shippingFee - voucherDiscount;
 
   const userId = req.user?.id;
@@ -188,6 +193,8 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     amount,
     total,
     products,
+    customerName: Name,
+    customerPhone: Phone,
     shippingAddress,
     shippingFee,
     voucherDiscount,
@@ -238,7 +245,6 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
     return next(new HandelError("Đơn hàng đang giao không thể huỷ", 400));
   }
 
-
   if (order.orderStatus === "cancelled") {
     return next(
       new HandelError("Đơn hàng đã bị hủy và không thể cập nhật", 400)
@@ -256,7 +262,6 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
       )
     );
   }
-  
 
   order.orderStatus = orderStatus;
   await order.save();
@@ -341,7 +346,6 @@ export const updateKho = CatchAsync(async (req, res, next) => {
 
 export const deleteOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
- 
 
   console.log(orderId, 8888);
   const order = await Order.findById(orderId);
@@ -363,8 +367,13 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
     });
   }
 
-  if (order.paymentMethod === "WALLET"&&order.paymentMethod === "ATM_MOMO" && order.paymentMethod === "MoMo"&& order.paymentMethod === "COD" || order.paymentStatus === "failed") {
-
+  if (
+    (order.paymentMethod === "WALLET" &&
+      order.paymentMethod === "ATM_MOMO" &&
+      order.paymentMethod === "MoMo" &&
+      order.paymentMethod === "COD") ||
+    order.paymentStatus === "failed"
+  ) {
     order.orderStatus = "cancelled";
 
     for (const item of order.products) {
@@ -390,7 +399,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
     await order.save();
     await User.updateOne(
       { _id: order.userId },
-      { $inc: { "wallet.balance": order.finalTotal } } 
+      { $inc: { "wallet.balance": order.finalTotal } }
     );
 
     return res.status(200).json({
@@ -398,7 +407,10 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
       message: "Đơn hàng đã được hủy thành công, và tiền đã được hoàn vào ví",
       order,
     });
-  } else if (order.paymentMethod !== "COD" || order.paymentStatus === "completed") {
+  } else if (
+    order.paymentMethod !== "COD" ||
+    order.paymentStatus === "completed"
+  ) {
     order.orderStatus = "cancelled";
 
     for (const item of order.products) {
@@ -425,7 +437,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
 
     await User.updateOne(
       { _id: order.userId },
-      { $inc: { "wallet.balance": order.finalTotal } } 
+      { $inc: { "wallet.balance": order.finalTotal } }
     );
 
     return res.status(200).json({
