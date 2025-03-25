@@ -13,6 +13,7 @@ import {
   Space,
   Typography,
   message,
+  Input,
 } from "antd";
 
 import { getAddress } from "../adress/useAddresApi";
@@ -28,12 +29,20 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [shippingFee, setShippingFee] = useState(0);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const { data, isLoading } = getAddress();
+  const { data, isLoading } = getAddress(); // Fetching address data
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isUpdatePhone, setIsUpdatePhone] = useState(false);
 
+  // New state variables for recipient information
+  const [isOtherRecipient, setIsOtherRecipient] = useState(false);
+  const [recipientName, setRecipientName] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
+  const [recipientAddress, setRecipientAddress] = useState("");
+  console.log(recipientAddress)
+
   const handleOpenModal = (address = null) => {
+    console.log("Modal Opened");
     setEditingAddress(address);
     setIsModalVisible(true);
   };
@@ -42,7 +51,6 @@ const CheckoutPage = () => {
     setIsModalVisible(false);
     setEditingAddress(null);
   };
-  console.log(selectedAddress, 888888);
 
   useEffect(() => {
     const storedOrder = JSON.parse(localStorage.getItem("order"));
@@ -73,9 +81,8 @@ const CheckoutPage = () => {
     }
   }, [data]);
 
-  console.log("address", data);
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Đang tải...</div>;
   }
 
   if (!order) return <NoOrderPage />;
@@ -85,13 +92,31 @@ const CheckoutPage = () => {
   const finalTotal = Math.round(rawTotal + shippingFee - voucherDiscount);
 
   const handlePayment = async () => {
-    if (!order) return;
+    if (!selectedAddress) {
+      message.error("Vui lòng chọn địa chỉ giao hàng.");
+      return;
+    }
 
-    if (order.shippingAddress?.address) {
+    if (isOtherRecipient) {
+      if (!recipientName || !recipientPhone || !recipientAddress) {
+        message.error("Vui lòng điền đầy đủ thông tin người nhận.");
+        return;
+      }
+      console.log(recipientAddress)
+
+      order.shippingAddress = {
+        address: selectedAddress, 
+        recipientAddress: recipientAddress, 
+        recipientName: recipientName, 
+        recipientPhone: recipientPhone, 
+      };
+    } else {
       order.shippingAddress = {
         address: selectedAddress,
       };
     }
+    console.log(order.shippingAddress, "order.shippingAddress");
+
     const products = order.products.map((product) => ({
       productId: product.productId || product.id || "",
       name: product.name || product.title || "Không có tên",
@@ -272,12 +297,9 @@ const CheckoutPage = () => {
   return (
     <div className="w-full max-w-screen-xl mx-auto p-4 md:p-8">
       <Card className="shadow-lg" bordered>
-        {/* Most of the JSX remains the same */}
-
-        {/* Update the Select component to use data from API */}
         <Row gutter={24}>
           <Col xs={24} md={12}>
-            <Card title="Thông tin người nhận" size="small">
+            <Card title="Thông tin người Gửi" size="small">
               <Text>
                 <strong>Tên:</strong> {user?.name}
               </Text>
@@ -286,86 +308,90 @@ const CheckoutPage = () => {
                 <strong>Email:</strong> {user?.email}
               </Text>
               <br />
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  marginTop: "8px",
-                }}
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                className="my-2"
+                onClick={() => handleOpenModal()}
               >
-                {" "}
-                <div className="display: block">
-                  <div className="flex justify-between items-center mb-4">
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => handleOpenModal()}
-                    >
-                      Thêm địa chỉ
-                    </Button>
-                  </div>
-                  <div>
-                    <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
-                    <Select
-                      style={{ flex: 1 }}
-                      value={selectedAddress}
-                      onChange={(value) => {
-                        setSelectedAddress(value);
-                        setOrder((prev) => ({
-                          ...prev,
-                          shippingAddress: {
-                            ...prev.shippingAddress,
-                            address: value,
-                          },
-                        }));
-                      }}
-                    >
-                      {data?.addresses?.map((addr, idx) => (
-                        <Select.Option key={idx} value={addr.address}>
-                          {addr.address}
-                        </Select.Option>
-                      ))}
-                    </Select>
-                  </div>
-                </div>
+                Thêm địa chỉ
+              </Button>
+              <div>
+                <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
+                <Select
+                  style={{ flex: 1 }}
+                  value={selectedAddress}
+                  onChange={(value) => {
+                    setSelectedAddress(value);
+                    setOrder((prev) => ({
+                      ...prev,
+                      shippingAddress: {
+                        ...prev.shippingAddress,
+                        address: value,
+                      },
+                    }));
+                  }}
+                >
+                  {data?.addresses?.map((addr, idx) => (
+                    <Select.Option key={idx} value={addr.address}>
+                      {addr.address}
+                    </Select.Option>
+                  ))}
+                </Select>
               </div>
               <AddressForm
                 visible={isModalVisible}
                 onClose={handleCloseModal}
                 address={editingAddress}
               />
-              <br />
+            </Card>
 
-              <button
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                onClick={() => updatePhone()}
+            {/* Toggle for ordering for someone else */}
+            <div>
+              <Button
+                type="link"
+                onClick={() => setIsOtherRecipient(!isOtherRecipient)}
               >
-                Số điện thoại khác
-              </button>
-              {isUpdatePhone ? (
+                Đặt hàng cho người khác
+              </Button>
+            </div>
+
+            {/* Form for recipient information if toggled */}
+            {isOtherRecipient && (
+              <Card title="Thông tin người nhận" size="small">
                 <div>
-                  <label
-                    for="phone"
-                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                  >
-                    Phone number
-                  </label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-300 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                    placeholder="123-45-678"
-                    pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}"
-                    required
+                  <label>Tên người nhận:</label>
+                  <Input
+                    value={recipientName}
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="Nhập tên người nhận"
                   />
                 </div>
-              ) : (
                 <div>
-                  <strong>Số điện thoại:</strong> {user?.phoneNumber}
+                  <label>Số điện thoại người nhận:</label>
+                  <Input
+                    value={recipientPhone}
+                    onChange={(e) => setRecipientPhone(e.target.value)}
+                    placeholder="Nhập số điện thoại"
+                  />
                 </div>
-              )}
-            </Card>
+                <div>
+                  <label>Địa chỉ người nhận:</label>
+                  <Select
+                    className="w-full text-lg h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500" // Tailwind classes for styling
+                    value={recipientAddress}
+                    onChange={(value) => setRecipientAddress(value)}
+                    size="large"
+                  >
+                    {data?.addresses?.map((addr, idx) => (
+                      <Select.Option key={idx} value={addr.address}>
+                        {addr.address}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </Card>
+            )}
           </Col>
 
           <Col xs={24} md={12}>
@@ -428,7 +454,6 @@ const CheckoutPage = () => {
               >
                 <Space direction="vertical">
                   <Radio value="WALLET">Thanh toán từ ví</Radio>
-
                   <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
                   <Radio value="ATM_MOMO">Chuyển khoản ATM MOMO</Radio>
                   <Radio value="QR_MOMO">Quét mã QR MoMo</Radio>

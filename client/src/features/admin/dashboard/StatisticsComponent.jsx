@@ -77,6 +77,7 @@ const StatisticsComponent = () => {
           `http://localhost:5000/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`
         ),
       ]);
+      console.log(ordersResponse);
 
       // Xử lý dữ liệu trả về
       const totalOrders = ordersResponse.data.data[0]?.totalOrders || 0;

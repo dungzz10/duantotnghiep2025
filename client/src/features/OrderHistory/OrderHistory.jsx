@@ -28,6 +28,7 @@ const OrderHistory = () => {
       message.error("Có lỗi xảy ra khi tải đơn hàng.");
     }
   }, []);
+  console.log(orders, 9999);
 
   useEffect(() => {
     fetchOrders();
@@ -43,7 +44,7 @@ const OrderHistory = () => {
       message.success(`Đơn ${id} đã được hủy.`);
       fetchOrders();
       setIsModalVisible(false);
-      
+
       fetchOrders();
       console.log(id, 9999);
     } catch (error) {
@@ -356,78 +357,119 @@ const OrderHistory = () => {
                   <Button
                     danger
                     onClick={() => handleCancelOrder(selectedOrder._id)}
-                    disabled={selectedOrder.orderStatus === "cancelled" ||selectedOrder.orderStatus === "delivered" }
+                    disabled={
+                      selectedOrder.orderStatus === "cancelled" ||
+                      selectedOrder.orderStatus === "delivered"
+                    }
                   >
                     Hủy Đơn Hàng
                   </Button>
                 </div>
               </div>
             )}
-            <div>
-              <strong>Sản phẩm: </strong>
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "16px",
-                  marginTop: "10px",
-                }}
-              >
-                {selectedOrder.products.map((item, idx) => (
-                  <div
-                    key={idx}
-                    style={{
-                      width: "250px",
-                      border: "1px solid #f0f0f0",
-                      borderRadius: "8px",
-                      padding: "10px",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                    }}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
+            <div className="flex">
+              <div>
+                <strong>Sản phẩm: </strong>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "16px",
+                    marginTop: "10px",
+                  }}
+                >
+                  {selectedOrder.products.map((item, idx) => (
+                    <div
+                      key={idx}
                       style={{
-                        width: "100%",
-                        height: "150px",
-                        objectFit: "cover",
+                        width: "250px",
+                        border: "1px solid #f0f0f0",
                         borderRadius: "8px",
-                        marginBottom: "8px",
+                        padding: "10px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
                       }}
-                    />
-                    <div style={{ width: "100%" }}>
-                      <p>
-                        <strong>Tên:</strong> {item.name}
-                      </p>
-                      <p>
-                        <strong>Số lượng:</strong> {item.quantity}
-                      </p>
-                      <p>
-                        <strong>Giá:</strong>{" "}
-                        {item.price.toLocaleString("vi-VN")} VNĐ
-                      </p>
-                      <p>
-                        <strong>Size:</strong> {item.size}
-                      </p>
-                      <p>
-                        <strong>Màu:</strong> {item.color}
-                      </p>
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        style={{
+                          width: "100%",
+                          height: "150px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                          marginBottom: "8px",
+                        }}
+                      />
+                      <div style={{ width: "100%" }}>
+                        <p>
+                          <strong>Tên:</strong> {item.name}
+                        </p>
+                        <p>
+                          <strong>Số lượng:</strong> {item.quantity}
+                        </p>
+                        <p>
+                          <strong>Giá:</strong>{" "}
+                          {item.price.toLocaleString("vi-VN")} VNĐ
+                        </p>
+                        <p>
+                          <strong>Size:</strong> {item.size}
+                        </p>
+                        <p>
+                          <strong>Màu:</strong> {item.color}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <p
+                  style={{
+                    borderTop: "1px solid #f0f0f0",
+                    paddingTop: "10px",
+                    marginTop: "15px",
+                  }}
+                >
+                  <strong>Tổng tiền:</strong>{" "}
+                  {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
+                </p>
               </div>
-              <p
-                style={{
-                  borderTop: "1px solid #f0f0f0",
-                  paddingTop: "10px",
-                  marginTop: "15px",
-                }}
-              >
-                <strong>Tổng tiền:</strong>{" "}
-                {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
-              </p>
+              <div style={{ width: "50%" }}>
+                <strong>Thông tin người đặt:</strong>
+                <div style={{ marginBottom: "10px" }}>
+                  <p>
+                    <strong>Người đặt:</strong> {selectedOrder.userId.name}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong>{" "}
+                    {selectedOrder.shippingAddress.address}
+                  </p>
+                  <p>
+                    <strong>Số điện thoại:</strong>{" "}
+                    {selectedOrder.userId.phoneNumber}
+                  </p>
+                </div>
+              </div>
+
+              {selectedOrder.shippingAddress.recipientName && (
+                <div style={{ width: "50%" }}>
+                  <strong>Thông tin người nhận:</strong>
+                  <div style={{ marginBottom: "10px" }}>
+                    <p>
+                      <strong>Người nhận:</strong>{" "}
+                      {selectedOrder.shippingAddress.recipientName}
+                    </p>
+                    <p>
+                      <strong>Địa chỉ:</strong>{" "}
+                      {selectedOrder.shippingAddress.recipientAddress}
+                    </p>
+                    <p>
+                      <strong>Số điện thoại:</strong>{" "}
+                      {selectedOrder.shippingAddress.recipientPhone}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}

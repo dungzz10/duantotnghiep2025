@@ -55,6 +55,26 @@ const orderSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    recipientAddress: {
+      type: String,
+      required: function () {
+        return (
+          this.recipientAddress || this.recipientName || this.recipientPhone
+        );
+      },
+    },
+    recipientName: {
+      type: String,
+      required: function () {
+        return this.recipientName || this.recipientPhone;
+      },
+    },
+    recipientPhone: {
+      type: String,
+      required: function () {
+        return this.recipientName || this.recipientPhone;
+      },
+    },
     addressType: {
       type: String,
       default: "home",

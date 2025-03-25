@@ -288,36 +288,63 @@ const Order = () => {
                   </Select>
                 </p>
               </Col>
+
               <Col span={12}>
-                <h2>
-                  <strong>Thông tin khách hàng:</strong>
-                </h2>
-                {selectedOrder.userId && (
-                  <div style={{ marginBottom: "15px" }}>
-                    <p>
-                      <strong>Tên:</strong> {selectedOrder.userId.name}
-                    </p>
-                    <p>
-                      <strong>Số điện thoại:</strong>{" "}
-                      {selectedOrder.userId.phoneNumber}
-                    </p>
-                    <p>
-                      <strong>Email:</strong> {selectedOrder.userId.email}
-                    </p>
-                    <p>
-                      <strong>Giới thiệu:</strong>{" "}
-                      {selectedOrder.userId.introduction || "Không có"}
-                    </p>
-                    <p>
-                      <strong>Địa chỉ:</strong>{selectedOrder.shippingAddress.addressType} {selectedOrder.shippingAddress.address}
-                    
-                    </p>
-                  </div>
-                )}
+                <div>
+                  <h2>
+                    <strong>Thông tin khách hàng:</strong>
+                  </h2>
+                  {selectedOrder.userId && (
+                    <div style={{ marginBottom: "15px" }}>
+                      <p>
+                        <strong>Tên:</strong> {selectedOrder.userId.name}
+                      </p>
+                      <p>
+                        <strong>Số điện thoại:</strong>{" "}
+                        {selectedOrder.userId.phoneNumber}
+                      </p>
+                      <p>
+                        <strong>Email:</strong> {selectedOrder.userId.email}
+                      </p>
+                      <p>
+                        <strong>Giới thiệu:</strong>{" "}
+                        {selectedOrder.userId.introduction || "Không có"}
+                      </p>
+                      <p>
+                        <strong>Địa chỉ:</strong>
+                        {selectedOrder.shippingAddress.addressType}{" "}
+                        {selectedOrder.shippingAddress.address}
+                      </p>
+                    </div>
+                  )}
+                  {selectedOrder.shippingAddress &&
+                  selectedOrder.shippingAddress.recipientName ? (
+                    <>
+                      <h2>
+                        <strong>Thông tin người nhận:</strong>
+                      </h2>
+                      <div style={{ marginBottom: "15px" }}>
+                        <p>
+                          <strong>Tên người nhận:</strong>{" "}
+                          {selectedOrder.shippingAddress.recipientName ||
+                            selectedOrder.userId.name}
+                        </p>
+                        <p>
+                          <strong>Số điện thoại người nhận:</strong>{" "}
+                          {selectedOrder.shippingAddress.recipientPhone ||
+                            selectedOrder.userId.phoneNumber}
+                        </p>
+                        <p>
+                          <strong>Địa chỉ người nhận:</strong>{" "}
+                          {selectedOrder.shippingAddress.recipientAddress}
+                        </p>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
               </Col>
             </Row>
 
-            {/* Danh sách sản phẩm */}
             <h2>
               <strong>Sản phẩm trong đơn hàng:</strong>
             </h2>
@@ -379,6 +406,7 @@ const Order = () => {
                   </div>
                 ))}
             </div>
+
             <Row gutter={16}>
               <Col span={12}>
                 <p>

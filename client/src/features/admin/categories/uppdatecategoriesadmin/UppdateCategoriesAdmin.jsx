@@ -125,6 +125,9 @@ const UppdateCategoriesAdmin = () => {
       onError(error);
     }
   };
+  const removeImage = () => {
+    setImageUrl(""); // Clears the image URL
+  };
 
   return (
     <>
@@ -156,11 +159,20 @@ const UppdateCategoriesAdmin = () => {
               <Button icon={<UploadOutlined />}>Tải lên ảnh</Button>
             </Upload>
             {imageUrl && (
-              <img
-                src={imageUrl}
-                alt="Category"
-                style={{ width: "100px", marginTop: "10px" }}
-              />
+              <>
+                <img
+                  src={imageUrl}
+                  alt="Category"
+                  style={{ width: "100px", marginTop: "10px" }}
+                />
+                <Button
+                  onClick={removeImage}
+                  type="link"
+                  style={{ marginTop: "10px" }}
+                >
+                  Xóa ảnh
+                </Button>
+              </>
             )}
           </Form.Item>
         </Col>

@@ -105,8 +105,9 @@ const ProductsAdmin = () => {
   const handleTagDelete = (tagToDelete) => {
     setTags(tags.filter((tag) => tag !== tagToDelete));
   };
-
+  // console.log(variants)
   const onFinish = (values) => {
+  
     const productData = { ...values };
 
     const formattedVariants = [];
@@ -124,11 +125,13 @@ const ProductsAdmin = () => {
     });
 
     Object.keys(variantsByColor).forEach((color) => {
+      console.log(color);
       formattedVariants.push({
         color: color,
         sizes: variantsByColor[color],
       });
     });
+    console.log(formattedVariants);
 
     productData.variants = formattedVariants;
     productData.image = images;
