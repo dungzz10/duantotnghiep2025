@@ -58,6 +58,29 @@ export const createFavourite = async (req, res) => {
   }
 };
 
+export const totalFavourites = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const user = await usersModel.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Tài khoản không tồn tại" });
+    }
+
+    // Lấy tổng số lượng sản phẩm yêu thích
+    const total = user.favourites.length;
+
+    res.status(200).json({
+      success: true,
+      totalFavourites: total,
+    });
+  } catch (error) {
+    console.log("Lỗi: ", error);
+    res.status(500).json({ message: "Có lỗi xảy ra" });
+  }
+};
+
 export const getFavourites = async (req, res) => {
   const userId = req.user.id;
   console.log();

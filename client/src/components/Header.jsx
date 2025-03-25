@@ -1,17 +1,29 @@
 import { Link, useNavigate } from "react-router-dom";
 import { userLogout } from "../app/hook/LogoutUser";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Wrapper from "./Wrapper";
 import Menu from "./Menu";
 import Banner from "./Banner";
 
 import { Search, ShoppingBag, Heart, User } from "lucide-react";
+import { api } from "../axios/api";
 
 const Header = ({ user }) => {
   const [showCatMenu, setShowCatMenu] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
   const { Logout } = userLogout();
+  const [totalFavourite, setTotalFavourite] = useState(0);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await api.get("/favourite/total");
+      setTotalFavourite(data.data.totalFavourites);
+      console.log(data.data.totalFavourites, 999);
+    };
+
+    fetchData();
+  }, []);
 
   const handleLogout = () => {
     console.log("Logout");
@@ -24,12 +36,15 @@ const Header = ({ user }) => {
       <div className="w-full bg-white py-2 border-b">
         <div className="container mx-auto flex justify-between items-center px-4">
           <div className="text-sm font-medium">
-            *Sản Phẩm mới 2025 <Link to="/shop" className="underline">Shop Now*</Link>
+            *Sản Phẩm mới 2025{" "}
+            <Link to="/shop" className="underline">
+              Shop Now*
+            </Link>
           </div>
           <Link to="/" className="hidden md:block">
-            <img 
-              src="/src/assets/theshoes.png" 
-              alt="Beautico" 
+            <img
+              src="/src/assets/theshoes.png"
+              alt="Beautico"
               className="h-20"
             />
           </Link>
@@ -42,8 +57,8 @@ const Header = ({ user }) => {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
               />
-              <button 
-                className="absolute right-3" 
+              <button
+                className="absolute right-3"
                 onClick={() => {
                   if (q.trim() !== "") {
                     navigate(`/search?q=${q}`);
@@ -71,9 +86,9 @@ const Header = ({ user }) => {
 
             {/* Mobile Logo - Center */}
             <Link to="/" className="md:hidden">
-              <img 
-                src="/src/assets/theshoes.png" 
-                alt="Beautico" 
+              <img
+                src="/src/assets/theshoes.png"
+                alt="Beautico"
                 className="h-12 ml-20"
               />
             </Link>
@@ -94,10 +109,10 @@ const Header = ({ user }) => {
               <Link to="/favourite" className="relative">
                 <Heart size={22} />
                 <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  8
+                  {totalFavourite}
                 </span>
               </Link>
-              
+
               {user ? (
                 <div className="dropdown dropdown-end z-20">
                   <div tabIndex={0} role="button" className="cursor-pointer">
@@ -130,7 +145,7 @@ const Header = ({ user }) => {
                     </li>
                     <li>
                       <button onClick={handleLogout} className="text-red-600">
-                        Đăng Xuất 
+                        Đăng Xuất
                       </button>
                     </li>
                   </ul>
@@ -155,8 +170,8 @@ const Header = ({ user }) => {
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
-          <button 
-            className="absolute right-3" 
+          <button
+            className="absolute right-3"
             onClick={() => {
               if (q.trim() !== "") {
                 navigate(`/search?q=${q}`);
