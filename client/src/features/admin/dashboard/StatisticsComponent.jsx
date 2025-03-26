@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import {
   Typography, // Đã có Typography ở đây
   Card,
@@ -52,8 +53,7 @@ const StatisticsComponent = () => {
 
     topUsers: [],
     topProducts: [],
-    totalProfit :0,
-
+    totalProfit: 0,
   });
 
   useEffect(() => {
@@ -75,6 +75,7 @@ const StatisticsComponent = () => {
 
         topProductsResponse,
         totalProfit,
+        topProductsSellResponse,
       ] = await Promise.all([
         axios.get(
           `http://localhost:5000/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
@@ -90,6 +91,9 @@ const StatisticsComponent = () => {
         ),
         axios.get(
           `http://localhost:5000/api/v1/thongke/profit?startDate=${startDate}&endDate=${endDate}`
+        ),
+        axios.get(
+          `http://localhost:5000/api/v1/thongke/top-products-sell?startDate=${startDate}&endDate=${endDate}`
         ),
       ]);
 
@@ -110,14 +114,19 @@ const StatisticsComponent = () => {
       const topUsers = topUsersResponse.data.data || [];
       const topProducts = topProductsResponse.data.data || [];
       console.log("Top Products:", totalProfit);
-      const totalProfitData = totalProfit.data.totalProfit || { totalProfit: 0 };
+      const totalProfitData = totalProfit.data.totalProfit || {
+        totalProfit: 0,
+      };
+      const topProductsSell = topProductsSellResponse.data.data || [];
+      console.log("Top Products:", topProductsSell);
 
       setStats({
         totalOrders,
         successRate,
         topUsers,
         topProducts,
-        totalProfitData
+        totalProfitData,
+        topProductsSell,
       });
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu thống kê:", error);
@@ -155,17 +164,21 @@ const StatisticsComponent = () => {
       title: "Tên người dùng",
       dataIndex: "name",
       key: "userName",
-      render: (name, record) =>
-        name ||
-        (record._id?.length > 10
-          ? `${record._id.substring(0, 10)}...`
-          : record._id || "Không có tên"),
+      render: (name, record) => {
+        return <Link to={`/admin/detail/${record._id}`}>{name}</Link>;
+      },
     },
+
     {
       title: "Số đơn hàng",
       dataIndex: "totalOrders",
       key: "totalOrders",
       sorter: (a, b) => a.totalOrders - b.totalOrders,
+    },
+    {
+      title: "Số đơn hàng đặt Thành Công",
+      dataIndex: "successfulOrders",
+      key: "successfulOrders",
     },
   ];
 
@@ -186,6 +199,37 @@ const StatisticsComponent = () => {
           ? `${record._id.substring(0, 10)}...`
           : record._id || "Không có tên"),
     },
+    {
+      title: "Số lượng bán",
+      dataIndex: "totalQuantity",
+      key: "totalQuantity",
+      sorter: (a, b) => a.totalQuantity - b.totalQuantity,
+    },
+  ];
+  const productColumns2 = [
+    {
+      title: "Top",
+      dataIndex: "index",
+      key: "index",
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "productName",
+      key: "productName",
+      render: (title, record) => {
+        return <Link to={`/admin/products/detail/${record._id}`}>{title}</Link>;
+      },
+    },
+    {
+      title: "Thành Tiền ",
+      dataIndex: "productPrice",
+      key: "productPrice",
+      render: (text) => {
+        return text.toLocaleString();
+      },
+    },
+
     {
       title: "Số lượng bán",
       dataIndex: "totalQuantity",
@@ -264,7 +308,11 @@ const StatisticsComponent = () => {
                 {/* Thêm phần hiển thị tổng lợi nhuận */}
                 <Card>
                   <Space>
-                    <Statistic title="Tổng lợi nhuận" value={stats.totalProfitData} prefix="₫" />
+                    <Statistic
+                      title="Tổng Thu"
+                      value={stats.totalProfitData}
+                      prefix="₫"
+                    />
                   </Space>
                 </Card>
               </Col>
@@ -288,6 +336,15 @@ const StatisticsComponent = () => {
               <Table
                 dataSource={stats.topProducts}
                 columns={productColumns}
+                rowKey="_id"
+                pagination={false}
+                size="middle"
+              />
+            </Card>
+            <Card title="Top 10 sản phẩm bán chạy nhất giao hàng thành công ">
+              <Table
+                dataSource={stats.topProductsSell}
+                columns={productColumns2}
                 rowKey="_id"
                 pagination={false}
                 size="middle"

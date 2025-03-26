@@ -5,7 +5,8 @@ import {
   topProducts, 
   orderStatistics,
   orderSuccessRate, 
-  totalProfit
+  totalProfit,
+  deliveredOrders
 } from "../controllers/thongkeControll.js";
 
 const Thongke = express.Router();
@@ -22,6 +23,8 @@ Thongke.route("/order-statistics").get(isAuththenticated, orderStatistics);
 // Route cho thống kê tỷ lệ thành công của đơn hàng
 Thongke.route("/order-success-rate").get(isAuththenticated, orderSuccessRate);
 Thongke.route("/profit").get(isAuththenticated, totalProfit);
+Thongke.route("/top-products-sell").get(isAuththenticated, deliveredOrders);
+
 
 
 

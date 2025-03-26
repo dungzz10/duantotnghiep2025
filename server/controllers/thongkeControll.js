@@ -38,6 +38,11 @@ export const topUsers = CatchAsync(async (req, res, next) => {
         _id: "$userId",
         name: { $first: "$userDetails.name" },
         totalOrders: { $sum: 1 },
+        successfulOrders: {
+          $sum: {
+            $cond: [{ $eq: ["$orderStatus", "delivered"] }, 1, 0], // Đếm số đơn hàng đã giao
+          },
+        },
       },
     },
     { $sort: { totalOrders: -1 } },
@@ -216,3 +221,49 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
     totalProfit,
   });
 });
+// Thống kê đơn hàng đã giao hàng với tên và số lượng sản phẩm
+// Thống kê đơn hàng đã giao hàng với tên và số lượng sản phẩm
+export const deliveredOrders = CatchAsync(async (req, res, next) => {
+  const { startDate, endDate } = req.query;
+
+  // Kiểm tra và chuyển đổi startDate, endDate thành đối tượng Date
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  start.setHours(0, 0, 0, 0);
+
+  // Kiểm tra tính hợp lệ của ngày tháng
+  if (isNaN(start) || isNaN(end)) {
+    return res.status(400).json({ success: false, message: "Invalid dates." });
+  }
+
+  const deliveredStats = await Order.aggregate([
+    {
+      $match: {
+        date: { $gte: start, $lte: end },
+        orderStatus: "delivered",
+      },
+    },
+    { $unwind: "$products" }, // Tách các sản phẩm trong đơn hàng
+    {
+      $group: {
+        _id: "$products.productId", // Nhóm theo productId
+        productName: { $first: "$products.name" }, // Lấy tên sản phẩm
+        productPrice: { 
+          $first: { 
+            $subtract: ["$products.totalPrice", "$voucherDiscount"] 
+          } 
+        }, // Tính giá sản phẩm sau khi trừ voucherDiscount
+        totalQuantity: { $sum: "$products.quantity" }, // Tính tổng số lượng của sản phẩm
+      },
+    },
+    { $sort: { totalQuantity: -1 } }, // Sắp xếp theo tổng số lượng giảm dần
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: deliveredStats,
+  });
+});
+
+
