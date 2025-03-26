@@ -50,12 +50,9 @@ const StatisticsComponent = () => {
     setLoading(true);
     try {
       // Nếu không có khoảng thời gian, lấy 30 ngày gần nhất
-      const startDate = dateRange
-        ? dateRange[0].format("YYYY-MM-DD")
-        : moment().subtract(30, "days").format("YYYY-MM-DD");
-      const endDate = dateRange
-        ? dateRange[1].format("YYYY-MM-DD")
-        : moment().format("YYYY-MM-DD");
+      const startDate = dateRange && dateRange[0] ? dateRange[0].format("YYYY-MM-DD") : moment().subtract(30, "days").format("YYYY-MM-DD");
+      const endDate = dateRange && dateRange[1] ? dateRange[1].format("YYYY-MM-DD") : moment().format("YYYY-MM-DD");
+      console.log(startDate, endDate); // Kiểm tra lại giá trị startDate và endDate
 
       // Gọi API lấy dữ liệu thống kê
       const [
@@ -77,7 +74,7 @@ const StatisticsComponent = () => {
           `http://localhost:5000/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`
         ),
       ]);
-      console.log(ordersResponse);
+      console.log("top",topProductsResponse);
 
       // Xử lý dữ liệu trả về
       const totalOrders = ordersResponse.data.data[0]?.totalOrders || 0;
