@@ -32,6 +32,27 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
     }
   }
 
+  // Kiểm tra số điện thoại nếu được cập nhật
+  if (req.body.phone) {
+    // Kiểm tra định dạng số điện thoại
+    const phone = req.body.phone.trim();
+    const phoneRegex = /^0\d{9}$/; // Kiểm tra số điện thoại bắt đầu bằng 0 và có đúng 10 chữ số
+
+    if (!phoneRegex.test(phone)) {
+      return next(new HandelError("Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số", 400));
+    }
+
+    // Kiểm tra nếu số điện thoại đã tồn tại trong cơ sở dữ liệu (trừ số điện thoại của người dùng hiện tại)
+    const phoneExists = await User.findOne({
+      phoneNumber: phone,
+      _id: { $ne: req.user.id }, // Kiểm tra trừ người dùng hiện tại
+    });
+
+    if (phoneExists) {
+      return next(new HandelError("Số điện thoại này đã được sử dụng bởi tài khoản khác", 400));
+    }
+  }
+
   // Cho phép cập nhật các trường này
   const allowedFields = [
     "name",
@@ -43,10 +64,11 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
   ];
   const updateData = {};
   console.log(req.body);
+
   // Lọc và xử lý các trường được phép cập nhật
   Object.keys(req.body).forEach((field) => {
     if (allowedFields.includes(field)) {
-      //    // Với email, luôn chuyển về lowercase
+      // Với email, luôn chuyển về lowercase
       if (field === "email") {
         updateData[field] = req.body[field].toLowerCase();
       } else if (field === "phone") {
@@ -82,6 +104,7 @@ export const uppdateMe = CatchAsync(async (req, res, next) => {
     },
   });
 });
+
 
 // get one user  by id
 export const getOneUser = CatchAsync(async (req, res, next) => {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Typography,
+  Typography, // Đã có Typography ở đây
   Card,
   Space,
   Statistic,
@@ -12,22 +12,36 @@ import {
   Spin,
   Button,
 } from "antd";
-import {
-  ShoppingCartOutlined,
-  UserOutlined,
-  RiseOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { ShoppingCartOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import axios from "axios";
 import moment from "moment";
 import locale from "antd/es/date-picker/locale/vi_VN"; // Import locale tiếng Việt
+import { Bar } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title as ChartTitle, // Đổi tên Title thành ChartTitle
+  Tooltip,
+  Legend,
+} from "chart.js";
+
+// Đăng ký các thành phần của Chart.js
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ChartTitle,
+  Tooltip,
+  Legend
+);
 
 const { RangePicker } = DatePicker;
-const { Title } = Typography;
+const { Title } = Typography; // Đây là Title từ 'antd', không bị trùng
 
 const StatisticsComponent = () => {
   const [loading, setLoading] = useState(false);
-  // Thiết lập khoảng thời gian mặc định là 30 ngày trước đến hiện tại
   const [dateRange, setDateRange] = useState([
     moment().subtract(30, "days"),
     moment(),
@@ -35,11 +49,13 @@ const StatisticsComponent = () => {
   const [stats, setStats] = useState({
     totalOrders: 0,
     successRate: 0,
+
     topUsers: [],
     topProducts: [],
+    totalProfit :0,
+
   });
 
-  // Gọi API khi khoảng thời gian thay đổi
   useEffect(() => {
     if (dateRange && dateRange[0] && dateRange[1]) {
       fetchStatistics();
@@ -49,17 +65,16 @@ const StatisticsComponent = () => {
   const fetchStatistics = async () => {
     setLoading(true);
     try {
-      // Nếu không có khoảng thời gian, lấy 30 ngày gần nhất
-      const startDate = dateRange && dateRange[0] ? dateRange[0].format("YYYY-MM-DD") : moment().subtract(30, "days").format("YYYY-MM-DD");
-      const endDate = dateRange && dateRange[1] ? dateRange[1].format("YYYY-MM-DD") : moment().format("YYYY-MM-DD");
-      console.log(startDate, endDate); // Kiểm tra lại giá trị startDate và endDate
+      const startDate = dateRange[0].format("YYYY-MM-DD");
+      const endDate = dateRange[1].format("YYYY-MM-DD");
 
-      // Gọi API lấy dữ liệu thống kê
       const [
         ordersResponse,
         successRateResponse,
         topUsersResponse,
+
         topProductsResponse,
+        totalProfit,
       ] = await Promise.all([
         axios.get(
           `http://localhost:5000/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
@@ -73,10 +88,11 @@ const StatisticsComponent = () => {
         axios.get(
           `http://localhost:5000/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`
         ),
+        axios.get(
+          `http://localhost:5000/api/v1/thongke/profit?startDate=${startDate}&endDate=${endDate}`
+        ),
       ]);
-      console.log("top",topProductsResponse);
 
-      // Xử lý dữ liệu trả về
       const totalOrders = ordersResponse.data.data[0]?.totalOrders || 0;
 
       const successRateData = successRateResponse.data.data[0] || {
@@ -93,12 +109,15 @@ const StatisticsComponent = () => {
 
       const topUsers = topUsersResponse.data.data || [];
       const topProducts = topProductsResponse.data.data || [];
+      console.log("Top Products:", totalProfit);
+      const totalProfitData = totalProfit.data.totalProfit || { totalProfit: 0 };
 
       setStats({
         totalOrders,
         successRate,
         topUsers,
         topProducts,
+        totalProfitData
       });
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu thống kê:", error);
@@ -106,13 +125,25 @@ const StatisticsComponent = () => {
       setLoading(false);
     }
   };
-  console.log(stats.topUsers);
-  // Xử lý sự kiện khi người dùng thay đổi khoảng thời gian
+
   const handleDateChange = (dates) => {
-    setDateRange(dates);
+    if (dates && dates[0] && dates[1]) {
+      setDateRange(dates);
+    }
+  };
+  const chartData = {
+    labels: stats.topProducts.map((product) => product.title),
+    datasets: [
+      {
+        label: "Số lượng bán",
+        data: stats.topProducts.map((product) => product.totalQuantity),
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 1,
+      },
+    ],
   };
 
-  // Cấu hình cho bảng top người dùng
   const userColumns = [
     {
       title: "Top",
@@ -122,7 +153,7 @@ const StatisticsComponent = () => {
     },
     {
       title: "Tên người dùng",
-      dataIndex: "name", // Thay đổi từ _id sang name
+      dataIndex: "name",
       key: "userName",
       render: (name, record) =>
         name ||
@@ -138,7 +169,6 @@ const StatisticsComponent = () => {
     },
   ];
 
-  // Cấu hình cho bảng top sản phẩm
   const productColumns = [
     {
       title: "Top",
@@ -148,7 +178,7 @@ const StatisticsComponent = () => {
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: "title", // Thay đổi từ _id sang title
+      dataIndex: "title",
       key: "productTitle",
       render: (title, record) =>
         title ||
@@ -169,50 +199,24 @@ const StatisticsComponent = () => {
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <div className="date-filter">
           <Title level={4}>Thống kê dữ liệu</Title>
-          {/* PHƯƠNG ÁN 1: Nếu muốn giữ RangePicker nhưng sửa lỗi */}
           <RangePicker
             value={dateRange}
             onChange={handleDateChange}
             disabledDate={(current) =>
               current && current > moment().endOf("day")
-            }
-            format="DD/MM/YYYY"
+            } // Chặn ngày tương lai
+            format="DD/MM/YYYY" // Định dạng ngày
+            locale={{
+              locale: "vi_VN", // Ngôn ngữ là tiếng Việt
+            }}
             placeholder={["Từ ngày", "Đến ngày"]}
-            locale={locale}
-            style={{ width: 300 }}
             ranges={{
               "Hôm nay": [moment().startOf("day"), moment()],
               "7 ngày qua": [moment().subtract(7, "days"), moment()],
               "30 ngày qua": [moment().subtract(30, "days"), moment()],
               "Tháng này": [moment().startOf("month"), moment()],
-            }}
+            }} // Cấu hình các phạm vi ngày
           />
-
-          {/* PHƯƠNG ÁN 2: Nếu muốn xóa RangePicker và thay thế bằng nút lọc đơn giản */}
-
-          <Space>
-            <Button
-              onClick={() =>
-                setDateRange([moment().subtract(7, "days"), moment()])
-              }
-            >
-              7 ngày qua
-            </Button>
-            <Button
-              onClick={() =>
-                setDateRange([moment().subtract(30, "days"), moment()])
-              }
-            >
-              30 ngày qua
-            </Button>
-            <Button
-              onClick={() =>
-                setDateRange([moment().startOf("month"), moment()])
-              }
-            >
-              Tháng này
-            </Button>
-          </Space>
         </div>
 
         {loading ? (
@@ -221,7 +225,6 @@ const StatisticsComponent = () => {
           </div>
         ) : (
           <>
-            {/* Thẻ thống kê tổng quan */}
             <Row gutter={16}>
               <Col span={12}>
                 <Card>
@@ -257,9 +260,20 @@ const StatisticsComponent = () => {
                   </Space>
                 </Card>
               </Col>
+              <Col span={12}>
+                {/* Thêm phần hiển thị tổng lợi nhuận */}
+                <Card>
+                  <Space>
+                    <Statistic title="Tổng lợi nhuận" value={stats.totalProfitData} prefix="₫" />
+                  </Space>
+                </Card>
+              </Col>
             </Row>
 
-            {/* Bảng thống kê top người dùng */}
+            <Card title="Top 10 sản phẩm bán chạy nhất">
+              <Bar data={chartData} />
+            </Card>
+
             <Card title="Top 10 khách hàng đặt nhiều nhất">
               <Table
                 dataSource={stats.topUsers}
@@ -270,7 +284,6 @@ const StatisticsComponent = () => {
               />
             </Card>
 
-            {/* Bảng thống kê top sản phẩm */}
             <Card title="Top 10 sản phẩm bán chạy nhất">
               <Table
                 dataSource={stats.topProducts}

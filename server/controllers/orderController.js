@@ -339,14 +339,17 @@ export const updateKho = CatchAsync(async (req, res, next) => {
 
 export const deleteOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
-
-  console.log(orderId, 8888);
+  
+  console.log(orderId, "orderId received"); // Đảm bảo orderId nhận đúng từ client
+  
   const order = await Order.findById(orderId);
-  console.log(order, 77777);
-
+  console.log(order, "order123456"); 
+  
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
+  
+  console.log(order, "order123456"); // Đảm bảo đơn hàng tồn tại và được lấy chính xác
 
   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
     return res.json({
@@ -366,6 +369,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
   ) {
     order.orderStatus = "cancelled";
 
+    // Cập nhật lại số lượng sản phẩm trong kho
     for (const item of order.products) {
       const productDoc = await Product.findById(item.productId);
       if (productDoc) {
@@ -391,6 +395,18 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
       { _id: order.userId },
       { $inc: { "wallet.balance": order.finalTotal } }
     );
+    const user = await User.findById(order.userId);
+   
+    console.log(user, "user123456");
+
+    user.wallet.transactions.push({
+      type: "withdrawal", 
+      amount: order.finalTotal,
+      status: "completed",
+      description: `Hoàn tiền cho đơn hàng ${orderId}`,
+    });
+    console.log(user.wallet.transactions, "user23456");
+    await user.save(); 
 
     return res.status(200).json({
       success: true,
@@ -403,6 +419,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
   ) {
     order.orderStatus = "cancelled";
 
+    // Cập nhật lại số lượng sản phẩm trong kho
     for (const item of order.products) {
       const productDoc = await Product.findById(item.productId);
       if (productDoc) {
@@ -422,6 +439,8 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
         }
       }
     }
+    
+    console.log(order, "order123456 after updating");
 
     await order.save();
 
@@ -429,6 +448,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
       { _id: order.userId },
       { $inc: { "wallet.balance": order.finalTotal } }
     );
+  // Lưu lại lịch sử giao dịch trong ví
 
     return res.status(200).json({
       success: true,
@@ -443,3 +463,4 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
     order,
   });
 });
+
