@@ -37,10 +37,10 @@ const Register = () => {
           >
             {/* Username */}
             <Form.Item
-              label="name"
+              label="Tên tài khoản"
               name="name"
               rules={[
-                { required: true, message: "Please input your username!" },
+                { required: true, message: "Vui lòng nhập tên của bạn !" },
               ]}
             >
               <Input />
@@ -51,8 +51,8 @@ const Register = () => {
               label="Email"
               name="email"
               rules={[
-                { required: true, message: "Please input your email!" },
-                { type: "email", message: "Please enter a valid email!" },
+                { required: true, message: "Vui lòng nhập email của bạn !" },
+                { type: "email", message: "Vui LÒng Nhập đúng định dạng Email !" },
               ]}
             >
               <Input />
@@ -63,8 +63,8 @@ const Register = () => {
               label="Password"
               name="password"
               rules={[
-                { required: true, message: "Please input your password!" },
-                { min: 6, message: "Password must be at least 6 characters!" },
+                { required: true, message: "Vui lòng nhập passWord!" },
+                { min: 6, message: "PassWord phải có ít nhất 6 kí tự !" },
               ]}
             >
               <Input.Password />
@@ -76,13 +76,13 @@ const Register = () => {
               name="confirm"
               dependencies={["password"]}
               rules={[
-                { required: true, message: "Please confirm your password!" },
+                { required: true, message: "Vui lòng Xác Nhận Passưord!" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Passwords do not match!"));
+                    return Promise.reject(new Error("Password không khớp !"));
                   },
                 }),
               ]}
@@ -105,9 +105,9 @@ const Register = () => {
             {/* Login link */}
             <div className="text-left mt-4">
               <span className="text-sm">
-                Already have an account?{" "}
+               Bạn Đã Có Tài Khoản ?{" "}
                 <Link to="/signin" className="text-blue-500 hover:underline">
-                  Login
+                  Đăng Nhập
                 </Link>
               </span>
             </div>

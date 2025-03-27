@@ -43,7 +43,7 @@ function SearchWrapper(props) {
     <section className="max-w-8xl mx-auto py-10">
       <h1 className="text-3xl font-bold text-center"></h1>
 
-      {/* Filter Buttons */}
+      
       <div className="mt-8 flex gap-4 mb-2 w-full">
         {["category", "brand", "price"].map((label, index) => (
           <div
@@ -163,7 +163,7 @@ function SearchWrapper(props) {
           className="text-gray-500 flex items-center cursor-pointer hover:text-success"
           onClick={resetAllFilters}
         >
-          <p className="mr-4">Reset Filters</p> <HiOutlineRefresh />
+          <p className="mr-4">Reset Lọc </p> <HiOutlineRefresh />
         </div>
         
         {category && (
@@ -171,7 +171,7 @@ function SearchWrapper(props) {
             onClick={() => setCategory("")}
             className="btn btn-sm lowercase btn-success font-semibold rounded-full"
           >
-            Category: {category} ×
+            Danh Mục : {category} ×
           </button>
         )}
 
@@ -180,7 +180,7 @@ function SearchWrapper(props) {
             onClick={() => setBrand("")}
             className="btn btn-sm lowercase btn-success font-semibold rounded-full"
           >
-            Brand: {brand} ×
+            Hãng : {brand} ×
           </button>
         )}
 
@@ -204,7 +204,7 @@ function SearchWrapper(props) {
       </div>
 
       {/* Filtered Products */}
-      <h1 className="font-bold text-2xl my-6">Filtered Products</h1>
+      <h1 className="font-bold text-2xl my-6">Sản Phảm Đã Lọc </h1>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {products && products.length > 0 ? (
           products.map((item) => (

@@ -34,7 +34,7 @@ const Login = () => {
   return (
     <div className="min-h-screen text-left flex flex-col justify-center py-14 sm:px-4 lg:px-8">
       <h1 className="mt-6 text-center text-2xl font-bold ">
-        Login to your account
+        Đăng Nhập Tài Khoản
       </h1>
       <div className="mt-8 mx-auto w-full max-w-md">
         <div className="bg-white w-full py-8 px-4 shadow sm:rounded-lg">
@@ -79,12 +79,12 @@ const Login = () => {
                 alignItems: "center",
               }}
             >
-              <Checkbox>Remember me</Checkbox>
+              <Checkbox>Ghi Nhớ </Checkbox>
               <Link
                 to="/forgotpassword"
                 className="text-sm text-blue-500 hover:underline"
               >
-                Forgot password?
+                Quên mật khẩu?
               </Link>
             </div>
 
@@ -97,16 +97,16 @@ const Login = () => {
                 className="w-full"
                 loading={isLoading} // Hiển thị loading khi đang gửi request
               >
-                Submit
+               Đăng Nhập
               </Button>
             </Form.Item>
 
             {/* Link to Sign Up */}
             <div className="text-left mt-4">
               <span className="text-sm">
-                Don't have an account?{" "}
+               Bạn Không Có Tài Khoản {" "}
                 <Link to="/signup" className="text-blue-500 hover:underline">
-                  Sign up
+                 Đăng Kí
                 </Link>
               </span>
             </div>

@@ -1,4 +1,5 @@
 import Contact from "../models/contact.js";
+import { sendEmail } from "../utils/nodemail.js";
 import contactSchema from "../validates/contact.js";
 export const getAllContact = async (req, res) => {
     try {
@@ -62,32 +63,36 @@ export const createContact = async function (req, res) {
         });
     }
 };
-export const updateContact = async function (req, res) {
+export const updateContact = async (req, res) => {
     try {
-        const { error } = contactSchema.validate(req.body, { abortEarly: false });
-        if (error) {
-            const errors = error.details.map((err) => err.message);
-            return res.status(404).json({
-                message: errors,
-            });
-        }
-        const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        if (!contact) {
-            return res.status(404).json({
-                message: "Cập nhật liên hệ không thành công",
-            });
-        }
-        return res.status(200).json({
-            message: "Cập nhật liên hệ thành công",
-            data: contact,
-        });
+      const { name, email, phone, support ,message } = req.body;
+      
+      // Cập nhật liên hệ vào cơ sở dữ liệu
+      const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  
+      // Gửi email khi cập nhật
+      const emailMessage = `Chúng tôi đã cập nhật yêu cầu của bạn. Dưới đây là thông tin liên hệ của bạn: \n
+                            Tên: ${name} \n
+                            Email: ${email} \n
+                            Số điện thoại: ${phone} \n
+                            Vấn đề hỗ trợ: ${support} \n
+                            phản hồi : ${message}
+                            `
+                           
+      await sendEmail(email, emailMessage);
+  
+      res.status(200).json({
+        message: 'Cập nhật liên hệ thành công và email đã được gửi tới khách hàng',
+        data: contact
+      });
     } catch (error) {
-        return res.status(500).json({
-            message: error.message,
-        });
+      res.status(500).json({
+        message: error.message
+      });
     }
-};
+  };
 export const removeContact = async function (req, res) {
+    console.log("abcdef",req.params.id);
     try {
         const contact = await Contact.findByIdAndDelete(req.params.id);
         return res.status(200).json({

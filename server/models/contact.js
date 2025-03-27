@@ -18,7 +18,11 @@ const ContactModel = new mongoose.Schema({
     support: {
         type: String,
         require: true
-    }
+    },
+    message: {
+        type: String,
+        require: true
+    },
 }, {
     timestamps: true,
     versionKey: false,
