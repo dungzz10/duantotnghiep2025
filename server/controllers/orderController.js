@@ -339,16 +339,16 @@ export const updateKho = CatchAsync(async (req, res, next) => {
 
 export const deleteOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
-  
+
   console.log(orderId, "orderId received"); // Đảm bảo orderId nhận đúng từ client
-  
+
   const order = await Order.findById(orderId);
-  console.log(order, "order123456"); 
-  
+  console.log(order, "order123456");
+
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
-  
+
   console.log(order, "order123456"); // Đảm bảo đơn hàng tồn tại và được lấy chính xác
 
   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
@@ -396,17 +396,17 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
       { $inc: { "wallet.balance": order.finalTotal } }
     );
     const user = await User.findById(order.userId);
-   
+
     console.log(user, "user123456");
 
     user.wallet.transactions.push({
-      type: "withdrawal", 
+      type: "withdrawal",
       amount: order.finalTotal,
       status: "completed",
       description: `Hoàn tiền cho đơn hàng ${orderId}`,
     });
     console.log(user.wallet.transactions, "user23456");
-    await user.save(); 
+    await user.save();
 
     return res.status(200).json({
       success: true,
@@ -439,7 +439,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
         }
       }
     }
-    
+
     console.log(order, "order123456 after updating");
 
     await order.save();
@@ -448,7 +448,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
       { _id: order.userId },
       { $inc: { "wallet.balance": order.finalTotal } }
     );
-  // Lưu lại lịch sử giao dịch trong ví
+    // Lưu lại lịch sử giao dịch trong ví
 
     return res.status(200).json({
       success: true,
@@ -464,3 +464,72 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
   });
 });
 
+export const getByrecipientPhone = async (req, res) => {
+  const { recipientPhone } = req.params;
+  console.log(recipientPhone, 5656);
+
+  try {
+    const orders = await Order.find({
+      "shippingAddress.recipientPhone": recipientPhone,
+    })
+      .populate({
+        path: "userId",
+        select: "-password -passwordResetToken -passwordResetExpires",
+      })
+      .populate({
+        path: "products.productId",
+        select: "-__v -isDeleted",
+      })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy đơn hàng:", error);
+    res.status(500).json({
+      success: false,
+      message: "Có lỗi xảy ra khi lấy đơn hàng.",
+    });
+  }
+};
+
+export const getByUserPhone = async (req, res, next) => {
+  const { phoneNumber } = req.params;
+  console.log(phoneNumber, 76767);
+
+  try {
+    const user = await User.findOne({
+      phoneNumber,
+    });
+
+    if (!user) {
+      return next(new Error("SO_DIEN_THOAI_CHUA_DUOC_DANG_KI"));
+    }
+
+    const orders = await Order.find({
+      userId: user.id,
+    })
+      .populate({
+        path: "userId",
+        select: "-password -passwordResetToken -passwordResetExpires",
+      })
+      .populate({
+        path: "products.productId",
+        select: "-__v -isDeleted",
+      })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    console.error("Lỗi khi lấy đơn hàng:", error);
+    res.status(500).json({
+      success: false,
+      message: "Có lỗi xảy ra khi lấy đơn hàng.",
+    });
+  }
+};

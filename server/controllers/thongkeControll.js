@@ -92,9 +92,7 @@ export const topProducts = CatchAsync(async (req, res, next) => {
     { $limit: 10 },
   ]);
 
-
   console.log(products);
-  
 
   res.status(200).json({
     success: true,
@@ -105,6 +103,7 @@ export const topProducts = CatchAsync(async (req, res, next) => {
 // Thống kê đơn hàng theo khoảng thời gian
 export const orderStatistics = CatchAsync(async (req, res, next) => {
   const { startDate, endDate } = req.query;
+  console.log(startDate, endDate, 888888);
 
   // Kiểm tra và chuyển đổi startDate, endDate thành đối tượng Date
   const start = new Date(startDate);
@@ -131,9 +130,23 @@ export const orderStatistics = CatchAsync(async (req, res, next) => {
     },
   ]);
 
+  const orders = await Order.find({
+    date: { $gte: start, $lte: end },
+  })
+    .populate({
+      path: "userId",
+      select: "-password -passwordResetToken -passwordResetExpires",
+    })
+    .populate({
+      path: "products.productId",
+      select: "-__v -isDeleted",
+    })
+    .lean();
+
   res.status(200).json({
     success: true,
     data: stats,
+    orders: orders,
   });
 });
 
@@ -183,8 +196,8 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
   // Kiểm tra và chuyển đổi startDate, endDate thành đối tượng Date
   const start = new Date(startDate);
   const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999);  // Đảm bảo tính đến hết ngày
-  start.setHours(0, 0, 0, 0);     // Bắt đầu từ đầu ngày
+  end.setHours(23, 59, 59, 999); // Đảm bảo tính đến hết ngày
+  start.setHours(0, 0, 0, 0); // Bắt đầu từ đầu ngày
 
   // Kiểm tra tính hợp lệ của ngày tháng
   if (isNaN(start) || isNaN(end)) {
@@ -196,7 +209,7 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
     {
       $match: {
         date: { $gte: start, $lte: end },
-        orderStatus: { $in: ["delivered", "completed"] }  // Chỉ tính đơn hàng đã giao
+        orderStatus: { $in: ["delivered", "completed"] }, // Chỉ tính đơn hàng đã giao
       },
     },
     {
@@ -205,11 +218,11 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
         totalProfit: {
           $sum: {
             $subtract: [
-              "$finalTotal",    // Tổng tiền của đơn hàng
-              { $add: ["$shippingFee", "$voucherDiscount"] }  // Trừ đi chi phí vận chuyển và giảm giá
-            ]
-          }
-        }
+              "$finalTotal", // Tổng tiền của đơn hàng
+              { $add: ["$shippingFee", "$voucherDiscount"] }, // Trừ đi chi phí vận chuyển và giảm giá
+            ],
+          },
+        },
       },
     },
   ]);
@@ -249,10 +262,10 @@ export const deliveredOrders = CatchAsync(async (req, res, next) => {
       $group: {
         _id: "$products.productId", // Nhóm theo productId
         productName: { $first: "$products.name" }, // Lấy tên sản phẩm
-        productPrice: { 
-          $first: { 
-            $subtract: ["$products.totalPrice", "$voucherDiscount"] 
-          } 
+        productPrice: {
+          $first: {
+            $subtract: ["$products.totalPrice", "$voucherDiscount"],
+          },
         }, // Tính giá sản phẩm sau khi trừ voucherDiscount
         totalQuantity: { $sum: "$products.quantity" }, // Tính tổng số lượng của sản phẩm
       },
@@ -265,5 +278,3 @@ export const deliveredOrders = CatchAsync(async (req, res, next) => {
     data: deliveredStats,
   });
 });
-
-

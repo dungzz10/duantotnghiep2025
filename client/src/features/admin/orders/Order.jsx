@@ -12,15 +12,22 @@ import {
   message,
   Row,
   Col,
+  DatePicker,
 } from "antd";
 import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons"; // Thêm EditOutlined
 import { format } from "date-fns";
+import moment from "moment";
 
 const { Option } = Select;
 
 const Order = () => {
+  const { RangePicker } = DatePicker;
+
   const [orders, setOrders] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [searchPhoneUser, setSearchPhoneUser] = useState("");
+  const [searchPhoneRecipient, setSearchPhoneRecipient] = useState("");
+
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(null);
 
@@ -28,6 +35,59 @@ const Order = () => {
   const [editingStatus, setEditingStatus] = useState(
     selectedOrder?.orderStatus || "pending"
   );
+  const [dateRange, setDateRange] = useState([
+    moment().subtract(30, "days"),
+    moment(),
+  ]);
+
+  const handleSearchPhoneUser = async () => {
+    if (!searchPhoneUser && !searchPhoneRecipient) {
+      message.warning("Vui lòng nhập số điện thoại người gửi hoặc người nhận");
+      return;
+    }
+
+    try {
+      // Nếu có số điện thoại người gửi, tìm kiếm theo số điện thoại người gửi
+      if (searchPhoneUser) {
+        const response = await axios.get(
+          `/orders/userPhone-check/${searchPhoneUser}`
+        );
+        setOrders(response.data.data);
+      }
+
+      // Nếu có số điện thoại người nhận, tìm kiếm theo số điện thoại người nhận
+      if (searchPhoneRecipient) {
+        const response = await axios.get(
+          `/orders/recipientPhone-check/${searchPhoneRecipient}`
+        );
+        setOrders(response.data.data);
+      }
+    } catch (error) {
+      if (error.response.data.message === "SO_DIEN_THOAI_CHUA_DUOC_DANG_KI") {
+        message.error("Số điện thoại chưa có ai đăng ký");
+      } else {
+        message.error("Có lỗi xảy ra khi tìm kiếm.");
+      }
+    }
+  };
+
+  const fetchStatistics = async () => {
+    try {
+      const startDate = dateRange[0].format("YYYY-MM-DD");
+      const endDate = dateRange[1].format("YYYY-MM-DD");
+      console.log(startDate, endDate, 666);
+
+      const ordersResponse = await axios.get(
+        `http://localhost:5000/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
+      );
+      console.log(ordersResponse, 999);
+      setSearchPhoneUser("");
+      setOrders(ordersResponse.data.orders);
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+    }
+  };
+
   console.log("selectedOrder", selectedOrder);
   const fetchOrders = useCallback(async () => {
     try {
@@ -50,6 +110,7 @@ const Order = () => {
       }));
 
       setOrders(normalizedOrders);
+      ``;
     } catch (error) {
       console.error("Error fetching orders:", error);
       message.error("Có lỗi xảy ra khi tải đơn hàng.");
@@ -206,6 +267,18 @@ const Order = () => {
     },
   ];
 
+  const handleDateChange = (dates) => {
+    if (dates && dates[0] && dates[1]) {
+      setDateRange(dates);
+    }
+  };
+
+  const handleFilter = () => {
+    setSearchPhoneUser("");
+
+    fetchStatistics();
+  };
+
   return (
     <div style={{ padding: "20px" }}>
       <h2>Quản lý đơn hàng</h2>
@@ -228,6 +301,58 @@ const Order = () => {
           <Option value="delivered">Đã giao</Option>
           <Option value="cancelled">Đã hủy</Option>
         </Select>
+      </div>
+      <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
+        <Input
+          placeholder="Số điện thoại người đặt"
+          prefix={<SearchOutlined />}
+          value={searchPhoneUser}
+          onChange={(e) => setSearchPhoneUser(e.target.value)}
+          style={{ width: "250px" }}
+        />
+        <Button
+          type="primary"
+          onClick={handleSearchPhoneUser}
+          icon={<SearchOutlined />}
+        >
+          Tìm kiếm
+        </Button>
+      </div>
+
+      <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
+        <Input
+          placeholder="Số điện thoại người nhận"
+          prefix={<SearchOutlined />}
+          value={searchPhoneRecipient}
+          onChange={(e) => setSearchPhoneRecipient(e.target.value)}
+          style={{ width: "250px" }}
+        />
+        <Button
+          type="primary"
+          onClick={handleSearchPhoneUser}
+          icon={<SearchOutlined />}
+        >
+          Tìm kiếm
+        </Button>
+      </div>
+
+      <div>
+        <RangePicker
+          value={dateRange}
+          onChange={handleDateChange}
+          disabledDate={(current) => current && current > moment().endOf("day")}
+          format="DD/MM/YYYY"
+          placeholder={["Từ ngày", "Đến ngày"]}
+          ranges={{
+            "Hôm nay": [moment().startOf("day"), moment()],
+            "7 ngày qua": [moment().subtract(7, "days"), moment()],
+            "30 ngày qua": [moment().subtract(30, "days"), moment()],
+            "Tháng này": [moment().startOf("month"), moment()],
+          }}
+        />
+        <Button type="primary" onClick={handleFilter} style={{ marginLeft: 8 }}>
+          Lọc
+        </Button>
       </div>
 
       <Table
