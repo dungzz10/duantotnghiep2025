@@ -50,6 +50,7 @@ import SingelProduct from "../features/productdetail/SingelProduct";
 import CategoriesPage from "../features/categories/CategoriesPage";
 import ContactAdmin from "../features/admin/contact/ContactAdmin";
 import Addadress from "../features/adress/Addadress";
+import SignupPage from "../features/signup/SignupPage";
 
 export const router = createBrowserRouter([
   {
@@ -154,7 +155,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/signup",
-    element: <Register />,
+    element: <SignupPage />,
   },
   {
     path: "/profile",
