@@ -28,6 +28,7 @@ const CategoriesPage = () => {
             if (range === '1mTo2m') return product.originalPrice >= 1000000 && product.originalPrice <= 2000000;
             if (range === '2mTo3m') return product.originalPrice >= 2000000 && product.originalPrice <= 3000000;
             if (range === '3mTo5m') return product.originalPrice >= 3000000 && product.originalPrice <= 5000000;
+            if (range === '>5m') return product.originalPrice >= 5000000
             return false;
           })
         );
@@ -51,11 +52,6 @@ const CategoriesPage = () => {
     );
   };
 
-  const toggleSize = (size) => {
-    setSelectedSizes(prev => 
-      prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
-    );
-  };
 
   if (isLoading) {
     return <div className="text-center">Loading...</div>;
@@ -73,33 +69,21 @@ const CategoriesPage = () => {
         <div className="w-1/4 p-4 bg-white rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Lọc theo giá</h2>
           <ul className="space-y-2">
-            {['under1m', '1mTo2m', '2mTo3m', '3mTo5m'].map(range => (
+            {['under1m', '1mTo2m', '2mTo3m', '3mTo5m', '>5m'].map(range => (
               <li key={range}>
-                <input 
-                  type="checkbox" 
-                  checked={priceRanges.includes(range)} 
-                  onChange={() => togglePriceRange(range)} 
-                />
-                <label className="ml-2">{range === 'under1m' ? 'Dưới 1.000.000₫' : 
+              <input 
+                type="checkbox" 
+                checked={priceRanges.includes(range)} 
+                onChange={() => togglePriceRange(range)} 
+              />
+              <label className="ml-2">
+                {range === 'under1m' ? 'Dưới 1.000.000₫' : 
                  (range === '1mTo2m' ? '1.000.000₫ - 2.000.000₫' : 
                  (range === '2mTo3m' ? '2.000.000₫ - 3.000.000₫' : 
-                 '3.000.000₫ - 5.000.000₫'))}</label>
-              </li>
-            ))}
-          </ul>
-
-          {/* Filter by Size */}
-          <h2 className="text-xl font-semibold mt-4 mb-2">Kích thước</h2>
-          <ul className="space-y-2">
-            {[36, 37, 38, 39, 40, 41, 42, 43].map(size => (
-              <li key={size}>
-                <input 
-                  type="checkbox" 
-                  checked={selectedSizes.includes(size)} 
-                  onChange={() => toggleSize(size)} 
-                />
-                <label className="ml-2">{size}</label>
-              </li>
+                 (range === '3mTo5m' ? '3.000.000₫ - 5.000.000₫' : 
+                 'Trên 5.000.000₫')))}
+              </label>
+            </li>
             ))}
           </ul>
         </div>

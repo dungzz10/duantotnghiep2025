@@ -45,7 +45,7 @@ function SearchWrapper(props) {
 
       
       <div className="mt-8 flex gap-4 mb-2 w-full">
-        {["category", "brand", "price"].map((label, index) => (
+        {["danh mục", "thương hiệu", "giá"].map((label, index) => (
           <div
             key={index}
             onClick={() => setFilterIndex(index)}
@@ -148,7 +148,7 @@ function SearchWrapper(props) {
           <div className="flex gap-8 items-center flex-wrap py-2">
             <input
               type="number"
-              placeholder="Input price"
+              placeholder="Vui lòng nhập giá"
               value={originalPrice}
               onChange={(e) => setOriginalPrice(e.target.value)}
               className="input input-bordered w-full max-w-xs"
@@ -212,7 +212,7 @@ function SearchWrapper(props) {
           ))
         ) : (
           <h1 className="text-4xl font-black py-24 text-gray-300 col-span-full text-center">
-            NO Product match your filter
+            Không có Sản phẩm phù hợp với bộ lọc của bạn
           </h1>
         )}
       </div>
