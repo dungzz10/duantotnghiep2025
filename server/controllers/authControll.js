@@ -131,7 +131,7 @@ export const forgotPassword = CatchAsync(async (req, res, next) => {
   // 10. Nếu email gửi thành công, trả phản hồi JSON xác nhận
   res.status(200).json({
     success: true,
-    message: `Email sent ${email}`,
+    message: `Email đã được gửi  ${email}`,
   });
 });
 
