@@ -93,7 +93,7 @@ const ProfileContain = ({ user }) => {
                 placeholder="Tell us about yourself"
               />
               <button onClick={handleChangeIntro} className="btn btn-primary">
-                Update
+                Cập Nhật 
               </button>
             </div>
           </div>
@@ -115,7 +115,7 @@ const ProfileContain = ({ user }) => {
                 placeholder="Your email address"
               />
               <button onClick={handleChangeEmail} className="btn btn-primary">
-                Update
+                Cập Nhật 
               </button>
             </div>
           </div>
@@ -137,7 +137,7 @@ const ProfileContain = ({ user }) => {
                 placeholder="Só điện thoại ở đây "
               ></input>
               <button onClick={handleChangePhone} className="btn btn-primary">
-                Update
+                Cập Nhật 
               </button>
             </div>
           </div>
@@ -148,7 +148,7 @@ const ProfileContain = ({ user }) => {
           <FiLock className="text-blue-500" />
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+             Mật Khẩu 
             </label>
             <div className="flex items-center space-x-4">
               <p className="flex-1">********</p>
@@ -156,7 +156,7 @@ const ProfileContain = ({ user }) => {
                 onClick={() => setOpenPassword(!openPassword)}
                 className="btn btn-outline"
               >
-                {openPassword ? "Cancel" : "Change Password"}
+                {openPassword ? "Hủy " : "Thay Đổi Mật Khẩu"}
               </button>
             </div>
 
@@ -165,14 +165,14 @@ const ProfileContain = ({ user }) => {
                 <input
                   type="password"
                   className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="Current Password"
+                  placeholder="Mật Khẩu Hiện Tại"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                 />
                 <input
                   type="password"
                   className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-blue-500 transition-all"
-                  placeholder="New Password"
+                  placeholder="Mật Khẩu Mới"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                 />
@@ -180,7 +180,7 @@ const ProfileContain = ({ user }) => {
                   onClick={handlePasswordChange}
                   className="btn btn-primary w-full"
                 >
-                  Submit New Password
+                  Cập Nhật Mật Khẩu
                 </button>
               </div>
             )}

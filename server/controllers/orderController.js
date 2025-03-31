@@ -11,6 +11,7 @@ const validStatuses = [
   "shipped",
   "delivered",
   "cancelled",
+  "trahang",
 ];
 
 export const getNewOrders = CatchAsync(async (req, res, next) => {
@@ -210,6 +211,7 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
 export const updateOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
   const { orderStatus } = req.body;
+  console.log(orderId, orderStatus, "orderId and orderStatus received");
 
   if (!validStatuses.includes(orderStatus)) {
     return next(new HandelError("Trạng thái đơn hàng không hợp lệ", 400));
@@ -533,3 +535,90 @@ export const getByUserPhone = async (req, res, next) => {
     });
   }
 };
+export const returnOrder = CatchAsync(async (req, res, next) => {
+  const { orderId } = req.params;
+  const userId = req.user?.id;
+
+  console.log(orderId, "orderId received"); 
+
+  if (!userId) {
+    return next(new HandelError("Người dùng chưa xác thực", 401));
+  }
+
+  const order = await Order.findById(orderId);
+  console.log(order, "order details");
+
+  if (!order) {
+    return next(new HandelError("Không tìm thấy đơn hàng", 404));
+  }
+
+  // Verify that only delivered orders can be returned
+  if (order.orderStatus !== "delivered") {
+    return res.status(400).json({
+      success: false,
+      message: "Chỉ đơn hàng đã giao mới có thể trả lại.",
+    });
+  }
+
+  // Update order status to 'trahang'
+  order.orderStatus = "trahang";
+
+  // Restock products in inventory
+  for (const item of order.products) {
+    const productDoc = await Product.findById(item.productId);
+    if (productDoc) {
+      const variant = productDoc.variants.find(
+        (v) => v.color.toLowerCase() === item.color.toLowerCase()
+      );
+
+      if (variant) {
+        const sizeObj = variant.sizes.find(
+          (s) => String(s.size) === String(item.size)
+        );
+
+        if (sizeObj) {
+          sizeObj.quantity += item.quantity;
+          await productDoc.save();
+          console.log(`Restocked ${item.quantity} units of product ${item.productId}`);
+        }
+      }
+    }
+  }
+
+  await order.save();
+  console.log(order, "order after updating to trahang status");
+
+  // Refund the order amount to user's wallet if payment was made
+  if (order.paymentStatus === "completed" || order.paymentMethod !== "COD") {
+    await User.updateOne(
+      { _id: order.userId },
+      { $inc: { "wallet.balance": order.finalTotal } }
+    );
+    
+    // Add transaction record to user's wallet
+    const user = await User.findById(order.userId);
+    
+    if (user) {
+      user.wallet.transactions.push({
+        type: "withdrawal",
+        amount: order.finalTotal,
+        status: "completed",
+        description: `Hoàn tiền cho đơn hàng trả lại ${orderId}`,
+      });
+      await user.save();
+      console.log(`Refunded ${order.finalTotal} to user wallet`);
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Đơn hàng đã được trả lại thành công, và tiền đã được hoàn vào ví",
+      order,
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Đơn hàng đã được trả lại thành công",
+    order,
+  });
+});

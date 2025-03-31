@@ -147,6 +147,7 @@ const Order = () => {
       processing: { color: "orange", text: "Đang xử lý" },
       shipped: { color: "orange", text: "Đang vận chuyển" },
       cancelled: { color: "red", text: "Đã hủy" },
+      trahang: { color: "purple", text: "Hoàn  hàng" },
     };
     const { color, text } = statusMap[orderStatus] || {
       color: "default",
@@ -239,7 +240,7 @@ const Order = () => {
       key: "actions",
       render: (_, record) => (
         <div>
-          {record.orderStatus !== "cancelled" && (
+          {record.orderStatus !== "cancelled" && record.orderStatus !== "trahang" && (
             <Popconfirm
               title="Xoá đơn ?"
               onConfirm={() => handleCancelOrder(record._id)}
@@ -410,6 +411,7 @@ const Order = () => {
                     <Option value="shipped">Đang vận chuyển</Option>
                     <Option value="delivered">Đã giao</Option>
                     <Option value="cancelled">Đã huỷ</Option>
+                    <Option value="trahang">Hoàn Hàng </Option>
                   </Select>
                 </p>
               </Col>

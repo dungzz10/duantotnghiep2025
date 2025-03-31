@@ -652,3 +652,4 @@ export const withdrawFromWallet = CatchAsync(async (req, res, next) => {
     data: { orderId, amount: total },
   });
 });
+

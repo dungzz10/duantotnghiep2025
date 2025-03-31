@@ -10,6 +10,7 @@ import {
   getOrderById,
   updateKho,
   updateOrder,
+  returnOrder,
 } from "../controllers/orderController.js";
 import { createWalletPayment } from "../controllers/paymentController.js";
 import { isAuththenticated } from "../middlewares/auth.js";
@@ -36,6 +37,8 @@ orderRoutes.post("/updateKho", isAuththenticated, updateKho);
 orderRoutes.get("/:orderId", isAuththenticated, getOrderById);
 orderRoutes.patch("/orderStatus/:orderId", isAuththenticated, updateOrder);
 orderRoutes.delete("/:orderId", isAuththenticated, deleteOrder);
+orderRoutes.patch("/return/:orderId", isAuththenticated, returnOrder);
+
 orderRoutes.post("/wallet/payment", isAuththenticated, createWalletPayment);
 
 export default orderRoutes;

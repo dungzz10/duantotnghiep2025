@@ -40,8 +40,9 @@ const OrderHistory = () => {
       //   orderStatus: "cancelled",
       // });
       // message.success(`Đơn ${id} đã được hủy.`);
-      await api.delete(`/orders/${id}`);
-      message.success(`Đơn ${id} đã được hủy.`);
+      const res = await api.delete(`/orders/${id}`);
+      console.log(res, 9999);
+      message.success(`  Đơn ${id} ${res.data.message}`);
       fetchOrders();
       setIsModalVisible(false);
 
@@ -50,6 +51,17 @@ const OrderHistory = () => {
     } catch (error) {
       console.error("Error canceling order:", error);
       // message.error("Có lỗi xảy ra khi hủy đơn hàng.");
+    }
+  };
+  const handleReturnOrder = async (orderId) => {
+    try {
+      const response = await axios.patch(`/orders/return/${orderId}`);
+      message.success(`Đơn hàng ${orderId} đã được trả lại.`);
+      fetchOrders();
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error returning order:", error);
+      message.error("Có lỗi xảy ra khi trả hàng.");
     }
   };
 
@@ -74,6 +86,7 @@ const OrderHistory = () => {
       processing: { color: "green", text: "Đã thanh toán" },
       shipped: { color: "blue", text: "Đang vận chuyển" },
       cancelled: { color: "red", text: "Đã hủy" },
+      returned: { color: "purple", text: "Đã trả hàng" },
     };
     const { color, text } = statusMap[orderStatus] || {
       color: "default",
@@ -91,8 +104,10 @@ const OrderHistory = () => {
         return 2;
       case "delivered":
         return 3;
-      case "cancelled":
+      case "returned":
         return 4;
+      case "cancelled":
+        return 5;
       default:
         return 0;
     }
@@ -179,6 +194,7 @@ const OrderHistory = () => {
               <Option value="processing">Đang xử lý</Option>
               <Option value="shipped">Đang vận chuyển</Option>
               <Option value="delivered">Đã giao</Option>
+              <Option value="trahang">Đã trả hàng</Option>
             </Select>
           )}
         </div>
@@ -301,13 +317,22 @@ const OrderHistory = () => {
               />
               <Step
                 title={
-                  selectedOrder.orderStatus === "cancelled"
+                  selectedOrder.orderStatus === "trahang"
+                    ? "Đã trả hàng"
+                    : selectedOrder.orderStatus === "cancelled"
                     ? "Đã huỷ"
                     : "Đánh Giá"
                 }
                 description={
                   selectedOrder.orderStatus === "cancelled"
                     ? "Đơn hàng đã bị hủy"
+                    : selectedOrder.orderStatus === "trahang"
+                    ? selectedOrder.returnTime
+                      ? format(
+                          new Date(selectedOrder.returnTime),
+                          "HH:mm dd-MM-yyyy"
+                        )
+                      : "Đã trả hàng"
                     : "Chưa đánh giá"
                 }
                 icon={<EyeOutlined />}
@@ -363,6 +388,13 @@ const OrderHistory = () => {
                     }
                   >
                     Hủy Đơn Hàng
+                  </Button>
+                  <Button
+                    danger
+                    onClick={() => handleReturnOrder(selectedOrder._id)}
+                    disabled={selectedOrder.orderStatus !== "delivered"}
+                  >
+                    Trả hàng
                   </Button>
                 </div>
               </div>
