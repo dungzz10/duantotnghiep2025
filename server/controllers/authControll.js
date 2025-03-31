@@ -81,6 +81,22 @@ export const signin = CatchAsync(async (req, res, next) => {
     }
   }
 });
+export const googleLogin = CatchAsync(async (req, res, next) => {
+  const { email } = req.body;
+  const yesUser = await User.findOne({ email }).select("+password");
+  if (!yesUser) {
+    return next(new HandelError("khong tim thay user cua ban (email)", 400));
+  } else {
+    const token = sentJwtToken(yesUser._id);
+    return res.status(200).cookie("cookie", token, cookieOptions).json({
+      success: true,
+      yesUser,
+      token,
+    });
+  }
+
+  console.log("Google login data:", req.body);
+});
 export const forgotPassword = CatchAsync(async (req, res, next) => {
   // 1. Lấy email từ body của request
   const { email } = req.body;

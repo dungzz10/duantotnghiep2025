@@ -76,6 +76,19 @@ const Account = {
       throw error;
     }
   },
+  loginWithGoogle: async (body) => {
+    try {
+      const res = await request.post("/user/google-login", body);
+      if (res.token) {
+        localStorage.setItem("token", res.token); 
+        localStorage.setItem("user", JSON.stringify(res.user)); 
+      }
+      return res;
+    } catch (error) {
+      console.error("Google login failed:", error);
+      throw error;
+    }
+  },
 
   register: async (body) => {
     try {

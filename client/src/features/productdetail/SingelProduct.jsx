@@ -190,9 +190,10 @@ const SingelProduct = () => {
           {/* right colums start */}
           <div className="flex-[1] py-3">
             {/* Tiêu đề  */}
-            <div className="text-[34px] font-semibold mb-2">
+            <div className="text-[34px] font-semibold mb-2 break-words whitespace-normal leading-relaxed">
               {product.title}
             </div>
+
             {/* tiêu đề  */}
             {selectedSize ? (
               <div className="text-md font-medium text-black/[0.5] mt-2">
@@ -435,9 +436,7 @@ const SingelProduct = () => {
 
             <div>
               <div className="text-lg font-bold mb-5">Chi tiết sản phẩm</div>
-              <div className="text-md mb-5">
-               {data.product.description}
-              </div>
+              <div className="text-md mb-5">{data.product.description}</div>
             </div>
           </div>
           {/* right colums end */}

@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import loginApi from "./loginApi";
-
+import { loginWithGoogle } from "./loginApi";
 export const useLogin = () => {
   const { mutate, isLoading } = useMutation({
     mutationFn: async (data) => {
@@ -15,4 +15,17 @@ export const useLogin = () => {
   });
   return { mutate, isLoading };
 };
-;
+export const useGoogleLogin = () => {
+  const { mutate: googleLogin, isLoading: isGoogleLoading } = useMutation({
+    mutationFn: async () => {
+      return await loginWithGoogle();
+    },
+    onSuccess: (data) => {
+      console.log("Google login success:", data);
+    },
+    onError: (error) => {
+      console.log("Google login error:", error);
+    },
+  });
+  return { googleLogin, isGoogleLoading };
+};

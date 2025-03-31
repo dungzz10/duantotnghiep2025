@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "firebase": "^11.5.0",
+    "react-google-login": "^5.2.2"
+  }
+}

@@ -13,6 +13,7 @@ import {
   loadAdmin,
   updateUser,
   getAdminUsers,
+  googleLogin,
 } from "../controllers/authControll.js";
 import { isAuththenticated, checkquyen } from "../middlewares/auth.js";
 import {
@@ -45,6 +46,9 @@ userRouter.get("/my-addresses",isAuththenticated, getMyAddresses);
 userRouter.get("/admin/", isAuththenticated, getAdminUsers);
 userRouter.post("/signup", signup);
 userRouter.post("/signin", signin);
+userRouter.post("/google-login", googleLogin);
+
+
 userRouter.post("/forgotpassword", forgotPassword);
 userRouter.post("/resetpassword/:token", resetPassword);
 userRouter.put("/uppdatepassword", isAuththenticated, updatePassword);

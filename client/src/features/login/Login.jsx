@@ -2,12 +2,14 @@ import React, { useRef, useState } from "react";
 import { Form, Input, Button, Checkbox, message } from "antd"; // Thêm message
 import ReCAPTCHA from 'react-google-recaptcha';
 import { Link } from "react-router-dom";
-import { useLogin } from "./loginhandel"; // Giữ nguyên phần này
+import { useLogin ,useGoogleLogin } from "./loginhandel";
 import { useNavigate } from "react-router-dom";
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
+import { GoogleOutlined } from "@ant-design/icons";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { googleLogin, isGoogleLoading } = useGoogleLogin(); 
   const { mutate, isLoading } = useLogin();
   const [isVerified, setIsVerified] = useState(false);
   const recaptchaRef = useRef()
@@ -29,6 +31,19 @@ const Login = () => {
     } else {
       message.error('vui lòng xác nhận bạn không phải người máy')
     }
+  };
+  const handleGoogleLogin = () => {
+    googleLogin(undefined, {
+      onSuccess: (data) => {
+        message.success("Đăng nhập bằng Google thành công!");
+        console.log("Google login success:", data);
+        navigate("/");
+      },
+      onError: (error) => {
+        console.log("Google login failed:", error);
+        message.error("Đăng nhập bằng Google thất bại!");
+      },
+    });
   };
 
   // Hàm xử lý khi form submit thất bại (validation lỗi)
@@ -53,6 +68,15 @@ const Login = () => {
     <div className="min-h-screen text-left flex flex-col justify-center py-14 sm:px-4 lg:px-8">
       <div className="mt-8 mx-auto w-full max-w-md">
         <div className="bg-white w-full py-8 px-4 shadow sm:rounded-lg">
+        <Button
+            onClick={handleGoogleLogin}
+            loading={isGoogleLoading}
+            icon={<GoogleOutlined />}
+            className="w-full mb-4"
+            size="large"
+          >
+            Đăng nhập bằng Google
+          </Button>
           <Form 
             className="mt-[30px] mx-auto sm:w-[400px]" 
             name="form_item_path" 
