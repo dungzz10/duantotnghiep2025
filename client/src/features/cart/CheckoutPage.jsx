@@ -319,6 +319,7 @@ const CheckoutPage = () => {
               <div>
                 <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
                 <Select
+                 className="w-full text-lg h-10 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
                   style={{ flex: 1 }}
                   value={selectedAddress}
                   onChange={(value) => {

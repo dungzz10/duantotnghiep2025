@@ -79,9 +79,10 @@ const Account = {
   loginWithGoogle: async (body) => {
     try {
       const res = await request.post("/user/google-login", body);
+      // console.log("res", res);
       if (res.token) {
         localStorage.setItem("token", res.token); 
-        localStorage.setItem("user", JSON.stringify(res.user)); 
+        localStorage.setItem("user", JSON.stringify(res.yesUser)); 
       }
       return res;
     } catch (error) {
