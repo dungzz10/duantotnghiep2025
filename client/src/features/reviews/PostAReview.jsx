@@ -71,13 +71,14 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
     mutationFn: postReview,
     onSuccess: () => {
       queryClient.invalidateQueries("productReviews");
-      alert("review thành công ");
+       Swal.fire({
+        title: "Đánh giá thành công",
+        text: "Cảm ơn bạn đã đánh giá!",
+        icon: "success"
+      });
       setComment("");
       setRating(0);
       handleClose();
-    },
-    onError: (error) => {
-      alert(error.message);
     },
   });
   const handleRating = (value) => {
@@ -129,7 +130,7 @@ const PostAReview = ({ isModalOpen, handleClose }) => {
             Hủy
           </button>
           <button
-            className="px-4 py-2 bg-primary text-white rounded"
+            className="px-4 py-2 bg-blue-900 text-white rounded"
             onClick={handleSubmit}
           >
             Thêm
