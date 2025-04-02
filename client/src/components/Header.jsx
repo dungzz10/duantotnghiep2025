@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { data, Link, useNavigate } from "react-router-dom";
 import { userLogout } from "../app/hook/LogoutUser";
 import React, { useEffect, useState } from "react";
 import Wrapper from "./Wrapper";
@@ -7,8 +7,10 @@ import Banner from "./Banner";
 
 import { Search, ShoppingBag, Heart, User } from "lucide-react";
 import { api } from "../axios/api";
+import { useUser } from "../app/hook/LoadUser";
 
-const Header = ({ user }) => {
+const Header = () => {
+  const { user, isLoading: isUserLoading, refetch } = useUser();
   const [showCatMenu, setShowCatMenu] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
@@ -22,13 +24,19 @@ const Header = ({ user }) => {
       console.log(data.data.totalFavourites, 999);
     };
 
-    fetchData();
-  }, []);
+    if (user) {
+      fetchData();
+      refetch();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     console.log("Logout");
     Logout();
   };
+  if (isUserLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>

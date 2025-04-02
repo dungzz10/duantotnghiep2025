@@ -113,6 +113,9 @@ const ProductsAdmin = () => {
     const formattedVariants = [];
 
     const variantsByColor = {};
+    console.log(variants);
+    console.log(variantsByColor);
+
     variants.forEach((variant) => {
       if (!variantsByColor[variant.color]) {
         variantsByColor[variant.color] = [];
@@ -123,7 +126,7 @@ const ProductsAdmin = () => {
         price: variant.price,
       });
     });
-
+    console.log(variantsByColor);
     Object.keys(variantsByColor).forEach((color) => {
       console.log(color);
       formattedVariants.push({

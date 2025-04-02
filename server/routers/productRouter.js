@@ -28,7 +28,7 @@ const productRouter = express.Router();
 productRouter.get("/getall/", getAllProductsisDelete);
 productRouter.post("/", isAuththenticated, createProduct);
 productRouter.get("/", getAllProduct);
-productRouter.get("/:id", isAuththenticated, getSingleProducts);
+productRouter.get("/:id", getSingleProducts);
 productRouter.put("/:id", isAuththenticated, updateProduct);
 productRouter.put("/delete/:id", isAuththenticated, softDeleteProduct);
 productRouter.put("/khoiphuc/:id", isAuththenticated, restoreProduct);

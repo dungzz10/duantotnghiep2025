@@ -302,6 +302,7 @@ const Order = () => {
           <Option value="shipped">Đang vận chuyển</Option>
           <Option value="delivered">Đã giao</Option>
           <Option value="cancelled">Đã hủy</Option>
+          <Option value="trahang">Đã Trả Hàng </Option>
         </Select>
       </div>
       <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
