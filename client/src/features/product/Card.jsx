@@ -75,11 +75,11 @@ const Card = ({ product }) => {
         <div className="text-gray-500 text-sm mb-2">{product.brand}</div>
         <div className="flex items-center text-black/[0.9] mt-auto">
           <p className="mr-2 text-lg font-semibold">
-            {product.originalPrice - product.salePrice } đ
+            {(product.originalPrice - product.salePrice).toLocaleString() } đ
           </p>
           {product.salePrice && (
             <p className="text-base font-medium line-through text-gray-400">
-            đ{product.originalPrice}
+            {(product.originalPrice).toLocaleString()}đ
             </p>
           )}
         </div>
