@@ -11,6 +11,7 @@ import { useUser } from "../app/hook/LoadUser";
 
 const Header = () => {
   const { user, isLoading: isUserLoading, refetch } = useUser();
+  console.log(user, "user");
   const [showCatMenu, setShowCatMenu] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
@@ -34,9 +35,9 @@ const Header = () => {
     console.log("Logout");
     Logout();
   };
-  if (isUserLoading) {
-    return <div>Loading...</div>;
-  }
+  // if (isUserLoading) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <>
