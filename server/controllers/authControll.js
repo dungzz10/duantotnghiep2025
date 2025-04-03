@@ -46,7 +46,7 @@ export const signup = CatchAsync(async (req, res, next) => {
 
   res.status(201).json({
     success: true,
-    message: "Signup successful!",
+    message: "Đăng kí thành công ",
     user,
   });
 });
@@ -355,7 +355,7 @@ export const updateUsertest = CatchAsync(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "User updated successfully",
+    message: "Cập nhật người dùng thành công ",
     user,
   });
 });

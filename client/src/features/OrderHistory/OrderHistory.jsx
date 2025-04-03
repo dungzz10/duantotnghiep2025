@@ -53,7 +53,18 @@ const OrderHistory = () => {
       // message.error("Có lỗi xảy ra khi hủy đơn hàng.");
     }
   };
-  const handleReturnOrder = async (orderId) => {
+  const handleReturnOrder = async (orderId, orderDate) => {
+    const currentDate = dayjs();
+    const orderPlacedDate = dayjs(orderDate);
+    const diffDays = currentDate.diff(orderPlacedDate, "day");
+
+    if (diffDays > 20) {
+      message.error(
+        "Đã quá 20 ngày kể từ ngày đặt, bạn không thể trả hàng được nữa."
+      );
+      return;
+    }
+
     try {
       const response = await axios.patch(`/orders/return/${orderId}`);
       message.success(`Đơn hàng ${orderId} đã được trả lại.`);
@@ -63,7 +74,8 @@ const OrderHistory = () => {
       console.error("Error returning order:", error);
       message.error("Có lỗi xảy ra khi trả hàng.");
     }
-  };
+};
+
 
   const filteredOrders = useMemo(() => {
     return orders.filter(
@@ -391,7 +403,9 @@ const OrderHistory = () => {
                   </Button>
                   <Button
                     danger
-                    onClick={() => handleReturnOrder(selectedOrder._id)}
+                    onClick={() =>
+                      handleReturnOrder(selectedOrder._id, selectedOrder.date)
+                    }
                     disabled={selectedOrder.orderStatus !== "delivered"}
                   >
                     Trả hàng
