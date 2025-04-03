@@ -58,29 +58,29 @@ export const signin = CatchAsync(async (req, res, next) => {
   console.log("User found:", yesUser);
 
   if (!yesUser) {
-    return next(new HandelError("khong tim thay user cua ban (email)", 400));
-  } else {
-    const comparePass = await yesUser.comparePassword(
-      password,
-      yesUser.password
-    );
-    console.log("Password comparison result:", comparePass);
+    return next(new HandelError("Không tìm thấy user của bạn (email)", 400));
+  }
 
-    if (comparePass) {
-      const token = sentJwtToken(yesUser._id);
-      return res.status(200).cookie("cookie", token, cookieOptions).json({
-        success: true,
-        yesUser,
-        token,
-      });
-    } else {
-      return next(
-        new HandelError("mat khau khong dung vui long nhap lai"),
-        400
-      );
-    }
+  // Kiểm tra trường active
+  if (!yesUser.active) {
+    return next(new HandelError("Tài khoản của bạn đã bị vô hiệu hóa.", 400));
+  }
+
+  const comparePass = await yesUser.comparePassword(password, yesUser.password);
+  console.log("Password comparison result:", comparePass);
+
+  if (comparePass) {
+    const token = sentJwtToken(yesUser._id);
+    return res.status(200).cookie("cookie", token, cookieOptions).json({
+      success: true,
+      yesUser,
+      token,
+    });
+  } else {
+    return next(new HandelError("Mật khẩu không đúng, vui lòng nhập lại.", 400));
   }
 });
+
 export const googleLogin = CatchAsync(async (req, res, next) => {
   const { email } = req.body;
   const yesUser = await User.findOne({ email }).select("+password");
@@ -269,6 +269,9 @@ export const signinAdmin = CatchAsync(async (req, res, next) => {
   }).select("+password");
   if (!adminUser) {
     return next(new HandelError("Bạn không có quyền truy cập!", 403));
+  }
+  if (!adminUser.active) {
+    return next(new HandelError("Tài khoản của bạn đã bị vô hiệu hóa.", 400));
   }
 
   const isPasswordValid = await adminUser.comparePassword(
