@@ -160,6 +160,7 @@ const SingelProduct = () => {
 
         if (response.ok) {
           message.success("Sản phẩm đã được thêm vào giỏ hàng! 🛒");
+          refetch();
           // navigate("/cart");
         } else {
           message.error(`Thêm vào giỏ hàng thất bại: ${result.message}`);

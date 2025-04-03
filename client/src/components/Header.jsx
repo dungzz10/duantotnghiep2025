@@ -26,31 +26,31 @@ const Header = () => {
       console.log(data.data.totalFavourites, 999);
     };
 
-<<<<<<< Updated upstream
     if (user) {
       fetchData();
       refetch();
     }
-=======
-    fetchData();
-  }, []);
+  }, [user, refetch]);
   useEffect(() => {
     const fetchCartCount = async () => {
-        const response = await api.get("/user/cart/count", {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          credentials: "include",
-        });
-        
-        const count = response.data.totalQuantity;
-        setCartItemCount(count);
-      } 
+      const response = await api.get("/user/cart/count", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        credentials: "include",
+      });
+
+      const count = response.data.totalQuantity;
+      setCartItemCount(count);
+    };
+    if (user) {
+      fetchCartCount();
+      refetch();
+    }
 
     fetchCartCount();
->>>>>>> Stashed changes
-  }, [user]);
+  }, [user,refetch]);
 
   const handleLogout = () => {
     console.log("Logout");
@@ -59,7 +59,6 @@ const Header = () => {
   // if (isUserLoading) {
   //   return <div>Loading...</div>;
   // }
-
 
   return (
     <>
@@ -134,7 +133,7 @@ const Header = () => {
               <Link to="/cart" className="relative">
                 <ShoppingBag size={22} />
                 <span className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartItemCount}
+                  {cartItemCount}
                 </span>
               </Link>
               <Link to="/favourite" className="relative">

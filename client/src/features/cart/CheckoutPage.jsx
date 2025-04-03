@@ -19,6 +19,7 @@ import {
 import { getAddress } from "../adress/useAddresApi";
 import NoOrderPage from "./NoOrderPage";
 import AddressForm from "../adress/AddressForm";
+import { useUser } from "../../app/hook/LoadUser";
 
 const { Title, Text } = Typography;
 
@@ -33,6 +34,7 @@ const CheckoutPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isUpdatePhone, setIsUpdatePhone] = useState(false);
+  const {  refetch } = useUser();
 
   // New state variables for recipient information
   const [isOtherRecipient, setIsOtherRecipient] = useState(false);
@@ -127,6 +129,7 @@ const CheckoutPage = () => {
       color: product.color || "Unknown",
       size: product.size || "Unknown",
     }));
+   
 
     if (["COD", "WALLET"].includes(paymentMethod)) {
       try {
@@ -141,7 +144,9 @@ const CheckoutPage = () => {
             credentials: "include",
             body: JSON.stringify({ products }),
           }
+          
         );
+        
 
         const inventoryData = await inventoryResponse.json();
         if (!inventoryResponse.ok || !inventoryData.success) {
@@ -286,6 +291,7 @@ const CheckoutPage = () => {
         message.error("Có lỗi xảy ra khi đặt hàng!");
       }
     }
+    refetch();
   };
 
   if (!order) return null;

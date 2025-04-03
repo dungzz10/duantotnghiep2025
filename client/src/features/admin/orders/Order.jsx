@@ -244,7 +244,7 @@ const Order = () => {
       key: "actions",
       render: (_, record) => (
         <div>
-<<<<<<< Updated upstream
+
           {record.orderStatus !== "cancelled" &&
             record.orderStatus !== "trahang" && (
               <Popconfirm
@@ -258,20 +258,7 @@ const Order = () => {
                 </Button>
               </Popconfirm>
             )}
-=======
-          {record.orderStatus !== "cancelled" && record.orderStatus !== "trahang" && (
-            <Popconfirm
-              title="Huỷ đơn ?"
-              onConfirm={() => handleCancelOrder(record._id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="link" icon={<CloseOutlined />}>
-                Huỷ đơn
-              </Button>
-            </Popconfirm>
-          )}
->>>>>>> Stashed changes
+
           <Button
             type="link"
             icon={<EyeOutlined />}
