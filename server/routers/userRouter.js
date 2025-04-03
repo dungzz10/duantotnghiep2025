@@ -28,6 +28,7 @@ import {
   addAddress,
   updateAddress,
   deleteAddress,
+  getCartItemCount,
 } from "../controllers/userControll.js";
 import {
   createMomoPayment,
@@ -107,6 +108,6 @@ userRouter.post("/add-address",isAuththenticated, addAddress);
 userRouter.put("/update-address",isAuththenticated, updateAddress);
 userRouter.delete("/delete-address/:addressId", isAuththenticated, deleteAddress);
 
-
+userRouter.get('/cart/count',isAuththenticated,getCartItemCount);
 
 export default userRouter;

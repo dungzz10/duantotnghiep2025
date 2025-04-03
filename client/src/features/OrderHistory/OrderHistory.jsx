@@ -273,7 +273,47 @@ const OrderHistory = () => {
                 </div>
               </div>
             </div>
+            <div style={{ display: "flex", flexDirection: "row", gap: "24px" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "12px" }}
+              >
+                <strong>Thông tin người đặt:</strong>
+                <p>
+                  <strong>Tên:</strong> {selectedOrder.userId.name}
+                </p>
+                <p>
+                  <strong>Địa chỉ:</strong>{" "}
+                  {selectedOrder.shippingAddress.address}
+                </p>
+                <p>
+                  <strong>Số điện thoại:</strong>{" "}
+                  {selectedOrder.userId.phoneNumber}
+                </p>
+              </div>
 
+              {selectedOrder.shippingAddress.recipientName && (
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "12px",marginLeft :"300px" }}
+                >
+                  <strong>Thông tin người nhận:</strong>
+                  <p>
+                    <strong>Tên:</strong>{" "}
+                    {selectedOrder.shippingAddress.recipientName}
+                  </p>
+                  <p>
+                    <strong>Địa chỉ:</strong>{" "}
+                    {selectedOrder.shippingAddress.recipientAddress}
+                  </p>
+                  <p>
+                    <strong>Điện thoại:</strong>{" "}
+                    {selectedOrder.shippingAddress.recipientPhone}
+                  </p>
+                </div>
+              )}
+            </div>
+            <br />
+            <hr />
+            <br />
             <Steps
               current={getCurrentStep(selectedOrder.orderStatus)}
               style={{ marginBottom: "20px" }}
@@ -396,7 +436,8 @@ const OrderHistory = () => {
                     onClick={() => handleCancelOrder(selectedOrder._id)}
                     disabled={
                       selectedOrder.orderStatus === "cancelled" ||
-                      selectedOrder.orderStatus === "delivered"
+                      selectedOrder.orderStatus === "delivered" ||
+                      selectedOrder.orderStatus === "trahang"
                     }
                   >
                     Hủy Đơn Hàng
@@ -480,42 +521,6 @@ const OrderHistory = () => {
                   {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
                 </p>
               </div>
-              <div style={{ width: "50%" }}>
-                <strong>Thông tin người đặt:</strong>
-                <div style={{ marginBottom: "10px" }}>
-                  <p>
-                    <strong>Người đặt:</strong> {selectedOrder.userId.name}
-                  </p>
-                  <p>
-                    <strong>Địa chỉ:</strong>{" "}
-                    {selectedOrder.shippingAddress.address}
-                  </p>
-                  <p>
-                    <strong>Số điện thoại:</strong>{" "}
-                    {selectedOrder.userId.phoneNumber}
-                  </p>
-                </div>
-              </div>
-
-              {selectedOrder.shippingAddress.recipientName && (
-                <div style={{ width: "50%" }}>
-                  <strong>Thông tin người nhận:</strong>
-                  <div style={{ marginBottom: "10px" }}>
-                    <p>
-                      <strong>Người nhận:</strong>{" "}
-                      {selectedOrder.shippingAddress.recipientName}
-                    </p>
-                    <p>
-                      <strong>Địa chỉ:</strong>{" "}
-                      {selectedOrder.shippingAddress.recipientAddress}
-                    </p>
-                    <p>
-                      <strong>Số điện thoại:</strong>{" "}
-                      {selectedOrder.shippingAddress.recipientPhone}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}

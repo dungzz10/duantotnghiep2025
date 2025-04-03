@@ -16,7 +16,8 @@ import {
   // updateWarehouseStock,
   // updateProductVariants,
 
-
+  getProductColors,
+  getSizesByColor,
 
  
 
@@ -32,6 +33,8 @@ productRouter.get("/:id", getSingleProducts);
 productRouter.put("/:id", isAuththenticated, updateProduct);
 productRouter.put("/delete/:id", isAuththenticated, softDeleteProduct);
 productRouter.put("/khoiphuc/:id", isAuththenticated, restoreProduct);
+productRouter.get("/:id/colors",isAuththenticated,getProductColors);
+productRouter.get("/:id/sizes/:color",isAuththenticated,getSizesByColor);
 // productRouter.post(":id", createProduct);
 
 // New routes for warehouse stock and product variants

@@ -434,3 +434,26 @@ export const deleteAddress = CatchAsync(async (req, res, next) => {
     addresses: user.address,
   });
 });
+
+export const getCartItemCount = CatchAsync(async (req, res, next) => {
+
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new HandelError("Không tìm thấy người dùng", 404));
+  }
+
+  let totalQuantity = 0;
+
+  if (user.cart && user.cart.length > 0) {
+    user.cart.forEach(item => {
+      totalQuantity += item.quantity;
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Lấy tổng số lượng sản phẩm thành công!",
+    totalQuantity: totalQuantity,
+  });
+});

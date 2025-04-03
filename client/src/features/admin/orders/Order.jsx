@@ -14,7 +14,7 @@ import {
   Col,
   DatePicker,
 } from "antd";
-import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons"; // Thêm EditOutlined
+import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 import moment from "moment";
 
@@ -47,7 +47,6 @@ const Order = () => {
     }
 
     try {
-      // Nếu có số điện thoại người gửi, tìm kiếm theo số điện thoại người gửi
       if (searchPhoneUser) {
         const response = await axios.get(
           `/orders/userPhone-check/${searchPhoneUser}`
@@ -55,7 +54,6 @@ const Order = () => {
         setOrders(response.data.data);
       }
 
-      // Nếu có số điện thoại người nhận, tìm kiếm theo số điện thoại người nhận
       if (searchPhoneRecipient) {
         const response = await axios.get(
           `/orders/recipientPhone-check/${searchPhoneRecipient}`
@@ -176,10 +174,16 @@ const Order = () => {
   };
 
   const handleUpdateStatus = async () => {
+    if (!selectedOrder) return;
     try {
-      await axios.patch(`/orders/orderStatus/${selectedOrder._id}`, {
+      const response = await axios.patch(`/orders/orderStatus/${selectedOrder._id}`, {
         orderStatus: editingStatus,
       });
+      if (response.data.success) {
+        message.success(response.data.message);
+    } else {
+        message.error("Có lỗi xảy ra khi cập nhật trạng thái đơn hàng.");
+    }
       fetchOrders();
       setIsModalVisible(false);
     } catch (error) {
@@ -240,6 +244,7 @@ const Order = () => {
       key: "actions",
       render: (_, record) => (
         <div>
+<<<<<<< Updated upstream
           {record.orderStatus !== "cancelled" &&
             record.orderStatus !== "trahang" && (
               <Popconfirm
@@ -253,6 +258,20 @@ const Order = () => {
                 </Button>
               </Popconfirm>
             )}
+=======
+          {record.orderStatus !== "cancelled" && record.orderStatus !== "trahang" && (
+            <Popconfirm
+              title="Huỷ đơn ?"
+              onConfirm={() => handleCancelOrder(record._id)}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button type="link" icon={<CloseOutlined />}>
+                Huỷ đơn
+              </Button>
+            </Popconfirm>
+          )}
+>>>>>>> Stashed changes
           <Button
             type="link"
             icon={<EyeOutlined />}
@@ -414,7 +433,7 @@ const Order = () => {
                     <Option value="shipped">Đang vận chuyển</Option>
                     <Option value="delivered">Đã giao</Option>
                     <Option value="cancelled">Đã huỷ</Option>
-                    <Option value="trahang">Hoàn Hàng </Option>
+                    <Option value="trahang">Đã hoàn Hàng </Option>
                   </Select>
                 </p>
               </Col>

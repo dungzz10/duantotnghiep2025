@@ -612,3 +612,59 @@ export const updateInventory = CatchAsync(async (req, res, next) => {
     inventory: size,
   });
 });
+
+export const getProductColors = CatchAsync(async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findById(id).select("variants").lean();
+
+    if (!product) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    }
+    
+    const availableColors = product.variants.filter((variant) => 
+      variant.sizes.some((size) => size.quantity > 0)
+    );
+
+    if (availableColors.length === 0) {
+      return res.status(404).json({ message: "Không có màu nào còn hàng" });
+    }
+
+    const colors = [...new Set(availableColors.map((variant) => variant.color))];
+    
+    return res.json(colors);
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách màu sắc:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});
+
+export const getSizesByColor = CatchAsync(async (req, res) => {
+  try {
+    const { id, color } = req.params;
+
+    const product = await Product.findById(id).select("variants").lean();
+
+    if (!product) {
+      return res.status(404).json({ message: "Sản phẩm không tồn tại" });
+    }
+
+    const variant = product.variants.find((v) => v.color === color);
+
+    if (!variant) {
+      return res.status(404).json({ message: "Không tìm thấy màu sắc này" });
+    }
+    
+    const sizes = variant.sizes.map((s) => ({
+      size: s.size,
+      price: s.price,
+      quantity: s.quantity,
+    }));
+
+    return res.json(sizes);
+  } catch (error) {
+    console.error("Lỗi khi lấy danh sách kích thước:", error);
+    res.status(500).json({ message: "Lỗi server" });
+  }
+});

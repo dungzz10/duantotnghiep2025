@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Table, Button, InputNumber, message } from "antd";
+import { Table, Button, InputNumber, message, Select } from "antd";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { api } from "../../axios/api";
 
 const CartPage = () => {
   const [cartData, setCartData] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const navigate = useNavigate();
-
+  const [sizes, setSizes] = useState([]);
+  const [selectedColor] = useState(null);
+  const [productId] = useState(null);
+  const [colors, setAvailableColors] = useState([]);
   useEffect(() => {
     const fetchCart = async () => {
       try {
@@ -69,56 +73,207 @@ const CartPage = () => {
     fetchCart();
   }, [navigate]);
 
+  const handleFetchColors = async (productId) => {
+    try {
+      const res = await api.get(`/product/${productId}/colors`);
+      setAvailableColors(res.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách màu sắc:", error);
+      message.error("Không thể tải danh sách màu sắc");
+    }
+  };
+
+  const handleFetchSizes = async (productId, color) => {
+    try {
+      const res = await api.get(`/product/${productId}/sizes/${color}`);
+      setSizes(res.data);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách kích thước:", error);
+    }
+  };
+  useEffect(() => {
+    if (productId) {
+      handleFetchColors(productId);
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    if (productId && selectedColor) {
+      handleFetchSizes(productId, selectedColor);
+    }
+  }, [productId, selectedColor]);
+
+  const handleColorChange = async (selectedColor, productId, variant) => {
+    try {
+      if (!selectedColor) {
+        message.warning("Vui lòng chọn màu.");
+        return;
+      }
+
+      const res = await api.get(`/product/${productId}/sizes/${selectedColor}`);
+      const availableSizes = res.data;
+
+      if (availableSizes.length === 0) {
+        message.warning("Không có kích thước nào cho màu này.");
+        return;
+      }
+      const availableSizeWithStock = availableSizes.filter(size => size.quantity > 0);
+    if (availableSizeWithStock.length === 0) {
+      message.warning("Không có kích thước còn hàng cho màu này.");
+      return;
+    }
+    
+    let newDefaultSize = availableSizeWithStock[0].size;
+    let newDefaultPrice = availableSizeWithStock[0].price;
+
+    if (availableSizes[0].quantity === 0) {
+      newDefaultSize = availableSizeWithStock[1] ? availableSizeWithStock[1].size : availableSizeWithStock[0].size;
+      newDefaultPrice = availableSizeWithStock[1] ? availableSizeWithStock[1].price : availableSizeWithStock[0].price;
+    }
+
+      setCartData((prev) =>
+        prev.map((product) => {
+          if (product.productId === productId) {
+
+            const updatedVariants = product.variants.map((v) =>
+
+              v.color === variant.color && v.size === variant.size
+                ? {
+                    ...v,
+                    color: selectedColor,
+                    size: newDefaultSize,
+                    price: newDefaultPrice,
+                  }
+                : v 
+            );
+  
+            const newTotalPrice = updatedVariants.reduce(
+              (sum, currentVariant) => sum + currentVariant.quantity * currentVariant.price,
+              0
+            );
+            const newTotalQuantity = updatedVariants.reduce(
+              (sum, currentVariant) => sum + currentVariant.quantity,
+              0
+            );
+  
+            return {
+              ...product,
+              variants: updatedVariants,
+              totalPrice: newTotalPrice,
+              totalQuantity: newTotalQuantity,
+            };
+          }
+          return product;
+        })
+      );
+
+      setSizes(availableSizes);
+    } catch (error) {
+      console.error("Lỗi khi thay đổi màu sắc:", error);
+      message.error("Không thể lấy danh sách kích thước.");
+    }
+  };
+
+  const handleSizeChange = async (value, productId, selectedColor, variant) => {
+    try {
+      const res = await api.get(`/product/${productId}/sizes/${selectedColor}`);
+      const availableSizes = res.data;
+
+      if (availableSizes.length === 0) {
+        message.warning("Không có kích thước nào cho màu này.");
+        return;
+      }
+
+      const selectedSize = availableSizes.find((s) => s.size === value);
+
+      if (!selectedSize) {
+        message.warning("Size không hợp lệ với màu này.");
+        return;
+      }
+
+      setCartData((prev) =>
+        prev.map((product) => {
+          if (product.productId === productId) {
+            const updatedVariants = product.variants.map((v) => {
+              if (v.color === selectedColor && v.size === variant.size) {
+                return {
+                  ...v,
+                  size: selectedSize.size,
+                  price: selectedSize.price,
+                };
+              }
+              return v;
+            });
+
+            return {
+              ...product,
+              variants: updatedVariants,
+              totalPrice: updatedVariants.reduce(
+                (sum, v) => sum + v.quantity * v.price,
+                0
+              ),
+            };
+          }
+          return product;
+        })
+      );
+
+      setSizes(availableSizes);
+    } catch (error) {
+      console.error("Lỗi khi thay đổi size:", error);
+      message.error("Không thể thay đổi size sản phẩm");
+    }
+  };
+
   const handleQuantityChange = async (value, productId, variant) => {
     if (value < 1) return;
-
-    try {
-      // chưa thể cập nhật số lượng sản phẩm đang test lỗi
-      // await axios.post("/carts/update", {
-      //   productId,
-      //   color: variant.color,
-      //   size: variant.size,
-      //   quantity: value,
-      // });
   
+    try {
+
       setCartData((prev) => {
-        const updatedCart = prev.map((product) =>
-          product.productId === productId
-            ? {
-                ...product,
-                variants: product.variants.map((v) =>
-                  v.color === variant.color && v.size === variant.size
-                    ? { ...v, quantity: value }
-                    : v
-                ),
-                totalQuantity: product.variants.reduce(
-                  (sum, v) =>
-                    v.color === variant.color && v.size === variant.size
-                      ? sum + value
-                      : sum + v.quantity,
-                  0
-                ),
-                totalPrice: product.variants.reduce(
-                  (sum, v) =>
-                    v.color === variant.color && v.size === variant.size
-                      ? sum + value * v.price
-                      : sum + v.quantity * v.price,
-                  0
-                ),
-              }
-            : product
-        );
-        return updatedCart;
+        return prev.map((product) => {
+          if (product.productId === productId) {
+
+            const updatedVariants = product.variants.map((v) =>
+              v.color === variant.color && v.size === variant.size
+                ? { ...v, quantity: value } 
+                : v
+            );
+            const newTotalQuantity = updatedVariants.reduce(
+              (sum, v) => sum + v.quantity,
+              0
+            );
+  
+            const newTotalPrice = updatedVariants.reduce(
+              (sum, v) =>
+                v.color === variant.color && v.size === variant.size
+                  ? sum + value * v.price
+                  : sum + v.quantity * v.price,
+              0
+            );
+  
+            return {
+              ...product,
+              variants: updatedVariants,
+              totalQuantity: newTotalQuantity,
+              totalPrice: newTotalPrice,
+            };
+          }
+          return product;
+        });
       });
     } catch (error) {
       console.error("Lỗi cập nhật số lượng:", error);
       message.error("Không thể cập nhật số lượng sản phẩm");
     }
   };
+  
 
   const handleDeleteItem = async (productId, variantToDelete) => {
     try {
-      const product = cartData.find((product) => product.productId === productId);
+      const product = cartData.find(
+        (product) => product.productId === productId
+      );
       const remainingVariants = product.variants.filter(
         (variant) =>
           variant.color !== variantToDelete.color ||
@@ -132,7 +287,7 @@ const CartPage = () => {
             size: variant.size,
           })),
         });
-  
+
         setCartData((prev) =>
           prev.filter((product) => product.productId !== productId)
         );
@@ -146,7 +301,7 @@ const CartPage = () => {
             },
           ],
         });
-  
+
         setCartData((prev) =>
           prev.map((product) =>
             product.productId === productId
@@ -166,7 +321,7 @@ const CartPage = () => {
           )
         );
       }
-  
+
       message.success("Sản phẩm hoặc biến thể đã được xóa");
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -187,15 +342,15 @@ const CartPage = () => {
             size: variant.size,
           }))
         );
-  
+
       await axios.post("/carts/delete", { items: itemsToDelete });
-  
+
       setCartData((prev) =>
         prev.filter(
           (product) => !selectedProducts.includes(product.productId.toString())
         )
       );
-  
+
       setSelectedProducts([]);
       message.success("Các sản phẩm đã được xóa");
     } catch (error) {
@@ -221,16 +376,16 @@ const CartPage = () => {
           kho: variant.kho,
         }))
       );
-  
+
     if (!selectedItems.length) {
       message.error("Vui lòng chọn sản phẩm để thanh toán");
       return;
     }
-  
+
     const invalidItems = selectedItems.filter(
       (item) => item.quantity > item.kho
     );
-  
+
     if (invalidItems.length > 0) {
       const errorMessage = invalidItems
         .map(
@@ -241,24 +396,24 @@ const CartPage = () => {
       message.error(`Số lượng vượt quá tồn kho:\n${errorMessage}`);
       return;
     }
-  
+
     const total = selectedItems.reduce(
       (sum, item) => sum + item.quantity * item.price,
       0
     );
-  
+
     const checkoutData = {
       products: selectedItems,
       total,
       shippingFee: 30000,
       voucherDiscount: 0,
     };
-  
+
     localStorage.setItem("order", JSON.stringify(checkoutData));
-  
+
     message.success("Chọn phương thức thanh toán");
     console.log("order:", checkoutData);
-  
+
     navigate("/cart/checkout");
   };
 
@@ -332,15 +487,65 @@ const CartPage = () => {
                   key={`${record.productId}-${variant.color}-${variant.size}`}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "0.415fr 0.25fr 0.188fr 0.1fr",
+                    gridTemplateColumns: "0.345fr 0.25fr 0.188fr 0.1fr",
                     alignItems: "center",
                     padding: "10px 0",
                     borderBottom: "1px solid #f0f0f0",
                   }}
                 >
-                  <span style={{ paddingLeft: "180px" }}>
-                    <strong>Màu:</strong> {variant.color}, <strong>Size:</strong> {variant.size}
-                  </span>
+                  <div style={{ paddingLeft: "38px" }}>
+                    {/* Dropdown chọn màu */}
+                    <Select
+                      placeholder="Chọn màu"
+                      style={{ width: 120, marginRight: 10 }}
+                      value={variant.selectedColor || variant.color}
+                      onChange={(value) =>
+                        handleColorChange(value, record.productId, variant)
+                      }
+                      onFocus={() => handleFetchColors(record.productId)}
+                    >
+                      {colors
+                      .map((color) => (
+                        <Select.Option key={color} value={color}>
+                          {color}
+                        </Select.Option>
+                      ))}
+                    </Select>
+                    {/* Dropdown chọn kích thước */}
+                    <Select
+                      placeholder="Chọn size"
+                      style={{ width: 120 }}
+                      value={variant.size}
+                      onChange={(value) =>
+                        handleSizeChange(
+                          value,
+                          record.productId,
+                          variant.color,
+                          variant
+                        )
+                      }
+                      onFocus={() =>
+                        handleFetchSizes(record.productId, variant.color)
+                      }
+                      // disabled={!variant.selectedColor}
+                    >
+                      {sizes
+                      .filter((sizeObj) => sizeObj.quantity > 0)
+                      .map(
+                        (
+                          sizeObj
+                        ) => (
+                          <Select.Option
+                            key={sizeObj.size}
+                            value={sizeObj.size}
+                          >
+                            {sizeObj.size}{" "}
+                          
+                          </Select.Option>
+                        )
+                      )}
+                    </Select>
+                  </div>
                   <span>
                     <InputNumber
                       min={1}
@@ -350,18 +555,26 @@ const CartPage = () => {
                       }
                     />
                   </span>
-                  <span>
-                  {variant.price.toLocaleString()} VNĐ
+                  <span style={{ paddingLeft: "37px" }}>
+                    {variant.price.toLocaleString()} VNĐ
                   </span>
-                  <div style={{ display: "flex", textAlign: "center" }}>
-                  <Button
-                    type="link"
-                    danger
-                    onClick={() => handleDeleteItem(record.productId, variant)}
+                  <div
+                    style={{
+                      display: "flex",
+                      textAlign: "center",
+                      paddingLeft: "95px",
+                    }}
                   >
-                    Xóa
-                  </Button>
-                </div>
+                    <Button
+                      type="link"
+                      danger
+                      onClick={() =>
+                        handleDeleteItem(record.productId, variant)
+                      }
+                    >
+                      Xóa
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -397,7 +610,14 @@ const CartPage = () => {
                 .filter((product) =>
                   selectedProducts.includes(product.productId.toString())
                 )
-                .reduce((sum, product) => sum + product.totalPrice, 0)
+                .reduce(
+                  (sum, product) =>
+                    sum +
+                    product.variants.reduce((subSum, variant) => {
+                      return subSum + variant.quantity * variant.price;
+                    }, 0),
+                  0
+                )
                 .toLocaleString()}{" "}
               VNĐ
             </strong>
