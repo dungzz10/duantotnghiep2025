@@ -355,7 +355,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
 
   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
     return res.json({
-      message: "Không thể hủy đơn hàng",
+      message: "Không thể hủy đơn hàng do đang trong quá trình giao hàng",
     });
   }
 
@@ -412,7 +412,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Đơn hàng đã được hủy thành công, và tiền đã được hoàn vào ví",
+      message: "Đơn hàng đã được hủy thành công",
       order,
     });
   } else if (

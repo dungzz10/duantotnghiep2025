@@ -42,7 +42,7 @@ const OrderHistory = () => {
       // message.success(`Đơn ${id} đã được hủy.`);
       const res = await api.delete(`/orders/${id}`);
       console.log(res, 9999);
-      message.success(`  Đơn ${id} ${res.data.message}`);
+      message.warning(`  Đơn ${id} ${res.data.message}`);
       fetchOrders();
       setIsModalVisible(false);
 
