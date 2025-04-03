@@ -6,7 +6,7 @@ import novu from "../utils/novu.js";
 import crypto from "crypto";
 
 const sentJwtToken = (userid) => {
-  return jwt.sign({ id: userid }, "khoa", { expiresIn: "1h" });
+  return jwt.sign({ id: userid }, process.env.JWT_SECRET , { expiresIn: "1h" });
 };
 const cookieOptions = {
   expires: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000),

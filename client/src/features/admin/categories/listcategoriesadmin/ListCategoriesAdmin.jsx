@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { useCategoriesAdmin } from "./usecategoriesadmin";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import axios from "axios";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -83,7 +84,7 @@ const ListCategoriesAdmin = () => {
         });
         try {
           const response = await axios.delete(
-            `http://localhost:5000/api/v1/categories/${id}/delete`
+            `${getBaseUrl()}/api/v1/categories/${id}/delete`
           );
           if (response.status === 200) {
             message.success(

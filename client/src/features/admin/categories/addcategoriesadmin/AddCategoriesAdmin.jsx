@@ -26,7 +26,7 @@ const AddCategoriesAdmin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/categories/create",
+        `${getBaseUrl()}/api/v1/categories/create`,
         payload,
         {
           headers: {

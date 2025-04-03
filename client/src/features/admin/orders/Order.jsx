@@ -17,6 +17,7 @@ import {
 import { SearchOutlined, EyeOutlined, CloseOutlined } from "@ant-design/icons"; // Thêm EditOutlined
 import { format } from "date-fns";
 import moment from "moment";
+import { getBaseUrl } from "../../../utils/baseURL";
 
 const { Option } = Select;
 
@@ -78,7 +79,7 @@ const Order = () => {
       console.log(startDate, endDate, 666);
 
       const ordersResponse = await axios.get(
-        `http://localhost:5000/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
+        `${getBaseUrl()}/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
       );
       console.log(ordersResponse, 999);
       setSearchPhoneUser("");

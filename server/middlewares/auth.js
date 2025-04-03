@@ -13,7 +13,7 @@ export const isAuththenticated = CatchAsync(async (req, res, next) => {
   }
 
   // Giải mã token nếu có:
-  const decoded = jwt.verify(cookie, "khoa");
+  const decoded = jwt.verify(cookie, process.env.JWT_SECRET );
   // console.log(decoded)
   // Tìm người dùng dựa trên token đã giải mã:
   // Đây là thời gian token được tạo(iat) (Issued At Time).

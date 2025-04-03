@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import { getBaseUrl } from "../../utils/baseURL";
 // import { useDispatch } from "react-redux";
 
 const intansce = axios.create({
-    baseURL: "http://localhost:5000/api/v1/",
+    baseURL: `${getBaseUrl()}/api/v1/`,
 });
 
 // Add a request interceptor

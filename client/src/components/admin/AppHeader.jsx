@@ -17,7 +17,7 @@ const AppHeader = ({ admin }) => {
       if (!token) return;
 
       try {
-        const res = await fetch("http://localhost:5000/api/v1/orders/new", {
+        const res = await fetch(`${getBaseUrl()}/api/v1/orders/new`, {
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           credentials: "include",
         });

@@ -18,12 +18,13 @@ import {
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { getBaseUrl } from "../../../utils/baseURL";
 
 const { Search } = Input;
 
 const fetchProducts = async () => {
   const { data } = await axios.get(
-    "http://localhost:5000/api/v1/product/getall/"
+    `${getBaseUrl()}/api/v1/product/getall/`
   );
   return data;
 };
@@ -32,7 +33,7 @@ const Warehouse = () => {
   const deleteProductMutation = useMutation({
     mutationFn: async (id) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/product/delete/${id}`
+        `${getBaseUrl()}/api/v1/product/delete/${id}`
       );
       return response.data;
     },
@@ -79,7 +80,7 @@ const Warehouse = () => {
   const addVariantMutation = useMutation({
     mutationFn: async ({ productId, data }) => {
       const response = await axios.post(
-        `http://localhost:5000/api/v1/product/${productId}/variants`,
+        `${getBaseUrl()}/api/v1/product/${productId}/variants`,
         data
       );
       return response.data;
@@ -98,7 +99,7 @@ const Warehouse = () => {
   const updateVariantMutation = useMutation({
     mutationFn: async ({ productId, variantId, data }) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/product/${productId}/variants/${variantId}`,
+        `${getBaseUrl()}/api/v1/product/${productId}/variants/${variantId}`,
         data
       );
       return response.data;
@@ -112,7 +113,7 @@ const Warehouse = () => {
   const deleteVariantMutation = useMutation({
     mutationFn: async ({ productId, variantId }) => {
       const response = await axios.delete(
-        `http://localhost:5000/api/v1/product/${productId}/variants/${variantId}`
+        `${getBaseUrl()}/api/v1/product/${productId}/variants/${variantId}`
       );
       return response.data;
     },

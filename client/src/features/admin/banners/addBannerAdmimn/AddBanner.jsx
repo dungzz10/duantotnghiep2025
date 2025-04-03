@@ -32,7 +32,7 @@ const AddBanner = () => {
         formData.append("isActive", isActive === "true"); // Chuyển đổi thành boolean
 
         try {
-            const res = await fetch("http://localhost:5000/api/v1/banners", {
+            const res = await fetch(`${getBaseUrl()}/api/v1/banners`, {
                 method: "POST",
                 body: formData,
             });

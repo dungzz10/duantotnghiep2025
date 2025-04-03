@@ -19,7 +19,7 @@ const ATMSuccess = () => {
 
     const fetchOrder = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/momo/verify/${orderId}`, {
+        const response = await fetch(`${getBaseUrl()}/api/momo/verify/${orderId}`, {
           method: "GET",
           credentials: "include",
         });

@@ -14,6 +14,7 @@ import {
 } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const { Option } = Select;
 
@@ -24,7 +25,7 @@ const fetchProducts = async (query) => {
   );
 
   const { data } = await axios.get(
-    "http://localhost:5000/api/v1/product/getall/",
+    `${getBaseUrl()}/api/v1/product/getall/`,
     { params: filteredQuery }
   );
   console.log(data);
@@ -62,7 +63,7 @@ const ListproductAdmin = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/product/delete/${id}`
+        `${getBaseUrl()}/api/v1/product/delete/${id}`
       );
       return response.data;
     },
@@ -81,7 +82,7 @@ const ListproductAdmin = () => {
   const restoreMutation = useMutation({
     mutationFn: async (id) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/product/khoiphuc/${id}`
+       `${getBaseUrl()}/api/v1/product/khoiphuc/${id}`
       );
       return response.data;
     },

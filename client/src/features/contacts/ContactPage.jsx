@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { message } from 'antd';
 import React, { useState } from 'react'
 import { FaFacebookF, FaTwitter, FaYoutube, FaInstagram } from "react-icons/fa";
+import { getBaseUrl } from '../../utils/baseURL';
 
 const ContactPage = () => {
   const [name, setName] = useState('');
@@ -12,7 +13,7 @@ const ContactPage = () => {
   //dùng mutation 
   const mutation = useMutation({
     mutationFn: async (data) => {
-      const response = await fetch('http://localhost:5000/api/v1/contact/create', {
+      const response = await fetch(`${getBaseUrl()}/api/v1/contact/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

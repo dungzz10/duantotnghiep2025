@@ -2,6 +2,7 @@ import React from "react";
 import { Modal, Form, Input, Select, message } from "antd";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const { Option } = Select;
 
@@ -12,7 +13,7 @@ const UserAdminForm = ({ visible, onCancel, user, onSubmit }) => {
   const createUser = useMutation({
     mutationFn: async (data) => {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/user/admin/signup",
+        `${getBaseUrl()}/api/v1/user/admin/signup`,
         data,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -35,7 +36,7 @@ const UserAdminForm = ({ visible, onCancel, user, onSubmit }) => {
   const updateUser = useMutation({
     mutationFn: async (data) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/user/admin/uppdate/${user._id}`,
+        `${getBaseUrl()}/api/v1/user/admin/uppdate/${user._id}`,
         data,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
