@@ -403,7 +403,7 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
 
     user.wallet.transactions.push({
       type: "withdrawal",
-      amount: order.finalTotal,
+      amount: order.finalTotal - order.shippingFee,
       status: "completed",
       description: `Hoàn tiền cho đơn hàng ${orderId}`,
     });
@@ -601,7 +601,7 @@ export const returnOrder = CatchAsync(async (req, res, next) => {
     if (user) {
       user.wallet.transactions.push({
         type: "withdrawal",
-        amount: order.finalTotal,
+        amount: order.finalTotal-order.shippingFee,
         status: "completed",
         description: `Hoàn tiền cho đơn hàng trả lại ${orderId}`,
       });

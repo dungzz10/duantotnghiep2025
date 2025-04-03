@@ -240,18 +240,19 @@ const Order = () => {
       key: "actions",
       render: (_, record) => (
         <div>
-          {record.orderStatus !== "cancelled" && record.orderStatus !== "trahang" && (
-            <Popconfirm
-              title="Xoá đơn ?"
-              onConfirm={() => handleCancelOrder(record._id)}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="link" icon={<CloseOutlined />}>
-                Huỷ đơn
-              </Button>
-            </Popconfirm>
-          )}
+          {record.orderStatus !== "cancelled" &&
+            record.orderStatus !== "trahang" && (
+              <Popconfirm
+                title="Xoá đơn ?"
+                onConfirm={() => handleCancelOrder(record._id)}
+                okText="Yes"
+                cancelText="No"
+              >
+                <Button type="link" icon={<CloseOutlined />}>
+                  Huỷ đơn
+                </Button>
+              </Popconfirm>
+            )}
           <Button
             type="link"
             icon={<EyeOutlined />}
@@ -301,42 +302,44 @@ const Order = () => {
           <Option value="shipped">Đang vận chuyển</Option>
           <Option value="delivered">Đã giao</Option>
           <Option value="cancelled">Đã hủy</Option>
+          <Option value="trahang">Đã Trả Hàng </Option>
         </Select>
       </div>
-      <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
-        <Input
-          placeholder="Số điện thoại người đặt"
-          prefix={<SearchOutlined />}
-          value={searchPhoneUser}
-          onChange={(e) => setSearchPhoneUser(e.target.value)}
-          style={{ width: "250px" }}
-        />
-        <Button
-          type="primary"
-          onClick={handleSearchPhoneUser}
-          icon={<SearchOutlined />}
-        >
-          Tìm kiếm
-        </Button>
-      </div>
+      <div style={{ display: "flex", gap: "20px", alignItems: "center" }}>
+        <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
+          <Input
+            placeholder="Số điện thoại người đặt"
+            prefix={<SearchOutlined />}
+            value={searchPhoneUser}
+            onChange={(e) => setSearchPhoneUser(e.target.value)}
+            style={{ width: "250px" }}
+          />
+          <Button
+            type="primary"
+            onClick={handleSearchPhoneUser}
+            icon={<SearchOutlined />}
+          >
+            Tìm kiếm
+          </Button>
+        </div>
 
-      <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
-        <Input
-          placeholder="Số điện thoại người nhận"
-          prefix={<SearchOutlined />}
-          value={searchPhoneRecipient}
-          onChange={(e) => setSearchPhoneRecipient(e.target.value)}
-          style={{ width: "250px" }}
-        />
-        <Button
-          type="primary"
-          onClick={handleSearchPhoneUser}
-          icon={<SearchOutlined />}
-        >
-          Tìm kiếm
-        </Button>
+        <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
+          <Input
+            placeholder="Số điện thoại người nhận"
+            prefix={<SearchOutlined />}
+            value={searchPhoneRecipient}
+            onChange={(e) => setSearchPhoneRecipient(e.target.value)}
+            style={{ width: "250px" }}
+          />
+          <Button
+            type="primary"
+            onClick={handleSearchPhoneUser}
+            icon={<SearchOutlined />}
+          >
+            Tìm kiếm
+          </Button>
+        </div>
       </div>
-
       <div>
         <RangePicker
           value={dateRange}

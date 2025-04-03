@@ -11,10 +11,12 @@ import RatingStarts from "../../components/RatingStarts";
 import { api } from "../../axios/api";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
+import { useUser } from "../../app/hook/LoadUser";
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
   const [quantityError, setQuantityError] = useState("");
+  const { user, isLoading: isUserLoading, refetch } = useUser();
 
   const [showSizeError, setShowSizeError] = useState(false);
   console.log("data", data, 111111111111111111);
@@ -38,6 +40,9 @@ const SingelProduct = () => {
     await api.post(`/favourite/${id}`);
     setIsFavourite(true);
     alert("da them vao danh sach yeu thich");
+    refetch();
+    
+    
   };
 
   // xoa khoi danh sch yeu thich
@@ -49,6 +54,7 @@ const SingelProduct = () => {
 
     setIsFavourite(false);
     alert("da xoa khoi danh sach yeu thich");
+    refetch();
   };
 
   // Cập nhật logic xử lý variants
@@ -167,7 +173,7 @@ const SingelProduct = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading || isUserLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   if (!data || !data.product) return <div>Product not found</div>;
 
