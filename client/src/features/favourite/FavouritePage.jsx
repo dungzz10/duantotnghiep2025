@@ -6,7 +6,7 @@ import { useUser } from "../../app/hook/LoadUser";
 const FavouritePage = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
- const { user, isLoading: isUserLoading, refetch } = useUser();
+  const { user, isLoading: isUserLoading, refetch } = useUser();
   useEffect(() => {
     const fetchFavourites = async () => {
       try {
@@ -15,9 +15,7 @@ const FavouritePage = () => {
       } catch (error) {
         console.error("Lỗi khi tải danh sách yêu thích:", error);
       } finally {
-
         setLoading(false);
-       
       }
     };
 
@@ -78,7 +76,7 @@ const FavouritePage = () => {
                     />
                   </div>
                   <div className="p-4 bg-[#F5F5F5]">
-                    <h3 className="font-semibold text-lg text-gray-800">
+                    <h3 className="font-semibold text-lg text-gray-800 truncate">
                       {item.title}
                     </h3>
                     <p className="text-[#898989] text-sm mt-1 mb-2 truncate">
