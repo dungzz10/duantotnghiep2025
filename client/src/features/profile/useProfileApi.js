@@ -59,7 +59,7 @@ export const useNaptien = () => {
       }
     },
     onError: (error) => {
-      message.error("Deposit failed");
+      // message.error("Deposit failed");
       console.error("Deposit error:", error);
     },
   });

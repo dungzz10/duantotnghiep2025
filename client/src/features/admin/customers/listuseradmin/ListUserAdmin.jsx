@@ -90,7 +90,7 @@ const ListUserAdmin = () => {
 
   const columns = [
     {
-      title: "Name",
+      title: "Tên",
       dataIndex: "name",
       key: "name",
     },
@@ -108,7 +108,7 @@ const ListUserAdmin = () => {
       ),
     },
     {
-      title: "Active",
+      title: "Trang thái",
       dataIndex: "active",
       key: "active",
       render: (active, record) => {
@@ -145,9 +145,9 @@ const ListUserAdmin = () => {
       },
     },
     {
-      title: "Balance",
+      title: "Số Dư",
       key: "balance",
-      render: (text, record) => (record.wallet ? record.wallet.balance : 0),
+      render: (text, record) => (record.wallet ? (record.wallet.balance.toLocaleString())  : 0),
     },
 
     {

@@ -112,6 +112,29 @@ const orderSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  cancellation: {
+    reason: String,
+    images: [String], // Array of image URLs
+    date: Date,
+    isConfirmed: {
+      type: Boolean,
+      default: false
+    },
+    confirmationDate: Date,
+    userConfirmed: Boolean 
+  },
+  returnRequest: {
+    reason: String,
+    images: [String], 
+    date: Date,
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending"
+    },
+    approvalDate: Date,
+    userConfirmed: Boolean 
+  },
 });
 orderSchema.post("save", async function (doc, next) {
   const Product = mongoose.model("Product");

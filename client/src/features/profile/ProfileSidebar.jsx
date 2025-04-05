@@ -160,7 +160,8 @@ const ProfileSidebar = ({ user }) => {
         <div className="w-full mt-4 p-4 bg-gray-50 rounded-lg">
           <h3 className="font-semibold text-lg mb-2">Lịch sử giao dịch:</h3>
           <ul className="max-h-48 overflow-auto">
-            {walletData.transactions.map((tx, index) => (
+            {walletData.transactions.filter((tx)=> tx.status == "completed")
+            .map((tx, index) => (
               <li key={index} className="border-b py-2">
                 <span>{tx.description}</span><br />
                 <span className="text-sm text-gray-500">Số tiền: {tx.amount.toLocaleString()} VND - Ngày: {new Date(tx.date).toLocaleDateString()}</span>

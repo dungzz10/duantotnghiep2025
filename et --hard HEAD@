@@ -1,0 +1,35 @@
+[33m5138dc9[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop5[m[33m, [m[1;31morigin/develop5[m[33m, [m[1;32mdeloy[m[33m)[m HEAD@{0}: checkout: moving from deloy to develop5
+[33m5138dc9[m[33m ([m[1;36mHEAD -> [m[1;32mdevelop5[m[33m, [m[1;31morigin/develop5[m[33m, [m[1;32mdeloy[m[33m)[m HEAD@{1}: commit: fix loi dong bo cap nhat so luong gio hang
+[33ma9320a2[m HEAD@{2}: pull origin develop4: Fast-forward
+[33m255e18c[m[33m ([m[1;31morigin/deloy[m[33m, [m[1;32mdevelop4[m[33m)[m HEAD@{3}: checkout: moving from develop4 to deloy
+[33m255e18c[m[33m ([m[1;31morigin/deloy[m[33m, [m[1;32mdevelop4[m[33m)[m HEAD@{4}: commit: fix lại active
+[33m258eece[m HEAD@{5}: commit: fic logic qua han khi trả hang
+[33m89dc534[m HEAD@{6}: commit: fix lại thong bao khi huy don tra hang
+[33m406b0ee[m HEAD@{7}: pull origin develop4: Fast-forward
+[33md71dce1[m HEAD@{8}: commit: fix dong bo yeu thich
+[33m124a2a2[m HEAD@{9}: commit: sua cate
+[33m1661892[m HEAD@{10}: commit: fix header
+[33m8ce18e9[m HEAD@{11}: commit: sua dong bo favarite
+[33mad1ea9e[m HEAD@{12}: pull origin develop4: Fast-forward
+[33me0ee188[m HEAD@{13}: pull origin develop4: Fast-forward
+[33m7fabdff[m HEAD@{14}: commit: them trang thai tra hang
+[33mb94f2fd[m HEAD@{15}: commit: fix lai loi dang nhap ko hien chi tiet san pham , địa chỉ height
+[33m8547157[m HEAD@{16}: commit: dang nhap bang google
+[33mbff312d[m HEAD@{17}: commit: fix lai dang nhap them forgotpass
+[33m6540937[m HEAD@{18}: pull origin develop4: Fast-forward
+[33mf0e2d7a[m HEAD@{19}: pull origin develop4: Fast-forward
+[33m32d8afc[m HEAD@{20}: commit: fix lien he
+[33m946093f[m HEAD@{21}: commit: hoan thien thong ke
+[33m32a4347[m HEAD@{22}: commit: fix thong ke + hoan tien
+[33m89e8c6e[m HEAD@{23}: commit: fix thong ke
+[33m52ef949[m HEAD@{24}: commit: fix huy don hang nguoi nhan
+[33m372d719[m[33m ([m[1;31morigin/develop3[m[33m, [m[1;32mdevelop3[m[33m)[m HEAD@{25}: checkout: moving from develop3 to develop4
+[33m372d719[m[33m ([m[1;31morigin/develop3[m[33m, [m[1;32mdevelop3[m[33m)[m HEAD@{26}: pull origin develop3: Fast-forward
+[33m96bdfa3[m HEAD@{27}: pull origin develop3: Fast-forward
+[33m1668f51[m HEAD@{28}: commit: sua address admin
+[33m96c21e1[m HEAD@{29}: commit: sua address checkauth
+[33m982772c[m HEAD@{30}: pull origin develop3: Fast-forward
+[33mb51f643[m HEAD@{31}: pull origin develop3: Merge made by the 'ort' strategy.
+[33m0f6a63d[m HEAD@{32}: commit: fix Uppdate kho + chuyen tien ve vi khi huy
+[33me6b3472[m HEAD@{33}: commit: rut tien + lich su giao dich
+[33me87bb13[m HEAD@{34}: clone: from https://github.com/dungzz10/duantotnghiep2025.git

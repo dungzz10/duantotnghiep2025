@@ -1,7 +1,18 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import axios from "axios";
-import { Table, Input, Select, Tag, Modal, Button, message, Steps } from "antd";
-import { SearchOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+  Table,
+  Input,
+  Select,
+  Tag,
+  Modal,
+  Button,
+  message,
+  Steps,
+  Form,
+  Upload,
+} from "antd";
+import { SearchOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
 import dayjs from "dayjs";
 import { api } from "../../axios/api";
@@ -15,7 +26,14 @@ const OrderHistory = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [viewCancelled, setViewCancelled] = useState(false);
+  const [cancelImages, setCancelImages] = useState([]);
+  const [cancelReason, setCancelReason] = useState("");
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [returnReason, setReturnReason] = useState("");
+  const [returnImages, setReturnImages] = useState([]);
+  const [showReturnModal, setShowReturnModal] = useState(false);
   const { Step } = Steps;
+
   const fetchOrders = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
@@ -34,25 +52,80 @@ const OrderHistory = () => {
     fetchOrders();
   }, [fetchOrders]);
 
-  const handleCancelOrder = async (id) => {
+  const handleCancelImageUpload = async ({ file }) => {
     try {
-      // await axios.patch(`/orders/orderStatus/${id}`, {
-      //   orderStatus: "cancelled",
-      // });
-      // message.success(`Đơn ${id} đã được hủy.`);
-      const res = await api.delete(`/orders/${id}`);
-      console.log(res, 9999);
-      message.warning(`  Đơn ${id} ${res.data.message}`);
-      fetchOrders();
-      setIsModalVisible(false);
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "upploads");
 
-      fetchOrders();
-      console.log(id, 9999);
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dsenpijts/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      const imageUrl = data.secure_url;
+      setCancelImages((prev) => [...prev, imageUrl]);
     } catch (error) {
-      console.error("Error canceling order:", error);
-      // message.error("Có lỗi xảy ra khi hủy đơn hàng.");
+      message.error("Upload ảnh thất bại");
     }
   };
+
+  const handleReturnImageUpload = async ({ file }) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "upploads");
+
+      const response = await fetch(
+        "https://api.cloudinary.com/v1_1/dsenpijts/image/upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+      const imageUrl = data.secure_url;
+      setReturnImages((prev) => [...prev, imageUrl]);
+    } catch (error) {
+      message.error("Upload ảnh thất bại");
+    }
+  };
+
+  const handleCancelOrder = async (id) => {
+    if (!cancelReason.trim()) {
+      message.error("Vui lòng nhập lý do hủy đơn hàng");
+      return;
+    }
+
+    if (cancelImages.length === 0) {
+      message.error("Vui lòng tải lên ít nhất 1 ảnh xác nhận");
+      return;
+    }
+
+    try {
+      const res = await api.delete(`/orders/${id}`, {
+        data: {
+          reason: cancelReason,
+          images: cancelImages,
+        },
+      });
+
+      message.warning(`Đơn ${id} ${res.data.message}`);
+      fetchOrders();
+      setShowCancelModal(false);
+      setCancelImages([]);
+      setCancelReason("");
+      setIsModalVisible(false);
+    } catch (error) {
+      console.error("Error canceling order:", error);
+    }
+  };
+
   const handleReturnOrder = async (orderId, orderDate) => {
     const currentDate = dayjs();
     const orderPlacedDate = dayjs(orderDate);
@@ -65,17 +138,33 @@ const OrderHistory = () => {
       return;
     }
 
+    if (!returnReason.trim()) {
+      message.error("Vui lòng nhập lý do trả hàng");
+      return;
+    }
+
+    if (returnImages.length === 0) {
+      message.error("Vui lòng tải lên ít nhất 1 ảnh xác nhận");
+      return;
+    }
+
     try {
-      const response = await axios.patch(`/orders/return/${orderId}`);
+      const response = await axios.patch(`/orders/return/${orderId}`, {
+        reason: returnReason,
+        images: returnImages,
+      });
+
       message.success(`Đơn hàng ${orderId} đã được trả lại.`);
       fetchOrders();
+      setShowReturnModal(false);
+      setReturnImages([]);
+      setReturnReason("");
       setIsModalVisible(false);
     } catch (error) {
       console.error("Error returning order:", error);
       message.error("Có lỗi xảy ra khi trả hàng.");
     }
-};
-
+  };
 
   const filteredOrders = useMemo(() => {
     return orders.filter(
@@ -293,7 +382,12 @@ const OrderHistory = () => {
 
               {selectedOrder.shippingAddress.recipientName && (
                 <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px",marginLeft :"300px" }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px",
+                    marginLeft: "300px",
+                  }}
                 >
                   <strong>Thông tin người nhận:</strong>
                   <p>
@@ -433,7 +527,7 @@ const OrderHistory = () => {
                   <Button type="default">Liên Hệ Người Bán</Button>
                   <Button
                     danger
-                    onClick={() => handleCancelOrder(selectedOrder._id)}
+                    onClick={() => setShowCancelModal(true)}
                     disabled={
                       selectedOrder.orderStatus === "cancelled" ||
                       selectedOrder.orderStatus === "delivered" ||
@@ -444,9 +538,7 @@ const OrderHistory = () => {
                   </Button>
                   <Button
                     danger
-                    onClick={() =>
-                      handleReturnOrder(selectedOrder._id, selectedOrder.date)
-                    }
+                    onClick={() => setShowReturnModal(true)}
                     disabled={selectedOrder.orderStatus !== "delivered"}
                   >
                     Trả hàng
@@ -524,6 +616,132 @@ const OrderHistory = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        title="Xác nhận hủy đơn hàng"
+        visible={showCancelModal}
+        onCancel={() => setShowCancelModal(false)}
+        footer={[
+          <Button key="back" onClick={() => setShowCancelModal(false)}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            danger
+            onClick={() => handleCancelOrder(selectedOrder._id)}
+          >
+            Xác nhận hủy
+          </Button>,
+        ]}
+      >
+        <Form layout="vertical">
+          <Form.Item
+            label="Lý do hủy đơn"
+            required
+            rules={[{ required: true, message: "Vui lòng nhập lý do hủy đơn" }]}
+          >
+            <Input.TextArea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Nhập lý do hủy đơn hàng..."
+              rows={4}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Hình ảnh xác nhận"
+            required
+            rules={[
+              { required: true, message: "Vui lòng tải lên ít nhất 1 ảnh" },
+            ]}
+          >
+            <Upload
+              customRequest={handleCancelImageUpload}
+              listType="picture-card"
+              fileList={cancelImages.map((url, index) => ({
+                uid: index,
+                name: `image-${index}`,
+                status: "done",
+                url,
+              }))}
+              onRemove={(file) => {
+                const newImages = cancelImages.filter(
+                  (url) => url !== file.url
+                );
+                setCancelImages(newImages);
+              }}
+            >
+              {cancelImages.length < 3 && <PlusOutlined />}
+            </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Xác nhận trả hàng"
+        visible={showReturnModal}
+        onCancel={() => setShowReturnModal(false)}
+        footer={[
+          <Button key="back" onClick={() => setShowReturnModal(false)}>
+            Hủy
+          </Button>,
+          <Button
+            key="submit"
+            type="primary"
+            danger
+            onClick={() =>
+              handleReturnOrder(selectedOrder._id, selectedOrder.date)
+            }
+          >
+            Xác nhận trả hàng
+          </Button>,
+        ]}
+      >
+        <Form layout="vertical">
+          <Form.Item
+            label="Lý do trả hàng"
+            required
+            rules={[
+              { required: true, message: "Vui lòng nhập lý do trả hàng" },
+            ]}
+          >
+            <Input.TextArea
+              value={returnReason}
+              onChange={(e) => setReturnReason(e.target.value)}
+              placeholder="Nhập lý do trả hàng..."
+              rows={4}
+            />
+          </Form.Item>
+
+          <Form.Item
+            label="Hình ảnh xác nhận"
+            required
+            rules={[
+              { required: true, message: "Vui lòng tải lên ít nhất 1 ảnh" },
+            ]}
+          >
+            <Upload
+              customRequest={handleReturnImageUpload}
+              listType="picture-card"
+              fileList={returnImages.map((url, index) => ({
+                uid: index,
+                name: `image-${index}`,
+                status: "done",
+                url,
+              }))}
+              onRemove={(file) => {
+                const newImages = returnImages.filter(
+                  (url) => url !== file.url
+                );
+                setReturnImages(newImages);
+              }}
+            >
+              {returnImages.length < 3 && <PlusOutlined />}
+            </Upload>
+          </Form.Item>
+        </Form>
       </Modal>
     </div>
   );

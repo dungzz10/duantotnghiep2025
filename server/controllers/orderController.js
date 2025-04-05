@@ -262,19 +262,19 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
 
   if (orderStatus === "cancelled") {
     await User.updateOne(
-        { _id: order.userId },
-        { $inc: { "wallet.balance": order.finalTotal } }
+      { _id: order.userId },
+      { $inc: { "wallet.balance": order.finalTotal } }
     );
-}
+  }
 
-const statusMessages = {
+  const statusMessages = {
     processing: "Đơn hàng đang được xử lý.",
     shipped: "Đơn hàng đã được giao cho đơn vị vận chuyển.",
     delivered: "Đơn hàng đã giao thành công.",
     cancelled: "Đơn hàng đã bị hủy. Tiền đã được hoàn vào ví.",
     returned: "Đơn hàng đã được trả lại.",
     refunded: "Đơn hàng đã được hoàn tiền.",
-};
+  };
 
   return res.status(200).json({
     success: true,
@@ -351,17 +351,20 @@ export const updateKho = CatchAsync(async (req, res, next) => {
 
 export const deleteOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
+  const { reason, images } = req.body;
 
-  console.log(orderId, "orderId received"); // Đảm bảo orderId nhận đúng từ client
+  if (!reason || !images || images.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Vui lòng cung cấp lý do và hình ảnh xác nhận hủy đơn",
+    });
+  }
 
   const order = await Order.findById(orderId);
-  console.log(order, "order123456");
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
-
-  console.log(order, "order123456"); // Đảm bảo đơn hàng tồn tại và được lấy chính xác
 
   if (order.orderStatus !== "pending" && order.orderStatus !== "processing") {
     return res.json({
@@ -369,102 +372,62 @@ export const deleteOrder = CatchAsync(async (req, res, next) => {
     });
   }
 
-  if (order.paymentMethod !== "COD" && order.paymentStatus === "pending") {
-    return res.json({
-      message: "Không thể hủy đơn hàng do đang trong quá trình thanh toán",
-    });
+  // Thêm thông tin hủy đơn
+  order.cancellation = {
+    reason,
+    images,
+    date: new Date(),
+    isConfirmed: true,
+    confirmationDate: new Date(),
+    userConfirmed: true,
+  };
+
+  order.orderStatus = "cancelled";
+
+  // Cập nhật lại số lượng sản phẩm trong kho
+  for (const item of order.products) {
+    const productDoc = await Product.findById(item.productId);
+    if (productDoc) {
+      const variant = productDoc.variants.find(
+        (v) => v.color.toLowerCase() === item.color.toLowerCase()
+      );
+
+      if (variant) {
+        const sizeObj = variant.sizes.find(
+          (s) => String(s.size) === String(item.size)
+        );
+
+        if (sizeObj) {
+          sizeObj.quantity += item.quantity;
+          await productDoc.save();
+        }
+      }
+    }
   }
 
-  if (
-    ["WALLET", "ATM_MOMO", "MoMo", "COD"].includes(order.paymentMethod) ||
-    order.paymentStatus === "failed"
-  ) {
-    order.orderStatus = "cancelled";
+  await order.save();
 
-    // Cập nhật lại số lượng sản phẩm trong kho
-    for (const item of order.products) {
-      const productDoc = await Product.findById(item.productId);
-      if (productDoc) {
-        const variant = productDoc.variants.find(
-          (v) => v.color.toLowerCase() === item.color.toLowerCase()
-        );
-
-        if (variant) {
-          const sizeObj = variant.sizes.find(
-            (s) => String(s.size) === String(item.size)
-          );
-
-          if (sizeObj) {
-            sizeObj.quantity += item.quantity;
-            await productDoc.save();
-          }
-        }
-      }
-    }
-
-    await order.save();
+  // Xử lý hoàn tiền nếu cần
+  if (order.paymentMethod !== "COD" || order.paymentStatus === "completed") {
     await User.updateOne(
       { _id: order.userId },
       { $inc: { "wallet.balance": order.finalTotal } }
     );
+
     const user = await User.findById(order.userId);
-
-    console.log(user, "user123456");
-
-    user.wallet.transactions.push({
-      type: "withdrawal",
-      amount: order.finalTotal - order.shippingFee,
-      status: "completed",
-      description: `Hoàn tiền cho đơn hàng ${orderId}`,
-    });
-    console.log(user.wallet.transactions, "user23456");
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Đơn hàng đã được hủy thành công",
-      order,
-    });
-  } else if (
-    order.paymentMethod !== "COD" ||
-    order.paymentStatus === "completed"
-  ) {
-    order.orderStatus = "cancelled";
-
-    // Cập nhật lại số lượng sản phẩm trong kho
-    for (const item of order.products) {
-      const productDoc = await Product.findById(item.productId);
-      if (productDoc) {
-        const variant = productDoc.variants.find(
-          (v) => v.color.toLowerCase() === item.color.toLowerCase()
-        );
-
-        if (variant) {
-          const sizeObj = variant.sizes.find(
-            (s) => String(s.size) === String(item.size)
-          );
-
-          if (sizeObj) {
-            sizeObj.quantity += item.quantity;
-            await productDoc.save();
-          }
-        }
-      }
+    if (user) {
+      user.wallet.transactions.push({
+        type: "withdrawal",
+        amount: order.finalTotal - order.shippingFee,
+        status: "completed",
+        description: `Hoàn tiền cho đơn hàng hủy ${orderId}`,
+      });
+      await user.save();
     }
 
-    console.log(order, "order123456 after updating");
-
-    await order.save();
-
-    await User.updateOne(
-      { _id: order.userId },
-      { $inc: { "wallet.balance": order.finalTotal } }
-    );
-    // Lưu lại lịch sử giao dịch trong ví
-
     return res.status(200).json({
       success: true,
-      message: "Đơn hàng đã được hủy thành công, và tiền đã được hoàn vào ví",
+      message: "Đơn hàng đã được hủy thành công và tiền đã được hoàn vào ví",
       order,
     });
   }
@@ -547,22 +510,26 @@ export const getByUserPhone = async (req, res, next) => {
 };
 export const returnOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
+  const { reason, images } = req.body;
   const userId = req.user?.id;
-
-  console.log(orderId, "orderId received"); 
 
   if (!userId) {
     return next(new HandelError("Người dùng chưa xác thực", 401));
   }
 
+  if (!reason || !images || images.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: "Vui lòng cung cấp lý do và hình ảnh xác nhận trả hàng",
+    });
+  }
+
   const order = await Order.findById(orderId);
-  console.log(order, "order details");
 
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
 
-  // Verify that only delivered orders can be returned
   if (order.orderStatus !== "delivered") {
     return res.status(400).json({
       success: false,
@@ -570,10 +537,18 @@ export const returnOrder = CatchAsync(async (req, res, next) => {
     });
   }
 
-  // Update order status to 'trahang'
+  // Thêm thông tin trả hàng
+  order.returnRequest = {
+    reason,
+    images,
+    date: new Date(),
+    status: "pending",
+    userConfirmed: true,
+  };
+
   order.orderStatus = "trahang";
 
-  // Restock products in inventory
+  // Cập nhật lại số lượng sản phẩm trong kho
   for (const item of order.products) {
     const productDoc = await Product.findById(item.productId);
     if (productDoc) {
@@ -589,39 +564,35 @@ export const returnOrder = CatchAsync(async (req, res, next) => {
         if (sizeObj) {
           sizeObj.quantity += item.quantity;
           await productDoc.save();
-          console.log(`Restocked ${item.quantity} units of product ${item.productId}`);
         }
       }
     }
   }
 
   await order.save();
-  console.log(order, "order after updating to trahang status");
 
-  // Refund the order amount to user's wallet if payment was made
+  // Xử lý hoàn tiền
   if (order.paymentStatus === "completed" || order.paymentMethod !== "COD") {
     await User.updateOne(
       { _id: order.userId },
       { $inc: { "wallet.balance": order.finalTotal } }
     );
-    
-    // Add transaction record to user's wallet
+
     const user = await User.findById(order.userId);
-    
     if (user) {
       user.wallet.transactions.push({
         type: "withdrawal",
-        amount: order.finalTotal-order.shippingFee,
+        amount: order.finalTotal - order.shippingFee,
         status: "completed",
         description: `Hoàn tiền cho đơn hàng trả lại ${orderId}`,
       });
       await user.save();
-      console.log(`Refunded ${order.finalTotal} to user wallet`);
     }
 
     return res.status(200).json({
       success: true,
-      message: "Đơn hàng đã được trả lại thành công, và tiền đã được hoàn vào ví",
+      message:
+        "Đơn hàng đã được trả lại thành công và tiền đã được hoàn vào ví",
       order,
     });
   }
