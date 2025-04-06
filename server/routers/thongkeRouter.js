@@ -6,7 +6,8 @@ import {
   orderStatistics,
   orderSuccessRate, 
   totalProfit,
-  deliveredOrders
+  deliveredOrders,
+  getRevenueStatistics
 } from "../controllers/thongkeControll.js";
 
 const Thongke = express.Router();
@@ -24,6 +25,7 @@ Thongke.route("/order-statistics").get(isAuththenticated, orderStatistics);
 Thongke.route("/order-success-rate").get(isAuththenticated, orderSuccessRate);
 Thongke.route("/profit").get(isAuththenticated, totalProfit);
 Thongke.route("/top-products-sell").get(isAuththenticated, deliveredOrders);
+Thongke.route('/revenue-statistics').get(isAuththenticated, getRevenueStatistics);
 
 
 

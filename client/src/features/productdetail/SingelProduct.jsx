@@ -217,14 +217,14 @@ const SingelProduct = () => {
                 {selectedVariant ? (
                   <>
                     <del className="text-gray-500">
-                      {product.originalPrice}đ
+                      {product.originalPrice.toLocaleString()}đ
                     </del>{" "}
                     <span className="text-red-500">
-                      {selectedVariant.price}đ
+                      {selectedVariant.price.toLocaleString()}đ
                     </span>
                   </>
                 ) : (
-                  `${product.originalPrice} VNĐ`
+                  `${product.originalPrice.toLocaleString()} VNĐ`
                 )}
               </span>
             </div>

@@ -278,11 +278,22 @@ export const deliveredOrders = CatchAsync(async (req, res, next) => {
   });
 });
 
-// Thêm function mới
+
+
+// Thống kê doanh thu theo thời gian (ngày, tuần, tháng, năm)
 export const getRevenueStatistics = CatchAsync(async (req, res, next) => {
   const { startDate, endDate, type = "day" } = req.query;
+  
+  // Kiểm tra và chuyển đổi startDate, endDate thành đối tượng Date
   const start = new Date(startDate);
   const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  start.setHours(0, 0, 0, 0);
+
+  // Kiểm tra tính hợp lệ của ngày tháng
+  if (isNaN(start) || isNaN(end)) {
+    return res.status(400).json({ success: false, message: "Invalid dates." });
+  }
 
   let groupBy;
   let dateFormat;
@@ -290,19 +301,24 @@ export const getRevenueStatistics = CatchAsync(async (req, res, next) => {
   switch (type) {
     case "week":
       groupBy = { $week: "$date" };
-      dateFormat = "Tuần %V";
+      dateFormat = "%V";
       break;
     case "month":
-      groupBy = { $dateToString: { format: "%Y-%m", date: "$date" } };
-      dateFormat = "%m/%Y";
+      groupBy = { 
+        year: { $year: "$date" },
+        month: { $month: "$date" }
+      };
       break;
     case "year":
-      groupBy = { $dateToString: { format: "%Y", date: "$date" } };
-      dateFormat = "%Y";
+      groupBy = { $year: "$date" };
       break;
     default:
-      groupBy = { $dateToString: { format: "%Y-%m-%d", date: "$date" } };
-      dateFormat = "%d/%m/%Y";
+      // day
+      groupBy = { 
+        year: { $year: "$date" },
+        month: { $month: "$date" },
+        day: { $dayOfMonth: "$date" }
+      };
   }
 
   const revenueStats = await Order.aggregate([
@@ -318,24 +334,66 @@ export const getRevenueStatistics = CatchAsync(async (req, res, next) => {
         revenue: { $sum: "$finalTotal" },
         orders: { $sum: 1 },
         avgOrderValue: { $avg: "$finalTotal" },
-        totalProducts: { $sum: { $size: "$products" } },
-        ordersByStatus: {
-          $push: {
-            status: "$orderStatus",
-            amount: "$finalTotal",
-          },
-        },
       },
     },
     {
-      $addFields: {
+      $project: {
+        _id: 1,
+        revenue: 1,
+        orders: 1,
+        avgOrderValue: 1,
         date: {
-          $dateFromString: {
-            dateString: "$_id",
-            format: dateFormat,
-          },
-        },
-      },
+          $cond: [
+            { $eq: [type, "week"] },
+            "$_id",
+            {
+              $cond: [
+                { $eq: [type, "month"] },
+                {
+                  $concat: [
+                    { $toString: "$_id.year" },
+                    "-",
+                    {
+                      $cond: [
+                        { $lt: ["$_id.month", 10] },
+                        { $concat: ["0", { $toString: "$_id.month" }] },
+                        { $toString: "$_id.month" }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  $cond: [
+                    { $eq: [type, "year"] },
+                    { $toString: "$_id" },
+                    {
+                      $concat: [
+                        { $toString: "$_id.year" },
+                        "-",
+                        {
+                          $cond: [
+                            { $lt: ["$_id.month", 10] },
+                            { $concat: ["0", { $toString: "$_id.month" }] },
+                            { $toString: "$_id.month" }
+                          ]
+                        },
+                        "-",
+                        {
+                          $cond: [
+                            { $lt: ["$_id.day", 10] },
+                            { $concat: ["0", { $toString: "$_id.day" }] },
+                            { $toString: "$_id.day" }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
     },
     { $sort: { date: 1 } },
   ]);
