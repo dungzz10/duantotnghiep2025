@@ -235,7 +235,6 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
   });
 });
 // Thống kê đơn hàng đã giao hàng với tên và số lượng sản phẩm
-// Thống kê đơn hàng đã giao hàng với tên và số lượng sản phẩm
 export const deliveredOrders = CatchAsync(async (req, res, next) => {
   const { startDate, endDate } = req.query;
 
@@ -276,5 +275,73 @@ export const deliveredOrders = CatchAsync(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: deliveredStats,
+  });
+});
+
+// Thêm function mới
+export const getRevenueStatistics = CatchAsync(async (req, res, next) => {
+  const { startDate, endDate, type = "day" } = req.query;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  let groupBy;
+  let dateFormat;
+
+  switch (type) {
+    case "week":
+      groupBy = { $week: "$date" };
+      dateFormat = "Tuần %V";
+      break;
+    case "month":
+      groupBy = { $dateToString: { format: "%Y-%m", date: "$date" } };
+      dateFormat = "%m/%Y";
+      break;
+    case "year":
+      groupBy = { $dateToString: { format: "%Y", date: "$date" } };
+      dateFormat = "%Y";
+      break;
+    default:
+      groupBy = { $dateToString: { format: "%Y-%m-%d", date: "$date" } };
+      dateFormat = "%d/%m/%Y";
+  }
+
+  const revenueStats = await Order.aggregate([
+    {
+      $match: {
+        date: { $gte: start, $lte: end },
+        orderStatus: { $in: ["delivered", "completed"] },
+      },
+    },
+    {
+      $group: {
+        _id: groupBy,
+        revenue: { $sum: "$finalTotal" },
+        orders: { $sum: 1 },
+        avgOrderValue: { $avg: "$finalTotal" },
+        totalProducts: { $sum: { $size: "$products" } },
+        ordersByStatus: {
+          $push: {
+            status: "$orderStatus",
+            amount: "$finalTotal",
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        date: {
+          $dateFromString: {
+            dateString: "$_id",
+            format: dateFormat,
+          },
+        },
+      },
+    },
+    { $sort: { date: 1 } },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: revenueStats,
   });
 });

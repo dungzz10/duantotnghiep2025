@@ -34,14 +34,14 @@ const CheckoutPage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isUpdatePhone, setIsUpdatePhone] = useState(false);
-  const {  refetch } = useUser();
+  const { refetch } = useUser();
 
   // New state variables for recipient information
   const [isOtherRecipient, setIsOtherRecipient] = useState(false);
   const [recipientName, setRecipientName] = useState("");
   const [recipientPhone, setRecipientPhone] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
-  console.log(recipientAddress)
+  console.log(recipientAddress);
 
   const handleOpenModal = (address = null) => {
     console.log("Modal Opened");
@@ -52,6 +52,10 @@ const CheckoutPage = () => {
   const handleCloseModal = () => {
     setIsModalVisible(false);
     setEditingAddress(null);
+  };
+  const validatePhoneNumber = (phone) => {
+    const phoneRegex = /^(0|\+84)[35789]\d{8}$/;
+    return phoneRegex.test(phone);
   };
 
   useEffect(() => {
@@ -99,25 +103,37 @@ const CheckoutPage = () => {
       return;
     }
 
+    // Tạo đối tượng shippingAddress với thông tin người đặt
+    let shippingAddressData = {
+      address: selectedAddress,
+    };
+
+    // Nếu đặt cho người khác, thêm thông tin người nhận
     if (isOtherRecipient) {
       if (!recipientName || !recipientPhone || !recipientAddress) {
         message.error("Vui lòng điền đầy đủ thông tin người nhận.");
         return;
       }
-      console.log(recipientAddress)
 
-      order.shippingAddress = {
-        address: selectedAddress, 
-        recipientAddress: recipientAddress, 
-        recipientName: recipientName, 
-        recipientPhone: recipientPhone, 
-      };
-    } else {
-      order.shippingAddress = {
-        address: selectedAddress,
+      if (!validatePhoneNumber(recipientPhone)) {
+        message.error(
+          "Số điện thoại không hợp lệ. Vui lòng nhập đúng định dạng!"
+        );
+        return;
+      }
+
+      console.log(shippingAddressData.senderEmail, 999999);
+
+      shippingAddressData = {
+        ...shippingAddressData,
+        recipientName: recipientName,
+        recipientPhone: recipientPhone,
+        recipientAddress: recipientAddress,
       };
     }
-    console.log(order.shippingAddress, "order.shippingAddress");
+
+    // Cập nhật order với thông tin shipping mới
+    order.shippingAddress = shippingAddressData;
 
     const products = order.products.map((product) => ({
       productId: product.productId || product.id || "",
@@ -129,7 +145,6 @@ const CheckoutPage = () => {
       color: product.color || "Unknown",
       size: product.size || "Unknown",
     }));
-   
 
     if (["COD", "WALLET"].includes(paymentMethod)) {
       try {
@@ -144,9 +159,7 @@ const CheckoutPage = () => {
             credentials: "include",
             body: JSON.stringify({ products }),
           }
-          
         );
-        
 
         const inventoryData = await inventoryResponse.json();
         if (!inventoryResponse.ok || !inventoryData.success) {
@@ -305,87 +318,77 @@ const CheckoutPage = () => {
       <Card className="shadow-lg" bordered>
         <Row gutter={24}>
           <Col xs={24} md={12}>
-            <Card title="Thông tin người Gửi" size="small">
-              <Text>
-                <strong>Tên:</strong> {user?.name}
-              </Text>
-              <br />
-              <Text>
-                <strong>Email:</strong> {user?.email}
-              </Text>
-              <br />
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                className="my-2"
-                onClick={() => handleOpenModal()}
-              >
-                Thêm địa chỉ
-              </Button>
-              <div>
-                <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
-                <Select
-                 className="w-full text-lg h-10 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
-                  style={{ flex: 1 }}
-                  value={selectedAddress}
-                  onChange={(value) => {
-                    setSelectedAddress(value);
-                    setOrder((prev) => ({
-                      ...prev,
-                      shippingAddress: {
-                        ...prev.shippingAddress,
-                        address: value,
-                      },
-                    }));
-                  }}
+            {!isOtherRecipient ? (
+              // Hiển thị thông tin người đặt khi không chọn gửi cho người khác
+              <Card title="Thông tin người đặt hàng" size="small">
+                <Text>
+                  <strong>Tên:</strong> {user?.name}
+                </Text>
+                <br />
+                <Text>
+                  <strong>Email:</strong> {user?.email}
+                </Text>
+                <br />
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  className="my-2"
+                  onClick={() => handleOpenModal()}
                 >
-                  {data?.addresses?.map((addr, idx) => (
-                    <Select.Option key={idx} value={addr.address}>
-                      {addr.address}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </div>
-              <AddressForm
-                visible={isModalVisible}
-                onClose={handleCloseModal}
-                address={editingAddress}
-              />
-            </Card>
-
-            {/* Toggle for ordering for someone else */}
-            <div>
-              <Button
-                type="link"
-                onClick={() => setIsOtherRecipient(!isOtherRecipient)}
-              >
-                Đặt hàng cho người khác
-              </Button>
-            </div>
-
-            {/* Form for recipient information if toggled */}
-            {isOtherRecipient && (
-              <Card title="Thông tin người nhận" size="small">
+                  Thêm địa chỉ
+                </Button>
                 <div>
-                  <label>Tên người nhận:</label>
+                  <strong style={{ whiteSpace: "nowrap" }}>Địa chỉ:</strong>
+                  <Select
+                    className="w-full text-lg h-10 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    style={{ flex: 1 }}
+                    value={selectedAddress}
+                    onChange={(value) => {
+                      setSelectedAddress(value);
+                      setOrder((prev) => ({
+                        ...prev,
+                        shippingAddress: {
+                          ...prev.shippingAddress,
+                          address: value,
+                        },
+                      }));
+                    }}
+                  >
+                    {data?.addresses?.map((addr, idx) => (
+                      <Select.Option key={idx} value={addr.address}>
+                        {addr.address}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+              </Card>
+            ) : (
+              // Hiển thị form người nhận khi chọn gửi cho người khác
+              <Card title="Thông tin người nhận" size="small">
+                <div className="mb-4">
+                  <label className="block mb-2">Tên người nhận:</label>
                   <Input
                     value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
                     placeholder="Nhập tên người nhận"
+                    className="w-full"
                   />
                 </div>
-                <div>
-                  <label>Số điện thoại người nhận:</label>
+                <div className="mb-4">
+                  <label className="block mb-2">
+                    Số điện thoại người nhận:
+                  </label>
                   <Input
                     value={recipientPhone}
                     onChange={(e) => setRecipientPhone(e.target.value)}
                     placeholder="Nhập số điện thoại"
+                    className="w-full"
                   />
                 </div>
-                <div>
-                  <label>Địa chỉ người nhận:</label>
+                <div className="mb-4">
+                  <label className="block mb-2">Địa chỉ người nhận:</label>
                   <Select
-                    className="w-full text-lg h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500" // Tailwind classes for styling
+                    className="w-full text-lg h-12 rounded-lg border-2 border-gray-300 focus:ring-2 focus:ring-blue-500"
                     value={recipientAddress}
                     onChange={(value) => setRecipientAddress(value)}
                     size="large"
@@ -399,6 +402,19 @@ const CheckoutPage = () => {
                 </div>
               </Card>
             )}
+
+            {/* Toggle button luôn hiển thị */}
+            <div className="mt-4">
+              <Button
+                type={isOtherRecipient ? "primary" : "default"}
+                onClick={() => setIsOtherRecipient(!isOtherRecipient)}
+                className="w-full"
+              >
+                {isOtherRecipient
+                  ? "Đặt hàng cho bản thân"
+                  : "Đặt hàng cho người khác"}
+              </Button>
+            </div>
           </Col>
 
           <Col xs={24} md={12}>
