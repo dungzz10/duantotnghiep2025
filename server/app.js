@@ -16,6 +16,7 @@ import orderRoutes from "./routers/orderRoutes.js";
 import RouterFavourite from "./routers/favourite.js";
 import cartRoutes from "./routers/cartRoutes.js";
 import ThongkeRouters from "./routers/thongkeRouter.js";
+import voucherRouter from "./routers/voucherRouter.js";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use("/api/v1/branch", RouterBranch);
 app.use("/api/v1/favourite", RouterFavourite);
 app.use("/api/v1/banners", RouterBanner);
 app.use("/api/v1/reviews", RouterReview);
+app.use("/api/v1/vouchers", voucherRouter);
 // app.use("/api/v1/favourite", RouterFavorite);
 
 app.all("*", (req, res, next) => {

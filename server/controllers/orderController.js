@@ -4,6 +4,7 @@ import CatchAsync from "../utils/CatchAsync.js";
 import mongoose from "mongoose";
 import Product from "../models/productModel.js";
 import User from "../models/usersModel.js";
+import Voucher from "../models/voucherModel.js";
 
 const validStatuses = [
   "pending",
@@ -158,9 +159,11 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     total,
     shippingAddress,
     shippingFee,
-    voucherDiscount = 0,
+    voucherDiscount,
+    voucherCode,
     amount,
   } = req.body;
+  console.log(voucherDiscount, 9999);
   const finalTotal = total + shippingFee - voucherDiscount;
 
   const userId = req.user?.id;
@@ -198,6 +201,15 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     orderStatus: "pending",
     date: new Date(),
   });
+  const voucher = await Voucher.findOne({
+    code: voucherCode.toUpperCase(),
+  });
+  console.log("Voucher:", voucher);
+
+  if (voucher) {
+    voucher.quantity -= 1;
+    await voucher.save();
+  }
 
   console.log("Đơn hàng COD đã được lưu vào DB:", newOrder);
 

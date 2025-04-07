@@ -51,6 +51,7 @@ import CategoriesPage from "../features/categories/CategoriesPage";
 import ContactAdmin from "../features/admin/contact/ContactAdmin";
 import Addadress from "../features/adress/Addadress";
 import SignupPage from "../features/signup/SignupPage";
+import VoucherManagement from "../features/admin/voucher/VoucherManagement";
 
 export const router = createBrowserRouter([
   {
@@ -103,6 +104,7 @@ export const router = createBrowserRouter([
         path: "/lien-he",
         element: <ContactPage />,
       },
+     
       {
         path: "/cart",
         element: <CartPage />,
@@ -193,6 +195,10 @@ export const router = createBrowserRouter([
 
       //============= bảng lien-he ===============
       { path: "lien-he", element: <ContactAdmin /> },
+      {
+        path: "vouchers",
+        element: <VoucherManagement />,
+      },
 
       //============= bảng kho hàng ===============
       { path: "warehouse", element: <Warehouse /> },

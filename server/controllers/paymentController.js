@@ -6,6 +6,7 @@ import User from "../models/usersModel.js";
 import HandelError from "../utils/Error.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
+import Voucher from "../models/voucherModel.js";
 
 const generateSignature = (params) => {
   const rawSignature = Object.entries(params)
@@ -21,7 +22,8 @@ const generateSignature = (params) => {
 export const createMomoPayment = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu MoMo:", req.body);
   try {
-    const { amount, products, finalTotal, paymentType } = req.body;
+    const { amount, products, finalTotal, paymentType, voucherDiscount,voucherCode } =
+      req.body;
     const total = finalTotal || amount;
     if (!total || isNaN(total) || total < 1000) {
       return next(new HandelError("Số tiền thanh toán không hợp lệ", 400));
@@ -90,11 +92,21 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
         address,
         addressType: "home",
       },
+      voucherDiscount,
       paymentMethod: "MoMo",
       paymentStatus: "pending",
       orderStatus: "pending",
       date: new Date(),
     });
+    const voucher = await Voucher.findOne({
+      code: voucherCode.toUpperCase(),
+    });
+    console.log("Voucher:", voucher);
+  
+    if (voucher) {
+      voucher.quantity -= 1;
+      await voucher.save();
+    }
 
     const transactionData = {
       type: "muahang",
@@ -555,7 +567,8 @@ export const ipnNotification = CatchAsync(async (req, res, next) => {
 
 //  thanh toán bằng ví
 export const createWalletPayment = CatchAsync(async (req, res, next) => {
-  const { amount, shippingAddress, products, finalTotal } = req.body;
+  const { amount, shippingAddress, voucherDiscount,voucherCode, products, finalTotal } =
+    req.body;
   const userId = req.user?.id;
 
   if (!userId) {
@@ -580,11 +593,22 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
     amount: finalTotal,
     finalTotal,
     products,
+    voucherDiscount,
     paymentMethod: "WALLET",
     paymentStatus: "completed",
     orderStatus: "processing",
     date: new Date(),
   });
+  console.log("voucher:", voucherDiscount);
+  const voucher = await Voucher.findOne({
+    code: voucherCode.toUpperCase(),
+  });
+  console.log("Voucher:", voucher);
+
+  if (voucher) {
+    voucher.quantity -= 1;
+    await voucher.save();
+  }
 
   const transactionData = {
     type: "muahang",
@@ -652,4 +676,3 @@ export const withdrawFromWallet = CatchAsync(async (req, res, next) => {
     data: { orderId, amount: total },
   });
 });
-

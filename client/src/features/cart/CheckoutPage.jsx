@@ -43,6 +43,36 @@ const CheckoutPage = () => {
   const [recipientAddress, setRecipientAddress] = useState("");
   console.log(recipientAddress);
 
+  // Thêm state mới cho voucher
+  const [voucherCode, setVoucherCode] = useState("");
+  const [appliedVoucher, setAppliedVoucher] = useState(null);
+  const [availableVouchers, setAvailableVouchers] = useState([]);
+
+  // Thêm effect để load vouchers
+  useEffect(() => {
+    const fetchVouchers = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/v1/vouchers/voucher/active",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        console.log(data, 123456789);
+        if (response.ok && data.success) {
+          setAvailableVouchers(data.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải vouchers:", error);
+      }
+    };
+
+    fetchVouchers();
+  }, []);
+
   const handleOpenModal = (address = null) => {
     console.log("Modal Opened");
     setEditingAddress(address);
@@ -96,6 +126,60 @@ const CheckoutPage = () => {
   const voucherDiscount = order.voucherDiscount || 0;
   const rawTotal = order.total || 0;
   const finalTotal = Math.round(rawTotal + shippingFee - voucherDiscount);
+
+  // Thêm hàm xử lý voucher
+  const handleApplyVoucher = async () => {
+    if (!voucherCode) {
+      
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        "http://localhost:5000/api/v1/vouchers/voucher/apply",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            code: voucherCode,
+            orderValue: rawTotal,
+            userId: user?._id,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        message.success("Áp dụng voucher thành công!");
+        setAppliedVoucher(data.data.voucher);
+        setOrder((prev) => ({
+          ...prev,
+          voucherDiscount: data.data.discountAmount,
+        }));
+      } else {
+        message.error(data.message || "Không thể áp dụng voucher!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi áp dụng voucher:", error);
+      message.error("Có lỗi xảy ra khi áp dụng voucher!");
+    }
+  };
+
+  // Thêm hàm xóa voucher
+  const handleRemoveVoucher = () => {
+    setVoucherCode("");
+    setAppliedVoucher(null);
+    setOrder((prev) => ({
+      ...prev,
+      voucherDiscount: 0,
+    }));
+    message.success("Đã xóa voucher!");
+  };
 
   const handlePayment = async () => {
     if (!selectedAddress) {
@@ -191,6 +275,8 @@ const CheckoutPage = () => {
               shippingAddress: order.shippingAddress,
               paymentMethod: "WALLET",
               products,
+              voucherDiscount,
+              voucherCode,
             }),
           }
         );
@@ -241,6 +327,8 @@ const CheckoutPage = () => {
             shippingAddress: order.shippingAddress,
             products,
             paymentType,
+            voucherDiscount,
+            voucherCode,
           }),
         });
 
@@ -275,6 +363,8 @@ const CheckoutPage = () => {
               shippingFee,
               voucherDiscount,
               amount: finalTotal,
+              voucherDiscount,
+              voucherCode,
             }),
           }
         );
@@ -444,6 +534,99 @@ const CheckoutPage = () => {
                     </Text>
                   </div>
                 ))}
+              <Row gutter={24} className="mt-5">
+                <Col span={24}>
+                  <Card title="Mã giảm giá">
+                    <Space.Compact style={{ width: "100%" }}>
+                      <Input
+                        placeholder="Nhập mã giảm giá"
+                        value={voucherCode}
+                        onChange={(e) =>
+                          setVoucherCode(e.target.value.toUpperCase())
+                        }
+                        disabled={appliedVoucher}
+                        style={{ width: "calc(100% - 120px)" }}
+                      />
+                      {!appliedVoucher ? (
+                        <Button type="primary" onClick={handleApplyVoucher}>
+                          Áp dụng
+                        </Button>
+                      ) : (
+                        <Button danger onClick={handleRemoveVoucher}>
+                          Xóa
+                        </Button>
+                      )}
+                    </Space.Compact>
+
+                    {appliedVoucher && (
+                      <div className="mt-3 p-2 bg-green-50 rounded">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <Text strong className="text-green-600">
+                              Voucher đã áp dụng: {appliedVoucher.code}
+                            </Text>
+                            <br />
+                            <Text type="secondary">
+                              {appliedVoucher.type === "percentage"
+                                ? `Giảm ${
+                                    appliedVoucher.value
+                                  }% (tối đa ${appliedVoucher.maxDiscount.toLocaleString(
+                                    "vi-VN"
+                                  )}đ)`
+                                : `Giảm ${appliedVoucher.value.toLocaleString(
+                                    "vi-VN"
+                                  )}đ`}
+                            </Text>
+                          </div>
+                          <Text type="success" strong>
+                            -{order.voucherDiscount?.toLocaleString("vi-VN")}đ
+                          </Text>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Hiển thị các voucher có sẵn */}
+                    <div className="mt-4">
+                      <Text strong>Các mã giảm giá có thể sử dụng:</Text>
+                      <div className="mt-2 space-y-2">
+                        {availableVouchers?.map((voucher) => (
+                          <div
+                            key={voucher._id}
+                            className="p-2 border rounded flex justify-between items-center hover:bg-gray-50 cursor-pointer"
+                            onClick={() => setVoucherCode(voucher.code)}
+                          >
+                            <div>
+                              <Text strong>{voucher.code}</Text>
+                              <br />
+                              <Text type="secondary">
+                                {voucher.description ||
+                                  `Giảm ${
+                                    voucher.type === "percentage"
+                                      ? `${voucher.value}%`
+                                      : `${voucher.value.toLocaleString(
+                                          "vi-VN"
+                                        )}đ`
+                                  }`}
+                              </Text>
+                            </div>
+                            <Button
+                              size="small"
+                              type="link"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setVoucherCode(voucher.code);
+                                handleApplyVoucher();
+                              }}
+                            >
+                              Áp dụng
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                </Col>
+              </Row>
               <Divider />
               <Text>
                 <strong>Phí vận chuyển:</strong> {shippingFee} VNĐ
@@ -454,7 +637,7 @@ const CheckoutPage = () => {
               </Text>
               <br />
               <Title level={4} className="mt-2">
-                Tổng cộng: {finalTotal} VNĐ
+                Tổng cộng: {finalTotal.toLocaleString()} VNĐ
               </Title>
             </Card>
           </Col>

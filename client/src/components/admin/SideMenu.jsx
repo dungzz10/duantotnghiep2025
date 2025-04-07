@@ -50,6 +50,7 @@ const menuItems = [
     children: [
       { key: "/admin/lien-he", icon: <PhoneOutlined />, label: "Liên hệ" },
       { key: "/admin/settings", icon: <SettingOutlined />, label: "Cài đặt" },
+      { key: "/admin/vouchers", icon: <SettingOutlined />, label: "Voucher" },
     ],
   },
 ];
