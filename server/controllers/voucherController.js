@@ -8,56 +8,43 @@ export const createVoucher = CatchAsync(async (req, res) => {
   res.status(201).json({
     success: true,
     message: "Tạo voucher thành công",
-    data: newVoucher
+    data: newVoucher,
   });
 });
 
 // Lấy danh sách voucher
 export const getAllVouchers = CatchAsync(async (req, res) => {
-  const { active, search } = req.query;
   let query = {};
 
-  if (active === 'true' || active === 'false') {
-    query.isActive = active === 'true';
-  }
-
-  if (search) {
-    query.$or = [
-      { code: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } }
-    ];
-  }
-
   const vouchers = await Voucher.find(query).sort({ createdAt: -1 });
-  
+
   res.status(200).json({
     success: true,
     count: vouchers.length,
-    data: vouchers
+    data: vouchers,
   });
 });
 
 // Lấy chi tiết voucher
 export const getVoucherById = CatchAsync(async (req, res, next) => {
   const voucher = await Voucher.findById(req.params.id);
-  
+
   if (!voucher) {
     return next(new HandelError("Không tìm thấy voucher", 404));
   }
 
   res.status(200).json({
     success: true,
-    data: voucher
+    data: voucher,
   });
 });
 
 // Cập nhật voucher
 export const updateVoucher = CatchAsync(async (req, res, next) => {
-  const voucher = await Voucher.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true, runValidators: true }
-  );
+  const voucher = await Voucher.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!voucher) {
     return next(new HandelError("Không tìm thấy voucher", 404));
@@ -66,7 +53,7 @@ export const updateVoucher = CatchAsync(async (req, res, next) => {
   res.status(200).json({
     success: true,
     message: "Cập nhật voucher thành công",
-    data: voucher
+    data: voucher,
   });
 });
 
@@ -80,7 +67,7 @@ export const deleteVoucher = CatchAsync(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: "Xóa voucher thành công"
+    message: "Xóa voucher thành công",
   });
 });
 
@@ -88,12 +75,12 @@ export const deleteVoucher = CatchAsync(async (req, res, next) => {
 export const applyVoucher = CatchAsync(async (req, res, next) => {
   const { code, orderValue, userId } = req.body;
 
-  const voucher = await Voucher.findOne({ 
+  const voucher = await Voucher.findOne({
     code: code.toUpperCase(),
     isActive: true,
     startDate: { $lte: new Date() },
     endDate: { $gte: new Date() },
-    quantity: { $gt: 0 }
+    quantity: { $gt: 0 },
   });
 
   if (!voucher) {
@@ -101,16 +88,26 @@ export const applyVoucher = CatchAsync(async (req, res, next) => {
   }
 
   if (orderValue < voucher.minOrderValue) {
-    return next(new HandelError(`Giá trị đơn hàng tối thiểu là ${voucher.minOrderValue}đ`, 400));
+    return next(
+      new HandelError(
+        `Giá trị đơn hàng tối thiểu là ${voucher.minOrderValue}đ`,
+        400
+      )
+    );
   }
 
   // Kiểm tra số lần sử dụng của user
   const userUsageCount = voucher.usedBy.filter(
-    use => use.userId.toString() === userId.toString()
+    (use) => use.userId.toString() === userId.toString()
   ).length;
 
   if (userUsageCount >= voucher.conditions.userUsageLimit) {
-    return next(new HandelError("Bạn đã sử dụng tối đa số lần cho phép của voucher này", 400));
+    return next(
+      new HandelError(
+        "Bạn đã sử dụng tối đa số lần cho phép của voucher này",
+        400
+      )
+    );
   }
 
   // Tính giá trị giảm giá
@@ -128,7 +125,7 @@ export const applyVoucher = CatchAsync(async (req, res, next) => {
     success: true,
     data: {
       discountAmount,
-      voucher
-    }
+      voucher,
+    },
   });
 });
