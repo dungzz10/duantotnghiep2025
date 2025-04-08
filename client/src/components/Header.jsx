@@ -8,6 +8,7 @@ import Banner from "./Banner";
 import { Search, ShoppingBag, Heart, User } from "lucide-react";
 import { api } from "../axios/api";
 import { useUser } from "../app/hook/LoadUser";
+import SignupPage from "../features/signup/SignupPage";
 
 const Header = () => {
   const { user, isLoading: isUserLoading, refetch } = useUser();
@@ -181,9 +182,7 @@ const Header = () => {
                   </ul>
                 </div>
               ) : (
-                <Link to="/signin">
-                  <User size={22} />
-                </Link>
+                <SignupPage/>
               )}
             </div>
           </div>
