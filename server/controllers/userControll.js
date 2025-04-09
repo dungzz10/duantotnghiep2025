@@ -124,25 +124,28 @@ export const deactiveUser = CatchAsync(async (req, res, next) => {
 
   console.log("Deactivating user with ID:", userId);
 
-  // Cập nhật trạng thái của người dùng
-  const user = await User.findByIdAndUpdate(
-    userId,
-    { active: false },
-    { new: true, runValidators: true }
-  );
+  
+  const user = await User.findById(userId);
 
-  // Nếu không tìm thấy người dùng, trả lỗi
+ 
   if (!user) {
     return next(new HandelError("Không tìm thấy người dùng với ID này", 404));
   }
 
-  // Trả phản hồi thành công
+  
+  user.active = !user.active; 
+  await user.save(); 
+
+  console.log("Updated user:", user);
+
+ 
   res.status(200).json({
     success: true,
-    message: "Người dùng đã bị vô hiệu hóa",
+    message: user.active ? "Người dùng đã được kích hoạt" : "Người dùng đã bị vô hiệu hóa",
     user,
   });
 });
+
 
 export const getCustomerDetails = CatchAsync(async (req, res, next) => {
   const userId = req.params.userId;

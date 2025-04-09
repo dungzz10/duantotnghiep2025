@@ -40,7 +40,7 @@ const SignupAdmin = () => {
               label="name"
               name="name"
               rules={[
-                { required: true, message: "Please input your username!" },
+                { required: true, message: "vui llong nhập tên người dùng !" },
               ]}
             >
               <Input />
@@ -51,8 +51,8 @@ const SignupAdmin = () => {
               label="Email"
               name="email"
               rules={[
-                { required: true, message: "Please input your email!" },
-                { type: "email", message: "Please enter a valid email!" },
+                { required: true, message: "vui lòng nhập email người dùng!" },
+                { type: "email", message: "vui lòng nhập đúng định dạng email" },
               ]}
             >
               <Input />
@@ -63,8 +63,8 @@ const SignupAdmin = () => {
               label="Password"
               name="password"
               rules={[
-                { required: true, message: "Please input your password!" },
-                { min: 6, message: "Password must be at least 6 characters!" },
+                { required: true, message: "vui lòng nhập password!" },
+                { min: 6, message: "pasword phải có ít nhất 6 kí tự !" },
               ]}
             >
               <Input.Password />
@@ -76,13 +76,13 @@ const SignupAdmin = () => {
               name="confirm"
               dependencies={["password"]}
               rules={[
-                { required: true, message: "Please confirm your password!" },
+                { required: true, message: "vui lòng nhập password!" },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
                     if (!value || getFieldValue("password") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject(new Error("Passwords do not match!"));
+                    return Promise.reject(new Error("password ko trùng khớp !"));
                   },
                 }),
               ]}
@@ -104,12 +104,12 @@ const SignupAdmin = () => {
 
             {/* Login link */}
             <div className="text-left mt-4">
-              <span className="text-sm">
-                Already have an account?{" "}
-                <Link to="/signin" className="text-blue-500 hover:underline">
+              {/* <span className="text-sm">
+                bạn đã có account?{" "}
+                <Link to="/admin/customers" className="text-blue-500 hover:underline">
                   Login
                 </Link>
-              </span>
+              </span> */}
             </div>
           </Form>
         </div>
