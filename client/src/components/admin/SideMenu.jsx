@@ -12,6 +12,7 @@ import {
   PhoneOutlined,
   MenuFoldOutlined,
   HomeOutlined,
+  CommentOutlined
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 
@@ -41,6 +42,14 @@ const menuItems = [
     children: [
       { key: "/admin/customers", icon: <TeamOutlined />, label: "Khách hàng" },
       { key: "/admin/useradmin", icon: <UserOutlined />, label: "Quản trị viên" },
+    ],
+  },
+  {
+    key: "reviews",
+    label: "Đánh giá",
+    icon: <CommentOutlined />,
+    children: [
+      { key: "/admin/danh-gia", icon: <CommentOutlined />, label: "Đánh giá sản phẩm" },
     ],
   },
   {

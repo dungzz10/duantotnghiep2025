@@ -52,6 +52,7 @@ import ContactAdmin from "../features/admin/contact/ContactAdmin";
 import Addadress from "../features/adress/Addadress";
 import SignupPage from "../features/signup/SignupPage";
 import VoucherManagement from "../features/admin/voucher/VoucherManagement";
+import Reviews from "../features/admin/reviews/Reviews";
 
 export const router = createBrowserRouter([
   {
@@ -104,7 +105,7 @@ export const router = createBrowserRouter([
         path: "/lien-he",
         element: <ContactPage />,
       },
-     
+
       {
         path: "/cart",
         element: <CartPage />,
@@ -213,7 +214,7 @@ export const router = createBrowserRouter([
       { path: "useradmin", element: <UserAdminList /> },
 
       //============= bảng product ===============
-      { path: "products", element: <ListproductAdmin/>},
+      { path: "products", element: <ListproductAdmin /> },
       { path: "addproductadmin", element: <ProductsAdmin /> },
       { path: "update/:id", element: <UppdateProductAdmin /> },
       { path: "products/detail/:id", element: <ProductDetailAdmin /> },
@@ -222,6 +223,9 @@ export const router = createBrowserRouter([
       { path: "banners", element: <ListBanner /> },
       { path: "add-banner", element: <AddBanner /> },
       { path: "edit-banner/:id", element: <EditBanner /> },
+
+      //============= bảng đánh gía ===============
+      { path: "danh-gia", element: <Reviews /> },
     ],
   },
   { path: "/admin/loginadmin", element: <LoginAdmin /> },

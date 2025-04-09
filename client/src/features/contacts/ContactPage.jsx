@@ -107,7 +107,7 @@ const ContactPage = () => {
             <p><strong>Địa chỉ:</strong> 123 Đường Giày, Thành Phố, Việt Nam</p>
           </div>
           <div className="container mx-auto text-center">
-            <p className="text-sm text-gray-600">© 2025 shoes nike. Bảo lưu mọi quyền.</p>
+            <p className="text-sm text-gray-600">© 2025 wd20 - the shoes. Bảo lưu mọi quyền.</p>
             <p className="text-sm text-gray-600">Chúng tôi cam kết bảo vệ thông tin cá nhân của bạn.</p>
           </div>
         </footer>

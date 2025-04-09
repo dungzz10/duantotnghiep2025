@@ -21,7 +21,8 @@ const ReviewSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId, 
             ref: 'Product', // Liên kết với bảng Product
             required: true
-        }
+        },
+        hidden: { type: Boolean, default: false },
     },
     {
         timestamps: { createdAt: true, updatedAt: true } // Bật timestamps

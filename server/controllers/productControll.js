@@ -309,7 +309,7 @@ export const getSingleProducts = async (req, res) => {
       return res.status(404).send({ message: "Product not found" });
     }
     const reviews = await reviewModel
-      .find({ productId })
+      .find({ productId,hidden:false })
       .populate("userId", "username email");
     res.status(200).send({ product, reviews });
   } catch (error) {

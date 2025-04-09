@@ -48,7 +48,7 @@ export const createReview = async (req, res) => {
     }
 };
 
-//------------------------tổng toàn bộ đánh gía  -----------------------
+//------------------------tổng tổng số đánh gía  -----------------------
 export const totalAllReview = async (req, res) => {
     try {
         const totalReviews = await Review.countDocuments({});
@@ -59,14 +59,14 @@ export const totalAllReview = async (req, res) => {
     }
 };
 
-//------------------------lấy đánh giá của sản phẩm -----------------------
+//------------------------lấy đánh giá của 1 sản phẩm -----------------------
 export const getReviewByUserId = async (req, res) => {
     const { userId } = req.params;
     if (!userId) {
         return res.status(400).json({ message: "UserId bắt buộc có" });
     }
     try {
-        const reviews = await Review.find({ userId }).sort({ createdAt: -1 });
+        const reviews = await Review.find({ userId,hidden: false }).sort({ createdAt: -1 });
         if (reviews.length === 0) {
             return res.status(404).json({ message: "Không tìm thấy review" });
         }
@@ -107,3 +107,31 @@ export const totalReviewByProduct = async (req, res) => {
         return res.status(500).json({ message: "Lỗi khi lấy tổng số review của sản phẩm" });
     }
 };
+
+//------------------------------Lấy all list sản phẩm -----------------------
+export const getAllComments = async(req,res) =>{
+    try {
+        const comments = await Review.find()
+        .populate('userId','name')
+        .populate('productId','title')
+        .sort({createdAt: -1});
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Lỗi khi lấy bình luận:', error);
+        res.status(500).json({ message: 'Lỗi server khi lấy bình luận' });
+    }
+}
+//-------------------ẩn hiện cmt -------------------------
+export const updateReviewVisibility = async (req, res) => {
+    try {
+      const review = await Review.findByIdAndUpdate(
+        req.params.id,
+        { hidden: req.body.hidden },
+        { new: true }
+      );
+      res.json(review);
+    } catch (err) {
+      res.status(500).json({ message: "Lỗi khi cập nhật trạng thái review" });
+    }
+  };
+  

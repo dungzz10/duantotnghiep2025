@@ -233,12 +233,7 @@ const SingelProduct = () => {
               Hãng: {product.brand}
             </div>
             <RatingStarts rating={product.rating} />
-            <div className="text-md font-medium text-black/[0.5]">
-              Đã bao gồm thuế
-            </div>
-            <div className="text-md font-medium text-black/[0.5] mb-10">
-              {`(Bao gồm tất cả các loại thuế và phí áp dụng)`}
-            </div>
+            
             {/* số lượng tăng giảm  */}
             {selectedSize ? (
               <div className="flex flex-col mb-4">
