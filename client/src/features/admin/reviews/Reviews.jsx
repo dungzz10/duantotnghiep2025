@@ -4,6 +4,10 @@ import RatingStarts from '../../../components/RatingStarts';
 
 const Reviews = () => {
   const [comments, setComments] = useState([]);
+  const [filter, setFilter] = useState({
+    search: '',
+    status: 'all',
+  });
 
   useEffect(() => {
     fetchComments();
@@ -29,9 +33,46 @@ const Reviews = () => {
     }
   };
 
+  const filteredComments = comments.filter(cmt => {
+    const keyword = filter.search.toLowerCase();
+    const matchesKeyword =
+      cmt.userId?.name?.toLowerCase().includes(keyword) ||
+      cmt.productId?.title?.toLowerCase().includes(keyword) ||
+      cmt.comment?.toLowerCase().includes(keyword);
+
+    const matchesStatus =
+      filter.status === 'all' ||
+      (filter.status === 'visible' && !cmt.hidden) ||
+      (filter.status === 'hidden' && cmt.hidden);
+
+    return matchesKeyword && matchesStatus;
+  });
+
   return (
     <div className="p-4 sm:p-6 md:p-8">
       <h2 className="text-2xl font-bold mb-6">Quản lý đánh giá sản phẩm</h2>
+
+      {/* Bộ lọc */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+        <input
+          type="text"
+          placeholder="Tìm theo người dùng, sản phẩm, nội dung..."
+          className="border px-3 py-2 rounded-md w-full sm:w-1/2"
+          value={filter.search}
+          onChange={(e) => setFilter({ ...filter, search: e.target.value })}
+        />
+        <select
+          className="border px-3 py-2 rounded-md"
+          value={filter.status}
+          onChange={(e) => setFilter({ ...filter, status: e.target.value })}
+        >
+          <option value="all">Tất cả</option>
+          <option value="visible">Đang hiển thị</option>
+          <option value="hidden">Đã ẩn</option>
+        </select>
+      </div>
+
+      {/* Bảng hiển thị */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-xl overflow-hidden">
           <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
@@ -45,7 +86,7 @@ const Reviews = () => {
             </tr>
           </thead>
           <tbody className="text-gray-800 text-sm">
-            {comments.map((cmt) => (
+            {filteredComments.map((cmt) => (
               <tr
                 key={cmt._id}
                 className={`border-b hover:bg-gray-50 transition ${
@@ -63,7 +104,9 @@ const Reviews = () => {
                   <button
                     onClick={() => toggleVisibility(cmt._id, cmt.hidden)}
                     className={`px-3 py-1 rounded-md text-white text-xs font-semibold ${
-                      cmt.hidden ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+                      cmt.hidden
+                        ? 'bg-green-600 hover:bg-green-700'
+                        : 'bg-red-600 hover:bg-red-700'
                     }`}
                   >
                     {cmt.hidden ? 'Hiện lại' : 'Ẩn'}
@@ -71,10 +114,10 @@ const Reviews = () => {
                 </td>
               </tr>
             ))}
-            {comments.length === 0 && (
+            {filteredComments.length === 0 && (
               <tr>
                 <td colSpan="6" className="text-center py-4 text-gray-500">
-                  Không có bình luận nào.
+                  Không có đánh giá nào phù hợp.
                 </td>
               </tr>
             )}
