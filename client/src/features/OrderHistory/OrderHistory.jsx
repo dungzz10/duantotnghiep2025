@@ -602,14 +602,20 @@ const OrderHistory = () => {
                     </div>
                   ))}
                 </div>
-                <p
-                  style={{
-                    borderTop: "1px solid #f0f0f0",
-                    paddingTop: "10px",
-                    marginTop: "15px",
-                  }}
-                >
-                  <strong>Tổng tiền:</strong>{" "}
+                <p>
+                <p>
+                    <strong>Tổng tiền sản phẩm:</strong>{" "}
+                    {selectedOrder.total.toLocaleString("vi-VN")} VNĐ
+                  </p>
+                  <p>
+                    <strong>Phí vận chuyển:</strong>{" "}
+                    {selectedOrder.shippingFee.toLocaleString("vi-VN")} VNĐ
+                  </p>
+                  <p>
+                    <strong>Giảm giá Voucher:</strong>{" "}
+                    {selectedOrder.voucherDiscount.toLocaleString("vi-VN")} VNĐ
+                  </p>
+                  <strong>Tổng tiền cuối cùng:</strong>{" "}
                   {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
                 </p>
               </div>

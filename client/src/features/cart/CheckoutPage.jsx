@@ -20,6 +20,7 @@ import { getAddress } from "../adress/useAddresApi";
 import NoOrderPage from "./NoOrderPage";
 import AddressForm from "../adress/AddressForm";
 import { useUser } from "../../app/hook/LoadUser";
+import { Option } from "antd/es/mentions";
 
 const { Title, Text } = Typography;
 
@@ -29,12 +30,18 @@ const CheckoutPage = () => {
   const [user, setUser] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [shippingFee, setShippingFee] = useState(0);
+  const [initialShippingFee] = useState(() => {
+    const storedOrder = JSON.parse(localStorage.getItem("order"));
+    return storedOrder?.shippingFee;
+  });
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const { data, isLoading } = getAddress(); // Fetching address data
+  const { data, isLoading } = getAddress();
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
   const [isUpdatePhone, setIsUpdatePhone] = useState(false);
   const { refetch } = useUser();
+  const [selectedShippingMethod, setSelectedShippingMethod] =
+    useState("standard");
 
   // New state variables for recipient information
   const [isOtherRecipient, setIsOtherRecipient] = useState(false);
@@ -96,7 +103,7 @@ const CheckoutPage = () => {
     } else {
       setOrder(storedOrder);
       setUser(storedUser);
-      setShippingFee(storedOrder.shippingFee || 30000);
+      setShippingFee(storedOrder.shippingFee);
     }
   }, [navigate]);
 
@@ -117,6 +124,42 @@ const CheckoutPage = () => {
     }
   }, [data]);
 
+  const shippingOptions = [
+    {
+      value: "standard",
+      label: "Giao hàng tiêu chuẩn (3 - 5 ngày)",
+      fee: initialShippingFee,
+    },
+    {
+      value: "fast",
+      label: "Giao hàng nhanh (1 - 2 ngày)",
+      fee: initialShippingFee + 20000,
+    },
+    {
+      value: "express",
+      label: "Giao hàng siêu tốc (1 ngày nội tỉnh)",
+      fee: initialShippingFee + 50000,
+    },
+    {
+      value: "international",
+      label: "Giao hàng quốc tế (5 - 7 ngày)",
+      fee: initialShippingFee - 15000,
+    },
+  ];
+  const handleShippingChange = (value) => {
+    if (value !== selectedShippingMethod) {
+      const selectedOption = shippingOptions.find(
+        (option) => option.value === value
+      );
+      setSelectedShippingMethod(value);
+      setShippingFee(selectedOption.fee);
+      setOrder((prev) => ({
+        ...prev,
+        shippingFee: selectedOption.fee,
+      }));
+    }
+  };
+
   if (isLoading) {
     return <div>Đang tải...</div>;
   }
@@ -130,7 +173,6 @@ const CheckoutPage = () => {
   // Thêm hàm xử lý voucher
   const handleApplyVoucher = async () => {
     if (!voucherCode) {
-      
       return;
     }
 
@@ -363,7 +405,7 @@ const CheckoutPage = () => {
               shippingFee,
               voucherDiscount,
               amount: finalTotal,
-              voucherDiscount,
+
               voucherCode,
             }),
           }
@@ -505,6 +547,72 @@ const CheckoutPage = () => {
                   : "Đặt hàng cho người khác"}
               </Button>
             </div>
+            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+              <Card title="Phương thức vận chuyển" size="small">
+                <Select
+                  value={selectedShippingMethod}
+                  onChange={handleShippingChange}
+                  style={{ width: "100%" }}
+                >
+                  {shippingOptions.map((option) => (
+                    <Option key={option.value} value={option.value}>
+                      {option.label} - {option.fee.toLocaleString("vi-VN")} VNĐ
+                    </Option>
+                  ))}
+                </Select>
+              </Card>
+
+              <Card title="Phương thức thanh toán">
+                <Radio.Group
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <Space direction="vertical" size="small">
+                    <Radio value="WALLET">Thanh toán từ ví</Radio>
+                    <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
+                    <Radio value="ATM_MOMO">Chuyển khoản ATM MOMO</Radio>
+                    <Radio value="QR_MOMO">Quét mã QR MoMo</Radio>
+                  </Space>
+                </Radio.Group>
+              </Card>
+              <Card title="Các mã giảm giá có thể sử dụng:" size="small">
+                <div className="mt-4">
+                  <div className="mt-2 space-y-2">
+                    {availableVouchers?.map((voucher) => (
+                      <div
+                        key={voucher._id}
+                        className="p-2 border rounded flex justify-between items-center hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setVoucherCode(voucher.code)}
+                      >
+                        <div>
+                          <Text strong>{voucher.code}</Text>
+                          <br />
+                          <Text type="secondary">
+                            {voucher.description ||
+                              `Giảm ${
+                                voucher.type === "percentage"
+                                  ? `${voucher.value}%`
+                                  : `${voucher.value.toLocaleString("vi-VN")}đ`
+                              }`}
+                          </Text>
+                        </div>
+                        <Button
+                          size="small"
+                          type="link"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setVoucherCode(voucher.code);
+                            handleApplyVoucher();
+                          }}
+                        >
+                          Áp dụng
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </Card>
+            </Space>
           </Col>
 
           <Col xs={24} md={12}>
@@ -529,8 +637,8 @@ const CheckoutPage = () => {
                     </Text>
                     <br />
                     <Text>
-                      <strong>Giá:</strong> {product.price * product.quantity}{" "}
-                      VNĐ
+                      <strong>Giá:</strong>{" "}
+                      {(product.price * product.quantity).toLocaleString()} VNĐ
                     </Text>
                   </div>
                 ))}
@@ -586,7 +694,7 @@ const CheckoutPage = () => {
                     )}
 
                     {/* Hiển thị các voucher có sẵn */}
-                    <div className="mt-4">
+                    {/* <div className="mt-4">
                       <Text strong>Các mã giảm giá có thể sử dụng:</Text>
                       <div className="mt-2 space-y-2">
                         {availableVouchers?.map((voucher) => (
@@ -623,48 +731,30 @@ const CheckoutPage = () => {
                           </div>
                         ))}
                       </div>
-                    </div>
+                    </div> */}
                   </Card>
                 </Col>
               </Row>
               <Divider />
               <Text>
-                <strong>Phí vận chuyển:</strong> {shippingFee} VNĐ
+                <strong>Tổng giá sản phẩm: </strong> {rawTotal.toLocaleString()}{" "}
+                VNĐ
               </Text>
               <br />
               <Text>
-                <strong>Giảm giá:</strong> {voucherDiscount} VNĐ
+                <strong>Phí vận chuyển:</strong> {shippingFee.toLocaleString()}{" "}
+                VNĐ
               </Text>
               <br />
+              <Text>
+                <strong>Giảm giá:</strong> {voucherDiscount.toLocaleString()}{" "}
+                VNĐ
+              </Text>
+
+              <br />
               <Title level={4} className="mt-2">
-                Tổng cộng: {finalTotal.toLocaleString()} VNĐ
+                Tổng giá cuối cùng: {finalTotal.toLocaleString()} VNĐ
               </Title>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row gutter={24} className="mt-5">
-          <Col span={24}>
-            <Card title="Phương thức vận chuyển">
-              <Text>Giao hàng tiêu chuẩn (3 - 5 ngày) - {shippingFee} VNĐ</Text>
-            </Card>
-          </Col>
-        </Row>
-
-        <Row gutter={24} className="mt-5">
-          <Col span={24}>
-            <Card title="Phương thức thanh toán">
-              <Radio.Group
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              >
-                <Space direction="vertical">
-                  <Radio value="WALLET">Thanh toán từ ví</Radio>
-                  <Radio value="COD">Thanh toán khi nhận hàng (COD)</Radio>
-                  <Radio value="ATM_MOMO">Chuyển khoản ATM MOMO</Radio>
-                  <Radio value="QR_MOMO">Quét mã QR MoMo</Radio>
-                </Space>
-              </Radio.Group>
             </Card>
           </Col>
         </Row>
