@@ -319,6 +319,8 @@ const CheckoutPage = () => {
               products,
               voucherDiscount,
               voucherCode,
+              total: rawTotal,
+              
             }),
           }
         );
@@ -371,6 +373,7 @@ const CheckoutPage = () => {
             paymentType,
             voucherDiscount,
             voucherCode,
+            total2: rawTotal,
           }),
         });
 
