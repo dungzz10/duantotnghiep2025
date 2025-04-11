@@ -22,7 +22,7 @@ const generateSignature = (params) => {
 export const createMomoPayment = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu MoMo:", req.body);
   try {
-    const { amount, products, finalTotal ,total2, paymentType, voucherDiscount,voucherCode } =
+    const { amount, products, finalTotal ,total2, paymentType,shippingFee, voucherDiscount,voucherCode } =
       req.body;
     const total = finalTotal || amount;
     if (!total || isNaN(total) || total < 1000) {
@@ -88,6 +88,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
       amount: total,
       finalTotal: total,
       products,
+      shippingFee,
       shippingAddress: {
         address,
         addressType: "home",
@@ -568,7 +569,7 @@ export const ipnNotification = CatchAsync(async (req, res, next) => {
 
 //  thanh toán bằng ví
 export const createWalletPayment = CatchAsync(async (req, res, next) => {
-  const { amount, shippingAddress, voucherDiscount,voucherCode, products, finalTotal ,total } =
+  const { amount,shippingFee, shippingAddress, voucherDiscount,voucherCode, products, finalTotal ,total } =
     req.body;
   const userId = req.user?.id;
 
@@ -595,6 +596,7 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
     finalTotal,
     total,
     products,
+    shippingFee,
     voucherDiscount,
     paymentMethod: "WALLET",
     paymentStatus: "completed",

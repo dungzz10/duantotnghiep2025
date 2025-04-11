@@ -320,7 +320,7 @@ const CheckoutPage = () => {
               voucherDiscount,
               voucherCode,
               total: rawTotal,
-              
+              shippingFee,
             }),
           }
         );
@@ -370,6 +370,7 @@ const CheckoutPage = () => {
             orderInfo: `Thanh toán đơn hàng #${Date.now()}`,
             shippingAddress: order.shippingAddress,
             products,
+            shippingFee,
             paymentType,
             voucherDiscount,
             voucherCode,

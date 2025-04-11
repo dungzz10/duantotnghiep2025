@@ -11,6 +11,7 @@ import {
   Steps,
   Form,
   Upload,
+  Image,
 } from "antd";
 import { SearchOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import { format } from "date-fns";
@@ -46,7 +47,6 @@ const OrderHistory = () => {
       message.error("Có lỗi xảy ra khi tải đơn hàng.");
     }
   }, []);
-  console.log(orders, 9999);
 
   useEffect(() => {
     fetchOrders();
@@ -154,7 +154,7 @@ const OrderHistory = () => {
         images: returnImages,
       });
 
-      message.success(`Đơn hàng ${orderId} đã được trả lại.`);
+      message.success(`Đơn hàng đã được trả lại.`);
       fetchOrders();
       setShowReturnModal(false);
       setReturnImages([]);
@@ -195,6 +195,7 @@ const OrderHistory = () => {
     };
     return <Tag color={color}>{text}</Tag>;
   };
+
   const getCurrentStep = (status) => {
     switch (status) {
       case "pending":
@@ -264,6 +265,80 @@ const OrderHistory = () => {
         </Button>
       ),
     },
+  ];
+
+  const productColumns = [
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "name",
+      key: "name",
+      render: (text, record) => (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          <Image
+            src={record.image || "placeholder_image_url"}
+            alt={record.name || "Unknown"}
+            style={{
+              width: "50px",
+              height: "50px",
+              objectFit: "cover",
+              marginRight: "10px",
+              borderRadius: "4px",
+            }}
+          />
+          <div>
+            <div style={{ fontWeight: "500" }}>
+              {record.name || "Không có tên"}
+            </div>
+            <div style={{ color: "#888", fontSize: "12px" }}>
+              Color: {record.color || "Không xác định"}
+            </div>
+            <div style={{ color: "#888", fontSize: "12px" }}>
+              Size: {record.size || "Không xác định"}
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "orderStatus",
+      key: "orderStatus",
+      render: (status) => {
+        const statusMap = {
+          delivered: { color: "green", text: "Đã giao" },
+          pending: { color: "orange", text: "Chưa xử lý" },
+          processing: { color: "orange", text: "Đang xử lý" },
+          shipped: { color: "orange", text: "Đang vận chuyển" },
+          cancelled: { color: "red", text: "Đã Huỷ" },
+          trahang: { color: "purple", text: "Đã hoàn" },
+        };
+        const { color, text } = statusMap[status] || {
+          color: "default",
+          text: status.toUpperCase(),
+        };
+        return (
+          <Tag
+            color={color}
+            style={{ borderRadius: "12px", padding: "2px 8px" }}
+          >
+            {text}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Giá tiền",
+      dataIndex: "price",
+      key: "price",
+      align: "right",
+      render: (price) => `${price.toLocaleString("vi-VN")} VNĐ`,
+    },
+    
   ];
 
   return (
@@ -546,78 +621,44 @@ const OrderHistory = () => {
                 </div>
               </div>
             )}
-            <div className="flex">
-              <div>
-                <strong>Sản phẩm: </strong>
-                <div
-                  style={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: "16px",
-                    marginTop: "10px",
-                  }}
-                >
-                  {selectedOrder.products.map((item, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        width: "250px",
-                        border: "1px solid #f0f0f0",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                      }}
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        style={{
-                          width: "100%",
-                          height: "150px",
-                          objectFit: "cover",
-                          borderRadius: "8px",
-                          marginBottom: "8px",
-                        }}
-                      />
-                      <div style={{ width: "100%" }}>
-                        <p>
-                          <strong>Tên:</strong> {item.name}
-                        </p>
-                        <p>
-                          <strong>Số lượng:</strong> {item.quantity}
-                        </p>
-                        <p>
-                          <strong>Giá:</strong>{" "}
-                          {item.price.toLocaleString("vi-VN")} VNĐ
-                        </p>
-                        <p>
-                          <strong>Size:</strong> {item.size}
-                        </p>
-                        <p>
-                          <strong>Màu:</strong> {item.color}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+            <div>
+              <Table
+                columns={productColumns}
+                dataSource={selectedOrder.products.map((product) => ({
+                  ...product,
+                  orderStatus: selectedOrder.orderStatus,
+                  date: selectedOrder.date,
+                }))}
+                rowKey={(record, index) => index}
+                pagination={false}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: "20px",
+                  marginTop: "16px",
+                  fontSize: "14px",
+                }}
+              >
+                <div>
+                  <strong>Tổng tiền hàng:</strong>{" "}
+                  {selectedOrder.total.toLocaleString("vi-VN")} VNĐ
                 </div>
-                <p>
-                <p>
-                    <strong>Tổng tiền sản phẩm:</strong>{" "}
-                    {selectedOrder.total.toLocaleString("vi-VN")} VNĐ
-                  </p>
-                  <p>
-                    <strong>Phí vận chuyển:</strong>{" "}
-                    {selectedOrder.shippingFee.toLocaleString("vi-VN")} VNĐ
-                  </p>
-                  <p>
-                    <strong>Giảm giá Voucher:</strong>{" "}
-                    {selectedOrder.voucherDiscount.toLocaleString("vi-VN")} VNĐ
-                  </p>
-                  <strong>Tổng tiền cuối cùng:</strong>{" "}
-                  {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
-                </p>
+                <div>
+                  <strong>Phí vận chuyển:</strong>{" "}
+                  {selectedOrder.shippingFee.toLocaleString("vi-VN")} VNĐ
+                </div>
+                <div>
+                  <strong>Voucher:</strong>{" "}
+                  -{selectedOrder.voucherDiscount.toLocaleString("vi-VN")} VNĐ
+                </div>
+                <div>
+                  <strong>Thanh toán:</strong>{" "}
+                  <span style={{ color: "red", fontWeight: "bold" }}>
+                    {selectedOrder.amount.toLocaleString("vi-VN")} VNĐ
+                  </span>
+                </div>
               </div>
             </div>
           </div>

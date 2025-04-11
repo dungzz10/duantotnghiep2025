@@ -224,9 +224,6 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
   const { orderStatus } = req.body;
 
-  if (!validStatuses.includes(orderStatus)) {
-    return next(new HandelError("Trạng thái đơn hàng không hợp lệ", 400));
-  }
 
   const order = await Order.findById(orderId);
 
@@ -256,6 +253,11 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
       new HandelError("Đơn hàng đã bị hủy và không thể cập nhật", 400)
     );
   }
+  if (orderStatus === "trahang" && order.orderStatus !== "delivered") {
+    return next(
+      new HandelError("Đơn hàng chưa được giao và không thể hoàn hàng", 400)
+    );
+  }
 
   // if (
   //   order.orderStatus === "delivered" &&
@@ -278,6 +280,12 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
       { $inc: { "wallet.balance": order.finalTotal } }
     );
   }
+  if (orderStatus === "trahang") {
+    await User.updateOne(
+      { _id: order.userId },
+      { $inc: { "wallet.balance": order.finalTotal } }
+    );
+  }
 
   const statusMessages = {
     processing: "Đơn hàng đang được xử lý.",
@@ -286,6 +294,7 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
     cancelled: "Đơn hàng đã bị hủy. Tiền đã được hoàn vào ví.",
     returned: "Đơn hàng đã được trả lại.",
     refunded: "Đơn hàng đã được hoàn tiền.",
+    trahang: "Đơn hàng đã được yêu cầu hoàn hàng.",
   };
 
   return res.status(200).json({
