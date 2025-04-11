@@ -224,7 +224,6 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
   const { orderStatus } = req.body;
 
-
   const order = await Order.findById(orderId);
 
   if (!order) {
@@ -272,6 +271,9 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   // }
 
   order.orderStatus = orderStatus;
+  if (orderStatus === "delivered") {
+    order.paymentStatus = "completed";
+  }
   await order.save();
 
   if (orderStatus === "cancelled") {
