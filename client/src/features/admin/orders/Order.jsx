@@ -592,7 +592,7 @@ const Order = () => {
               <Option value="trahang">Đã Trả Hàng</Option>
             </Select>
             <RangePicker
-            style={{ marginLeft: 800 }}
+           style={{ marginLeft: 'auto' }}
               value={dateRange}
               onChange={handleDateChange}
               disabledDate={(current) => current && current > moment().endOf("day")}

@@ -21,6 +21,7 @@ import NoOrderPage from "./NoOrderPage";
 import AddressForm from "../adress/AddressForm";
 import { useUser } from "../../app/hook/LoadUser";
 import { Option } from "antd/es/mentions";
+import { AlignCenter } from "lucide-react";
 
 const { Title, Text } = Typography;
 
@@ -451,7 +452,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto p-4 md:p-8">
-      <Card className="shadow-lg" bordered>
+      <Card title="Thanh toán" className="shadow-lg" bordered>
         <Row gutter={24}>
           <Col xs={24} md={12}>
             {!isOtherRecipient ? (
