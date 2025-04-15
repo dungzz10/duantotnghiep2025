@@ -229,7 +229,7 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   if (!order) {
     return next(new HandelError("Không tìm thấy đơn hàng", 404));
   }
-
+  const validStatuses = ["pending", "processing", "shipped", "delivered", "trahang", "cancelled"];
   const currentStatusIndex = validStatuses.indexOf(order.orderStatus);
   const newStatusIndex = validStatuses.indexOf(orderStatus);
 
@@ -271,6 +271,10 @@ export const updateOrder = CatchAsync(async (req, res, next) => {
   // }
 
   order.orderStatus = orderStatus;
+  order.statusHistory.push({
+    status: orderStatus,
+    date: new Date(),
+  });
   if (orderStatus === "delivered") {
     order.paymentStatus = "completed";
   }
