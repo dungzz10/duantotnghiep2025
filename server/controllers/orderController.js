@@ -111,7 +111,8 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
       (a.orderStatus === "processing" && b.orderStatus === "processing") ||
       (a.orderStatus === "shipped" && b.orderStatus === "shipped") ||
       (a.orderStatus === "delivered" && b.orderStatus === "delivered") ||
-      (a.orderStatus === "cancelled" && b.orderStatus === "cancelled")
+      (a.orderStatus === "cancelled" && b.orderStatus === "cancelled")||
+      (a.orderStatus === "trahang" && b.orderStatus === "trahang")
     ) {
       return new Date(b.date) - new Date(a.date);
     }
