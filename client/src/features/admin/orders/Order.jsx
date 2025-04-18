@@ -48,17 +48,35 @@ const Order = () => {
     try {
       if (combinedSearch.match(/^\d+$/)) {
         const [userResponse, recipientResponse] = await Promise.all([
-          axios.get(`/orders/userPhone-check/${combinedSearch}`).catch(() => ({ data: { data: [] } })),
-          axios.get(`/orders/recipientPhone-check/${combinedSearch}`).catch(() => ({ data: { data: [] } })),
+          axios
+            .get(`/orders/userPhone-check/${combinedSearch}`)
+            .catch(() => ({ data: { data: [] } })),
+          axios
+            .get(`/orders/recipientPhone-check/${combinedSearch}`)
+            .catch(() => ({ data: { data: [] } })),
         ]);
-        const combinedOrders = [...userResponse.data.data, ...recipientResponse.data.data];
-        setOrders([...new Set(combinedOrders.map(order => JSON.stringify(order)))].map(str => JSON.parse(str)));
+        const combinedOrders = [
+          ...userResponse.data.data,
+          ...recipientResponse.data.data,
+        ];
+        setOrders(
+          [
+            ...new Set(combinedOrders.map((order) => JSON.stringify(order))),
+          ].map((str) => JSON.parse(str))
+        );
       } else {
         const response = await axios.get(`/orders`);
-        setOrders(response.data.orders.filter(order =>
-          order.orderId.toLowerCase().includes(combinedSearch.toLowerCase()) ||
-          order.products.some(item => item.name.toLowerCase().includes(combinedSearch.toLowerCase()))
-        ));
+        setOrders(
+          response.data.orders.filter(
+            (order) =>
+              order.orderId
+                .toLowerCase()
+                .includes(combinedSearch.toLowerCase()) ||
+              order.products.some((item) =>
+                item.name.toLowerCase().includes(combinedSearch.toLowerCase())
+              )
+          )
+        );
       }
     } catch (error) {
       if (error.response?.data?.message === "SO_DIEN_THOAI_CHUA_DUOC_DANG_KI") {
@@ -125,7 +143,9 @@ const Order = () => {
             item.name.toLowerCase().includes(combinedSearch.toLowerCase())
           ) ||
           String(order.userId?.phoneNumber || "").includes(combinedSearch) ||
-          String(order.shippingAddress?.recipientPhone || "").includes(combinedSearch);
+          String(order.shippingAddress?.recipientPhone || "").includes(
+            combinedSearch
+          );
         const matchesStatus =
           selectedStatus === "All" || order.orderStatus === selectedStatus;
         return matchesSearch && matchesStatus;
@@ -162,7 +182,16 @@ const Order = () => {
         message.success("Cập nhật trạng thái đơn hàng thành công.");
         setOrders((prevOrders) =>
           prevOrders.map((order) =>
-            order._id === orderId ? { ...order, orderStatus: newStatus } : order
+            order._id === orderId
+              ? {
+                  ...order,
+                  orderStatus: newStatus,
+                  statusHistory: [
+                    ...(order.statusHistory || []),
+                    { status: newStatus, date: new Date() },
+                  ],
+                }
+              : order
           )
         );
       } else {
@@ -259,7 +288,9 @@ const Order = () => {
           <Button
             type="primary"
             size="small"
-            onClick={() => handleUpdateStatus(record._id, tempStatus[record._id] || status)}
+            onClick={() =>
+              handleUpdateStatus(record._id, tempStatus[record._id] || status)
+            }
           >
             Cập nhật
           </Button>
@@ -342,7 +373,9 @@ const Order = () => {
             }}
           />
           <div>
-            <div style={{ fontWeight: "500" }}>{record.name || "Không có tên"}</div>
+            <div style={{ fontWeight: "500" }}>
+              {record.name || "Không có tên"}
+            </div>
             <div style={{ color: "#888", fontSize: "12px" }}>
               Color: {record.color || "Không xác định"}
             </div>
@@ -371,7 +404,10 @@ const Order = () => {
           text: status.toUpperCase(),
         };
         return (
-          <Tag color={color} style={{ borderRadius: "12px", padding: "2px 8px" }}>
+          <Tag
+            color={color}
+            style={{ borderRadius: "12px", padding: "2px 8px" }}
+          >
             {text}
           </Tag>
         );
@@ -435,7 +471,9 @@ const Order = () => {
       dataIndex: "confirmationDate",
       key: "confirmationDate",
       render: (confirmationDate) =>
-        confirmationDate ? format(new Date(confirmationDate), "HH:mm dd/MM/yyyy") : "N/A",
+        confirmationDate
+          ? format(new Date(confirmationDate), "HH:mm dd/MM/yyyy")
+          : "N/A",
     },
     {
       title: "Người dùng xác nhận",
@@ -455,7 +493,8 @@ const Order = () => {
       title: "Thời gian",
       dataIndex: "date",
       key: "date",
-      render: (date) => (date ? format(new Date(date), "dd/MM/yyyy HH:mm") : "N/A"),
+      render: (date) =>
+        date ? format(new Date(date), "dd/MM/yyyy HH:mm") : "N/A",
     },
     {
       title: "Ảnh minh họa",
@@ -488,7 +527,10 @@ const Order = () => {
           approved: { color: "green", text: "Đã phê duyệt" },
           rejected: { color: "red", text: "Bị từ chối" },
         };
-        const { color, text } = statusMap[status] || { color: "default", text: status };
+        const { color, text } = statusMap[status] || {
+          color: "default",
+          text: status,
+        };
         return <Tag color={color}>{text}</Tag>;
       },
     },
@@ -497,7 +539,9 @@ const Order = () => {
       dataIndex: "approvalDate",
       key: "approvalDate",
       render: (approvalDate) =>
-        approvalDate ? format(new Date(approvalDate), "dd/MM/yyyy HH:mm") : "N/A",
+        approvalDate
+          ? format(new Date(approvalDate), "dd/MM/yyyy HH:mm")
+          : "N/A",
     },
     {
       title: "Người dùng xác nhận",
@@ -507,54 +551,49 @@ const Order = () => {
     },
   ];
 
-  const getOrderTimeline = (orderStatus) => {
+  const getOrderTimeline = (order) => {
     const timeline = [
       {
         label: "Ngày đặt hàng",
-        time: format(new Date(selectedOrder?.date), "HH:mm dd/MM/yyyy"),
+        time: format(new Date(order?.date), "HH:mm dd/MM/yyyy"),
         completed: true,
       },
     ];
 
-    if (orderStatus === "pending") {
-      timeline.push({
-        label: "Chưa thanh toán",
-        time: "Chưa có thông tin",
-        completed: true,
-      });
-    }
+    const statusOrder = [
+      "pending",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+      "trahang",
+    ];
+    const statusLabels = {
+      pending: "Chưa thanh toán",
+      processing: "Đang xử lý",
+      shipped: "Đang vận chuyển",
+      delivered: "Đã giao thành công",
+      cancelled: "Đã hủy",
+      trahang: "Đã hoàn",
+    };
 
-    if (["processing", "shipped", "delivered"].includes(orderStatus)) {
-      timeline.push({
-        label: "Đang xử lý",
-        time: "Chưa có thông tin",
-        completed: true,
-      });
-    }
+    const seenStatuses = new Set();
+    const sortedHistory = (order?.statusHistory || [])
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+      .filter((entry) => statusOrder.includes(entry.status));
 
-    if (["shipped", "delivered"].includes(orderStatus)) {
-      timeline.push({
-        label: "Đang vận chuyển",
-        time: "Chưa có thông tin",
-        completed: true,
-      });
-    }
-
-    if (orderStatus === "delivered") {
-      timeline.push({
-        label: "Đã giao thành công",
-        time: "Chưa có thông tin",
-        completed: true,
-      });
-    }
-
-    if (orderStatus === "cancelled" || orderStatus === "trahang") {
-      const finalStatus = orderStatus === "trahang" ? "Đã hoàn" : "Đã hủy";
-      timeline.push({
-        label: finalStatus,
-        time: "Chưa có thông tin",
-        completed: true,
-      });
+    for (const status of statusOrder) {
+      const historyEntry = sortedHistory.find(
+        (entry) => entry.status === status && !seenStatuses.has(status)
+      );
+      if (historyEntry && statusLabels[status]) {
+        seenStatuses.add(status);
+        timeline.push({
+          label: statusLabels[status],
+          time: format(new Date(historyEntry.date), "HH:mm dd/MM/yyyy"),
+          completed: true,
+        });
+      }
     }
 
     return timeline;
@@ -574,6 +613,7 @@ const Order = () => {
             <Input
               placeholder="Tìm kiếm đơn hàng, số điện thoại người đặt hoặc nhận"
               prefix={<SearchOutlined />}
+              allowClear
               value={combinedSearch}
               onChange={(e) => setCombinedSearch(e.target.value)}
               style={{ width: "350px" }}
@@ -581,7 +621,7 @@ const Order = () => {
             <Select
               defaultValue="All"
               onChange={(value) => setSelectedStatus(value)}
-              style={{ width: "150px" }}
+              style={{ width: "170px" }}
             >
               <Option value="All">Tất cả</Option>
               <Option value="pending">Chưa thanh toán</Option>
@@ -592,10 +632,12 @@ const Order = () => {
               <Option value="trahang">Đã Trả Hàng</Option>
             </Select>
             <RangePicker
-           style={{ marginLeft: 'auto' }}
+              style={{ marginLeft: "auto" }}
               value={dateRange}
               onChange={handleDateChange}
-              disabledDate={(current) => current && current > moment().endOf("day")}
+              disabledDate={(current) =>
+                current && current > moment().endOf("day")
+              }
               format="DD/MM/YYYY"
               placeholder={["Từ ngày", "Đến ngày"]}
               ranges={{
@@ -605,7 +647,11 @@ const Order = () => {
                 "Tháng này": [moment().startOf("month"), moment()],
               }}
             />
-            <Button type="primary" onClick={handleFilter} style={{ marginLeft: 8 }}>
+            <Button
+              type="primary"
+              onClick={handleFilter}
+              style={{ marginLeft: 8 }}
+            >
               Lọc
             </Button>
           </div>
@@ -680,12 +726,16 @@ const Order = () => {
                         }}
                       >
                         <span>
-                          <strong>Tên:</strong> {selectedOrder.userId?.name || "N/A"}
-                        </span>
-                        <span>
-                          <strong>Email:</strong> {selectedOrder.userId?.email || "N/A"}
+                          <strong>Tên:</strong>{" "}
+                          {selectedOrder.userId?.name || "N/A"}
                         </span>
                       </div>
+                      <p>
+                        <span>
+                          <strong>Email:</strong>{" "}
+                          {selectedOrder.userId?.email || "N/A"}
+                        </span>
+                      </p>
                       <p style={{ margin: "8px 0" }}>
                         <strong>Số điện thoại:</strong>{" "}
                         {selectedOrder.userId?.phoneNumber || "N/A"}
@@ -745,16 +795,27 @@ const Order = () => {
                 />
               </div>
 
-              {(selectedOrder.orderStatus === "cancelled" || selectedOrder.orderStatus === "trahang") && (
+              {(selectedOrder.orderStatus === "cancelled" ||
+                selectedOrder.orderStatus === "trahang") && (
                 <div style={{ marginTop: "20px" }}>
                   <strong>
                     <h3 style={{ marginBottom: "16px" }}>
-                      {selectedOrder.orderStatus === "cancelled" ? "Lý do hủy đơn" : "Lý do hoàn hàng"}
+                      {selectedOrder.orderStatus === "cancelled"
+                        ? "Lý do hủy đơn"
+                        : "Lý do hoàn hàng"}
                     </h3>
                   </strong>
                   <Table
-                    columns={selectedOrder.orderStatus === "cancelled" ? cancellationColumns : returnRequestColumns}
-                    dataSource={[selectedOrder.orderStatus === "cancelled" ? selectedOrder.cancellation : selectedOrder.returnRequest]}
+                    columns={
+                      selectedOrder.orderStatus === "cancelled"
+                        ? cancellationColumns
+                        : returnRequestColumns
+                    }
+                    dataSource={[
+                      selectedOrder.orderStatus === "cancelled"
+                        ? selectedOrder.cancellation
+                        : selectedOrder.returnRequest,
+                    ]}
                     rowKey="date"
                     pagination={false}
                     bordered
@@ -775,22 +836,24 @@ const Order = () => {
               >
                 <h3 style={{ marginBottom: "16px" }}>Trạng thái đơn hàng</h3>
                 <Timeline>
-                  {getOrderTimeline(selectedOrder.orderStatus).map((step, index) => (
-                    <Timeline.Item
-                      key={index}
-                      dot={
-                        step.completed ? (
-                          <CheckCircleTwoTone twoToneColor="#52c41a" />
-                        ) : (
-                          <ClockCircleTwoTone twoToneColor="#d9d9d9" />
-                        )
-                      }
-                      color={step.completed ? "green" : "gray"}
-                    >
-                      <p style={{ fontWeight: "bold" }}>{step.label}</p>
-                      <p>{step.time}</p>
-                    </Timeline.Item>
-                  ))}
+                  {getOrderTimeline(selectedOrder).map(
+                    (step, index) => (
+                      <Timeline.Item
+                        key={index}
+                        dot={
+                          step.completed ? (
+                            <CheckCircleTwoTone twoToneColor="#52c41a" />
+                          ) : (
+                            <ClockCircleTwoTone twoToneColor="#d9d9d9" />
+                          )
+                        }
+                        color={step.completed ? "green" : "gray"}
+                      >
+                        <p style={{ fontWeight: "bold" }}>{step.label}</p>
+                        <p>{step.time}</p>
+                      </Timeline.Item>
+                    )
+                  )}
                 </Timeline>
                 <div style={{ marginTop: "20px" }}>
                   <p style={{ margin: "8px 0" }}>
@@ -799,11 +862,14 @@ const Order = () => {
                   </p>
                   <p style={{ margin: "8px 0" }}>
                     <strong>Phí vận chuyển:</strong>{" "}
-                    {selectedOrder.shippingFee?.toLocaleString("vi-VN") || "0"} VNĐ
+                    {selectedOrder.shippingFee?.toLocaleString("vi-VN") || "0"}{" "}
+                    VNĐ
                   </p>
                   <p style={{ margin: "8px 0" }}>
                     <strong>Giảm giá Voucher:</strong>{" "}
-                    {selectedOrder.voucherDiscount?.toLocaleString("vi-VN") || "0"} VNĐ
+                    {selectedOrder.voucherDiscount?.toLocaleString("vi-VN") ||
+                      "0"}{" "}
+                    VNĐ
                   </p>
                   <p style={{ margin: "8px 0" }}>
                     <strong>Tổng tiền cuối cùng:</strong>{" "}

@@ -139,6 +139,20 @@ const orderSchema = new mongoose.Schema({
     approvalDate: Date,
     userConfirmed: Boolean 
   },
+  statusHistory: [
+    {
+      status: {
+        type: String,
+        enum: ["pending", "processing", "shipped", "delivered", "trahang", "cancelled"],
+        required: true,
+      },
+      date: {
+        type: Date,
+        default: Date.now,
+        required: true,
+      },
+    },
+  ],
 });
 orderSchema.post("save", async function (doc, next) {
   const Product = mongoose.model("Product");
