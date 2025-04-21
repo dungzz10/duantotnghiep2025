@@ -472,7 +472,7 @@ const CartPage = () => {
 
   return (
     <div style={{ padding: "20px", backgroundColor: "#f5f5f5" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }}>Giỏ Hàng</h1>
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }} className="text-2xl font-semibold text-gray-800">Giỏ Hàng</h1>
       <Table
         columns={columns}
         dataSource={cartData}

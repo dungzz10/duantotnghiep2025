@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { useCategoriesAdmin } from "./usecategoriesadmin";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import axios from "axios";
+import AdminBreadcrumb from "../../../../components/admin/AdminBreadcrumb";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -143,6 +144,7 @@ const ListCategoriesAdmin = () => {
   return (
     <div>
             <div className="flex justify-between items-center">
+            <AdminBreadcrumb />
               <h1 className="text-2xl font-semibold text-gray-800">Danh mục sản phẩm </h1>
               <Link to="/admin/them-danh-muc" className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
                 Thêm danh mục

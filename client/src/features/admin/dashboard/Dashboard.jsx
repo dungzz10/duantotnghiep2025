@@ -3,12 +3,14 @@ import StatisticsComponent from "./StatisticsComponent";
 import RevenueChart from "./RevenueChart";
 import ProductComparisonChart from "./ProductComparisonChart";
 import { Divider, Typography } from "antd";
+import AdminBreadcrumb from "../../../components/admin/AdminBreadcrumb";
 
 const { Title } = Typography;
 
 const Dashboard = () => {
   return (
     <div style={{ padding: "20px", backgroundColor: "#f0f2f5" }}>
+      <AdminBreadcrumb />
       <Title level={2}>Bảng điều khiển</Title>
       
       {/* Revenue Chart */}

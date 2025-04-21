@@ -452,7 +452,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto p-4 md:p-8">
-      <Card title="Thanh toán" className="shadow-lg" bordered>
+      <Card title={<div style={{ textAlign: "center" }}>Thanh toán</div>} className="shadow-lg" bordered>
         <Row gutter={24}>
           <Col xs={24} md={12}>
             {!isOtherRecipient ? (

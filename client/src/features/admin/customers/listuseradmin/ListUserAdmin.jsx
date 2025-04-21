@@ -4,6 +4,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import usedeactiveuser from "./usedectiveuser";
 import { useUserAdmin } from "./useuseradmin";
 import { Link } from "react-router-dom";
+import AdminBreadcrumb from "../../../../components/admin/AdminBreadcrumb";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -173,6 +174,7 @@ const ListUserAdmin = () => {
 
   return (
     <div>
+      <AdminBreadcrumb />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">
           Danh sách người dùng{" "}

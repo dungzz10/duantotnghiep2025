@@ -50,7 +50,7 @@ const Header = () => {
     }
 
     fetchCartCount();
-  }, [user,refetch]);
+  }, [user, refetch]);
 
   const handleLogout = () => {
     console.log("Logout");
@@ -65,12 +65,9 @@ const Header = () => {
       {/* Top Announcement Bar */}
       <div className="w-full bg-white py-2 border-b">
         <div className="container mx-auto flex justify-between items-center px-4">
-          <div className="text-sm font-medium">
-            *Sản Phẩm mới 2025{" "}
-            <Link to="/shop" className="underline">
-              Shop Now*
-            </Link>
-          </div>
+          {/* Spacer giữ khoảng bằng kích thước dòng bị xoá */}
+          <div className="w-[160px] hidden md:block" />
+
           <Link to="/" className="hidden md:block">
             <img
               src="/src/assets/theshoes.png"
@@ -78,6 +75,7 @@ const Header = () => {
               className="h-20"
             />
           </Link>
+
           <div className="flex items-center space-x-2">
             <div className="relative hidden md:flex items-center">
               <input
