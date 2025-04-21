@@ -12,6 +12,7 @@ import {
   Legend
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
+import { getBaseUrl } from "../../../utils/baseURL";
 
 // Register Chart.js components
 ChartJS.register(
@@ -50,8 +51,8 @@ const ProductComparisonChart = () => {
 
       // Fetch both quantity and revenue data
       const [quantityResponse, revenueResponse] = await Promise.all([
-        axios.get(`http://localhost:5000/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`),
-        axios.get(`http://localhost:5000/api/v1/thongke/top-products-sell?startDate=${startDate}&endDate=${endDate}`)
+        axios.get(`${getBaseUrl()}/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`),
+        axios.get(`${getBaseUrl()}/api/v1/thongke/top-products-sell?startDate=${startDate}&endDate=${endDate}`)
       ]);
 
       const quantityData = quantityResponse.data.data || [];

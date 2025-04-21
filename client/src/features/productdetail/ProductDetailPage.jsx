@@ -4,6 +4,7 @@ import usegetoneproduct from "./usegetproduct";
 import { useParams } from "react-router-dom";
 import ReviewCart from "../reviews/ReviewCart";
 import RatingStarts from "../../components/RatingStarts";
+import { getBaseUrl } from "../../utils/baseURL";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -81,7 +82,7 @@ const ProductDetailPage = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/api/v1/carts/add", {
+      const response = await fetch(`${getBaseUrl()}/api/v1/carts/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

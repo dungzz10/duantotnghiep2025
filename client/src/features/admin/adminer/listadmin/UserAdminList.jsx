@@ -3,6 +3,7 @@ import { Table, Button, Space, Modal, message, Tag } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import UserAdminForm from "../updateadmin/UserAdminForm";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const UserAdminList = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -14,7 +15,7 @@ const UserAdminList = () => {
     queryKey: ["adminUsers"],
     queryFn: async () => {
       const response = await axios.get(
-        "http://localhost:5000/api/v1/user/admin",
+        `${getBaseUrl()}/api/v1/user/admin`,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
@@ -27,7 +28,7 @@ const UserAdminList = () => {
   const deactivateUser = useMutation({
     mutationFn: async (userId) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/user/admin/deactive/${userId}`,
+        `${getBaseUrl()}/api/v1/user/admin/deactive/${userId}`,
         {},
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -48,7 +49,7 @@ const UserAdminList = () => {
   const updateUser = useMutation({
     mutationFn: async ({ userId, userData }) => {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/user/admin/uppdate/${userId}`,
+        `${getBaseUrl()}/api/v1/user/admin/uppdate/${userId}`,
         userData,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },

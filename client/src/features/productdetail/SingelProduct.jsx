@@ -12,6 +12,7 @@ import { api } from "../../axios/api";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../app/hook/LoadUser";
+import { getBaseUrl } from "../../utils/baseURL";
 const SingelProduct = () => {
   const { id } = useParams();
   const { data, isLoading, error } = usegetoneproduct(id);
@@ -146,7 +147,7 @@ const SingelProduct = () => {
 
     if (existingCart) {
       try {
-        const response = await fetch("http://localhost:5000/api/v1/carts/add", {
+        const response = await fetch(`${getBaseUrl()}/api/v1/carts/add`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

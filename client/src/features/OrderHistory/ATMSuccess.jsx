@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Result, Spin, message } from "antd";
+import { getBaseUrl } from "../../utils/baseURL";
 
 const ATMSuccess = () => {
   const location = useLocation();
@@ -19,7 +20,7 @@ const ATMSuccess = () => {
 
     const fetchOrder = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/momo/verify/${orderId}`, {
+        const response = await fetch(`${getBaseUrl()}/api/momo/verify/${orderId}`, {
           method: "GET",
           credentials: "include",
         });

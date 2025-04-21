@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { message } from "antd";
 import axios from "axios";
+import { getBaseUrl } from "../../utils/baseURL";
 
 const MomoSuccess = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const MomoSuccess = () => {
 
         // Sửa lại cách gọi axios.get - chỉ có 2 tham số: URL và config object
         const response = await axios.get(
-          `http://localhost:5000/api/v1/user/payment/verify/${orderId}`,
+          `${getBaseUrl()}/api/v1/user/payment/verify/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,

@@ -1,8 +1,9 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { data } from "react-router-dom";
+import { getBaseUrl } from "../utils/baseURL";
 
-axios.defaults.baseURL = "http://localhost:5000/api/v1";
+axios.defaults.baseURL = `${getBaseUrl()}/api/v1`;
 axios.defaults.withCredentials = true; // Cho phép gửi cookie cùng request
 
 const resBody = (response) => response.data;

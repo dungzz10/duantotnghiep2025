@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const EditBanner = () => {
     const { id } = useParams();
@@ -15,7 +16,7 @@ const EditBanner = () => {
     useEffect(() => {
         const fetchBanner = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/v1/banners/${id}`);
+                const res = await fetch(`${getBaseUrl()}/api/v1/banners/${id}`);
                 const banner = await res.json();                        
                 if (res.ok) {
                     setTitle(banner.data.title ?? ""); // Giá trị cũ của title
@@ -59,7 +60,7 @@ const EditBanner = () => {
         formData.append("isActive", isActive === "true");
 
         try {
-            const res = await fetch(`http://localhost:5000/api/v1/banners/${id}`, {
+            const res = await fetch(`${getBaseUrl()}/api/v1/banners/${id}`, {
                 method: "PATCH",
                 body: formData,
             });

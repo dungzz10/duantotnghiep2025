@@ -5,6 +5,7 @@ import { Button, Form, Input, Row, Col, Upload, message } from "antd";
 import { useNavigate } from "react-router-dom";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const AddCategoriesAdmin = () => {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ const AddCategoriesAdmin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/v1/categories/create",
+        `${getBaseUrl()}/api/v1/categories/create`,
         payload,
         {
           headers: {

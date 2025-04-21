@@ -25,6 +25,7 @@ import {
 } from "@ant-design/icons";
 import { format } from "date-fns";
 import moment from "moment";
+import { getBaseUrl } from "../../../utils/baseURL";
 
 const { Option } = Select;
 
@@ -92,7 +93,7 @@ const Order = () => {
       const startDate = dateRange[0].format("YYYY-MM-DD");
       const endDate = dateRange[1].format("YYYY-MM-DD");
       const ordersResponse = await axios.get(
-        `http://localhost:5000/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
+        `${getBaseUrl()}/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
       );
       setCombinedSearch("");
       setOrders(ordersResponse.data.orders);

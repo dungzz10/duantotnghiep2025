@@ -27,6 +27,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { getBaseUrl } from "../../../utils/baseURL";
 
 // Đăng ký các thành phần của Chart.js
 ChartJS.register(
@@ -78,22 +79,22 @@ const StatisticsComponent = () => {
         topProductsSellResponse,
       ] = await Promise.all([
         axios.get(
-          `http://localhost:5000/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
+          `${getBaseUrl()}/api/v1/thongke/order-statistics?startDate=${startDate}&endDate=${endDate}`
         ),
         axios.get(
-          `http://localhost:5000/api/v1/thongke/order-success-rate?startDate=${startDate}&endDate=${endDate}`
+          `${getBaseUrl()}/api/v1/thongke/order-success-rate?startDate=${startDate}&endDate=${endDate}`
         ),
         axios.get(
-          `http://localhost:5000/api/v1/thongke/top-users?startDate=${startDate}&endDate=${endDate}`
+          `${getBaseUrl()}/api/v1/thongke/top-users?startDate=${startDate}&endDate=${endDate}`
         ),
         axios.get(
-          `http://localhost:5000/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`
+          `${getBaseUrl()}/api/v1/thongke/top-products?startDate=${startDate}&endDate=${endDate}`
         ),
         axios.get(
-          `http://localhost:5000/api/v1/thongke/profit?startDate=${startDate}&endDate=${endDate}`
+          `${getBaseUrl()}/api/v1/thongke/profit?startDate=${startDate}&endDate=${endDate}`
         ),
         axios.get(
-          `http://localhost:5000/api/v1/thongke/top-products-sell?startDate=${startDate}&endDate=${endDate}`
+          `${getBaseUrl()}/api/v1/thongke/top-products-sell?startDate=${startDate}&endDate=${endDate}`
         ),
       ]);
 

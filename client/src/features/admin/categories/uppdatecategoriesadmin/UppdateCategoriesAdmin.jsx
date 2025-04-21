@@ -5,6 +5,7 @@ import { Button, Form, Input, Row, Col, Upload, message } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { UploadOutlined } from "@ant-design/icons";
 import axios from "axios";
+import { getBaseUrl } from "../../../../utils/baseURL";
 
 const UppdateCategoriesAdmin = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const UppdateCategoriesAdmin = () => {
     const fetchCategory = async () => {
       try {
         const response = await fetch(
-          `http://localhost:5000/api/v1/categories/${id}`
+          `${getBaseUrl()}/api/v1/categories/${id}`
         );
         const data = await response.json();
         if (response.ok) {
@@ -52,7 +53,7 @@ const UppdateCategoriesAdmin = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:5000/api/v1/categories/${id}/edit`,
+        `${getBaseUrl()}/api/v1/categories/${id}/edit`,
         payload, // Add the payload here
         {
           headers: {

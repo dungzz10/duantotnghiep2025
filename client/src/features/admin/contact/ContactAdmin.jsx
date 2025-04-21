@@ -25,7 +25,7 @@ const ContactAdmin = () => {
 
   // Cấu hình axios với token
   const axiosInstance = axios.create({
-    baseURL: 'http://localhost:5000/api/v1',
+    baseURL: `${getBaseUrl()}/api/v1`,
     headers: {
       'Authorization': `Bearer ${getToken()}`
     }

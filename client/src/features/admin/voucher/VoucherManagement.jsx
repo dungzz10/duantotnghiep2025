@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import moment from 'moment';
 import axios from 'axios';
+import { getBaseUrl } from '../../../utils/baseURL';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -29,7 +30,7 @@ const VoucherManagement = () => {
   const fetchVouchers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/v1/vouchers/admin/voucher');
+      const response = await axios.get(`${getBaseUrl()}/api/v1/vouchers/admin/voucher`);
       setVouchers(response.data.data);
     } catch (error) {
       message.error('Lỗi khi tải danh sách voucher');
@@ -52,10 +53,10 @@ const VoucherManagement = () => {
       };
 
       if (editingVoucher) {
-        await axios.put(`http://localhost:5000/api/v1/vouchers/admin/voucher/${editingVoucher._id}`, data);
+        await axios.put(`${getBaseUrl()}/api/v1/vouchers/admin/voucher/${editingVoucher._id}`, data);
         message.success('Cập nhật voucher thành công');
       } else {
-        await axios.post('http://localhost:5000/api/v1/vouchers/admin/voucher', data);
+        await axios.post(`${getBaseUrl()}/api/v1/vouchers/admin/voucher`, data);
         message.success('Tạo voucher thành công');
       }
 
@@ -141,7 +142,7 @@ const VoucherManagement = () => {
   // Handle delete
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/v1/vouchers/admin/voucher/${id}`);
+      await axios.delete(`${getBaseUrl()}/api/v1/vouchers/admin/voucher/${id}`);
       message.success('Xóa voucher thành công');
       fetchVouchers();
     } catch (error) {

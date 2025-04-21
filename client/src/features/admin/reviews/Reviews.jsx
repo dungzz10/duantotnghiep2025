@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import RatingStarts from '../../../components/RatingStarts';
+import { getBaseUrl } from '../../../utils/baseURL';
 
 const Reviews = () => {
   const [comments, setComments] = useState([]);
@@ -15,7 +16,7 @@ const Reviews = () => {
 
   const fetchComments = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/v1/reviews`);
+      const res = await axios.get(`${getBaseUrl()}/api/v1/reviews`);
       setComments(res.data);
     } catch (error) {
       console.error("Lỗi khi lấy bình luận:", error);
@@ -24,7 +25,7 @@ const Reviews = () => {
 
   const toggleVisibility = async (id, hidden) => {
     try {
-      await axios.put(`http://localhost:5000/api/v1/reviews/${id}`, {
+      await axios.put(`${getBaseUrl()}/api/v1/reviews/${id}`, {
         hidden: !hidden,
       });
       fetchComments();

@@ -1,10 +1,11 @@
 import axios from "axios";
+import { getBaseUrl } from "../../utils/baseURL";
 
 export const postReview = async (reviewData) => {
     try {
         console.log("Dữ liệu gửi lên server:", reviewData); // Log kiểm tra
 
-        const response = await axios.post("http://localhost:5000/api/v1/reviews", reviewData, {
+        const response = await axios.post(`${getBaseUrl()}/api/v1/reviews`, reviewData, {
             headers: { "Content-Type": "application/json" },
         });
         console.log("Phản hồi từ server:", response.data); // Log kiểm tra
@@ -20,7 +21,7 @@ export const postReview = async (reviewData) => {
 export const checkDeliveredOrder = async (userId, productId) => {
 
     try {
-        const response = await axios.get("http://localhost:5000/api/v1/orders/check-delivered", {
+        const response = await axios.get(`${getBaseUrl()}/api/v1/orders/check-delivered`, {
             params: { userId, productId }
         });
         return response.status === 200;
@@ -32,7 +33,7 @@ export const checkDeliveredOrder = async (userId, productId) => {
 
 export const getTotalReviewsByProduct = async(productId) =>{
     try {
-        const response = await axios.get(`http://localhost:5000/api/v1/reviews/total/${productId}`);
+        const response = await axios.get(`${getBaseUrl()}/api/v1/reviews/total/${productId}`);
         return response.data.ratingQuantity;
     } catch (error) {
         console.error("Lỗi lấy tổng số review:", error.response?.data || error.message);

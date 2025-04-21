@@ -22,6 +22,7 @@ import AddressForm from "../adress/AddressForm";
 import { useUser } from "../../app/hook/LoadUser";
 import { Option } from "antd/es/mentions";
 import { AlignCenter } from "lucide-react";
+import { getBaseUrl } from "../../utils/baseURL";
 
 const { Title, Text } = Typography;
 
@@ -61,7 +62,7 @@ const CheckoutPage = () => {
     const fetchVouchers = async () => {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/v1/vouchers/voucher/active",
+          `${getBaseUrl()}/api/v1/vouchers/voucher/active`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -179,7 +180,7 @@ const CheckoutPage = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/v1/vouchers/voucher/apply",
+        `${getBaseUrl()}/api/v1/vouchers/voucher/apply",
         {
           method: "POST",
           headers: {
@@ -276,7 +277,7 @@ const CheckoutPage = () => {
     if (["COD", "WALLET"].includes(paymentMethod)) {
       try {
         const inventoryResponse = await fetch(
-          "http://localhost:5000/api/v1/orders/updateKho",
+          `${getBaseUrl()}/api/v1/orders/updateKho",
           {
             method: "POST",
             headers: {
@@ -302,7 +303,7 @@ const CheckoutPage = () => {
     if (paymentMethod === "WALLET") {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/v1/orders/wallet/payment",
+          `${getBaseUrl()}/api/v1/orders/wallet/payment",
           {
             method: "POST",
             headers: {
@@ -331,7 +332,7 @@ const CheckoutPage = () => {
         const data = await response.json();
 
         if (response.ok && data.success) {
-          await fetch("http://localhost:5000/api/v1/carts/deleteCart", {
+          await fetch(`${getBaseUrl()}/api/v1/carts/deleteCart", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",
@@ -358,7 +359,7 @@ const CheckoutPage = () => {
     if (["ATM_MOMO", "QR_MOMO"].includes(paymentMethod)) {
       try {
         const paymentType = paymentMethod === "ATM_MOMO" ? "atm" : "qr";
-        const response = await fetch("http://localhost:5000/api/momo/payment", {
+        const response = await fetch(`${getBaseUrl()}/api/momo/payment", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -395,7 +396,7 @@ const CheckoutPage = () => {
     } else if (paymentMethod === "COD") {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/v1/orders/create",
+          `${getBaseUrl()}/api/v1/orders/create",
           {
             method: "POST",
             headers: {
@@ -418,7 +419,7 @@ const CheckoutPage = () => {
 
         const data = await response.json();
         if (response.ok && data.success) {
-          await fetch("http://localhost:5000/api/v1/carts/deleteCart", {
+          await fetch(`${getBaseUrl()}/api/v1/carts/deleteCart", {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json",

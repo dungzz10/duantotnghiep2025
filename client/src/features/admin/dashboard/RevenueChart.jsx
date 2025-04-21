@@ -13,6 +13,7 @@ import {
   Legend
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { getBaseUrl } from "../../../utils/baseURL";
 
 // Register Chart.js components
 ChartJS.register(
@@ -50,7 +51,7 @@ const RevenueChart = () => {
       const endDate = dateRange[1].format("YYYY-MM-DD");
 
       const response = await axios.get(
-        `http://localhost:5000/api/v1/thongke/revenue-statistics?startDate=${startDate}&endDate=${endDate}&type=${timeGrouping}`
+        `${getBaseUrl()}/api/v1/thongke/revenue-statistics?startDate=${startDate}&endDate=${endDate}&type=${timeGrouping}`
       );
 
       setRevenueData(response.data.data || []);
