@@ -53,6 +53,7 @@ import Addadress from "../features/adress/Addadress";
 import SignupPage from "../features/signup/SignupPage";
 import VoucherManagement from "../features/admin/voucher/VoucherManagement";
 import Reviews from "../features/admin/reviews/Reviews";
+import SearchOrders from "../features/admin/orders/Search-Orders";
 
 export const router = createBrowserRouter([
   {
@@ -149,6 +150,10 @@ export const router = createBrowserRouter([
       {
         path: "/danh-muc/:id",
         element: <CategoriesPage />,
+      },
+      {
+        path: "/search-orders",
+        element: <SearchOrders />,
       },
     ],
   },
