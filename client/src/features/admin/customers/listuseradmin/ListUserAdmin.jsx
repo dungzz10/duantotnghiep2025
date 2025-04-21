@@ -173,7 +173,7 @@ const ListUserAdmin = () => {
   ];
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">
@@ -186,7 +186,6 @@ const ListUserAdmin = () => {
           Thêm tài khoản user
         </Link>
       </div>
-      <h2>User List</h2>
       {/* Thanh tìm kiếm và bộ lọc */}
       <div style={{ marginBottom: 16, display: "flex", gap: "10px" }}>
         {/* Ô tìm kiếm */}

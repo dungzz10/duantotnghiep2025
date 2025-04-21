@@ -606,7 +606,7 @@ const Order = () => {
     selectedOrder?.shippingAddress?.recipientAddress;
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
       {!selectedOrder && (
         <>

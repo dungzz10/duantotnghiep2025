@@ -34,7 +34,7 @@ const ListBanner = () => {
     const banners = data?.banners ?? [];
 
     return (
-        <div className="w-full overflow-x-auto">
+        <div style={{ padding: "20px" }}>
             <AdminBreadcrumb />
             <div className="flex flex-col sm:flex-row justify-between items-center mb-5 gap-3">
                 <h1 className="text-2xl font-bold text-gray-800">Danh sách Banner</h1>

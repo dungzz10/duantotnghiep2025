@@ -151,7 +151,7 @@ const VoucherManagement = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-semibold">Quản lý Voucher</h1>

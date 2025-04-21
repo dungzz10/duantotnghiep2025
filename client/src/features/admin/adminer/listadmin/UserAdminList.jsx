@@ -146,7 +146,7 @@ const UserAdminList = () => {
   ];
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
       <div className="flex justify-between mb-4">
         <h1 className="text-2xl font-bold">Quản lý Admin</h1>

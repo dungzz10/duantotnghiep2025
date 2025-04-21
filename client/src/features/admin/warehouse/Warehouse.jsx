@@ -525,7 +525,7 @@ const Warehouse = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
         <h1 className="text-2xl font-semibold text-gray-800">Kho hàng</h1>
       <div style={{ marginBottom: 16 }}>

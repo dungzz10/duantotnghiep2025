@@ -118,11 +118,10 @@ const ContactAdmin = () => {
 
   // Phần render giữ nguyên như code cũ
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
-
+      <h2 className="text-2xl font-bold mb-6">Quản lý liên hệ</h2>
       <Card
-        title="Quản Lý Liên Hệ"
         style={{textAlign: "center", marginTop: "20px"}}
         // extra={
         //   <Button type="primary" onClick={() => showModal()}>

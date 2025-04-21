@@ -50,7 +50,7 @@ const Reviews = () => {
   });
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
       <AdminBreadcrumb />
       <h2 className="text-2xl font-bold mb-6">Quản lý đánh giá sản phẩm</h2>
       {/* Bộ lọc */}
