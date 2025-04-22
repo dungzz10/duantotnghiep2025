@@ -1,6 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Modal } from "antd";
 
 import {
   Button,
@@ -82,15 +83,21 @@ const CheckoutPage = () => {
   }, []);
 
   const handleOpenModal = (address = null) => {
-    console.log("Modal Opened");
     setEditingAddress(address);
-    setIsModalVisible(true);
+    setIsModalVisible((prev) => {
+      console.log("Opening modal, new state:", true);
+      return true;
+    });
   };
 
   const handleCloseModal = () => {
-    setIsModalVisible(false);
+    setIsModalVisible((prev) => {
+      console.log("Closing modal, new state:", false);
+      return false;
+    });
     setEditingAddress(null);
   };
+
   const validatePhoneNumber = (phone) => {
     const phoneRegex = /^(0|\+84)[35789]\d{8}$/;
     return phoneRegex.test(phone);
@@ -452,7 +459,11 @@ const CheckoutPage = () => {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto p-4 md:p-8">
-      <Card title={<div style={{ textAlign: "center" }}>Thanh toán</div>} className="shadow-lg" bordered>
+      <Card
+        title={<div style={{ textAlign: "center" }}>Thanh toán</div>}
+        className="shadow-lg"
+        bordered
+      >
         <Row gutter={24}>
           <Col xs={24} md={12}>
             {!isOtherRecipient ? (
@@ -775,6 +786,21 @@ const CheckoutPage = () => {
           </Button>
         </Row>
       </Card>
+      <Modal
+       
+        open={isModalVisible}
+        onCancel={handleCloseModal}
+        destroyOnClose={true}
+        maskClosable={false}
+        footer={null}
+      >
+        <AddressForm
+          onClose={handleCloseModal}
+          visible={isModalVisible}
+          address={editingAddress}
+          editingAddress={editingAddress}
+        />
+      </Modal>
     </div>
   );
 };

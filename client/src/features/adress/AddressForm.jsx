@@ -13,7 +13,9 @@ const AddressForm = ({ visible, onClose, address }) => {
   const { uppdate, isLoading: isUpdating } = uppdateAdress();
   const { deletee, isLoading: isDeleting } = deleteAdress();
 
+
   const isEditing = !!address;
+  console.log("vis", visible);
 
   useEffect(() => {
     if (visible) {
