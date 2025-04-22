@@ -94,7 +94,7 @@ export const sendOrderConfirmationEmail = async ({
 
     <hr style="margin: 24px 0;" />
     <p style="text-align: center;">Cảm ơn bạn đã mua sắm tại <strong>WD20 Shop</strong>! ❤️</p>
-    <img src="https://res.cloudinary.com/ddj0otz9u/image/upload/v1745312175/theshoes_ew2hqq.png" alt="Logo" style="width: 150px; display: block; margin: 0 auto; text-align: center;" />
+    <img src="https://res.cloudinary.com/shirone/image/upload/v1745312175/theshoes_ew2hqq.png" alt="Logo" style="width: 150px; display: block; margin: 0 auto; text-align: center;" />
   </div>
 `,
   };
