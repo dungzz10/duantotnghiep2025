@@ -28,6 +28,8 @@ export const sendEmail = async (email, emailMessage) => {
 
 export const sendOrderConfirmationEmail = async ({
   to,
+  name,
+  phoneNumber,
   orderId,
   products,
   total,
@@ -47,7 +49,9 @@ export const sendOrderConfirmationEmail = async ({
   <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
     <h2 style="color: #4CAF50;">🎉 Đơn hàng của bạn đã được tạo thành công!</h2>
     <h3 style="margin-bottom: 8px;">🚚 Thông tin giao hàng:</h3>
-      <p><strong>Địa chỉ:</strong> ${shippingAddress.address}</p>
+    <p><strong>Tên người nhận:</strong> ${shippingAddress.recipientName|| name}</p>
+    <p><strong>Số điện thoại:</strong> ${shippingAddress.recipientPhone|| phoneNumber}</p>
+      <p><strong>Địa chỉ:</strong> ${shippingAddress.recipientAddress || shippingAddress.address}</p>
     <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
     <p><strong>Trạng thái đơn hàng:</strong> ${orderStatus}</p>
      <p><strong>Trạng thái thanh toán:</strong> ${paymentStatus}</p>

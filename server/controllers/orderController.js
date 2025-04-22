@@ -170,6 +170,8 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
 
   const userId = req.user?.id;
   const userEmail = req.user?.email;
+  const name = req.user?.name;
+  const phoneNumber = req.user?.phoneNumber;
   if (!userId) {
     return next(new HandelError("Người dùng chưa xác thực", 401));
   }
@@ -215,6 +217,8 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
   }
   await sendOrderConfirmationEmail({
     to: userEmail,
+    name,
+    phoneNumber,
     orderId,
     products,
     finalTotal,

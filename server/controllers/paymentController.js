@@ -307,8 +307,12 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
           );
         }
         const userEmail = req.user?.email;
+        const name = req.user?.name;
+        const phoneNumber = req.user?.phoneNumber;
         await sendOrderConfirmationEmail({
           to: userEmail,
+          name,
+          phoneNumber,
           orderId: updatedOrder.orderId,
           products: updatedOrder.products,
           finalTotal: updatedOrder.finalTotal,
@@ -604,6 +608,8 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
   } = req.body;
   const userId = req.user?.id;
   const userEmail = req.user?.email;
+  const name = req.user?.name;
+  const phoneNumber = req.user?.phoneNumber;
 
   if (!userId) {
     return next(new HandelError("Người dùng chưa xác thực", 401));
@@ -660,6 +666,8 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
 
   await sendOrderConfirmationEmail({
     to: userEmail,
+    name,
+    phoneNumber,
     orderId,
     products,
     finalTotal,
