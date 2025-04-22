@@ -4,6 +4,7 @@ import { ExclamationCircleOutlined } from "@ant-design/icons";
 import usedeactiveuser from "./usedectiveuser";
 import { useUserAdmin } from "./useuseradmin";
 import { Link } from "react-router-dom";
+import AdminBreadcrumb from "../../../../components/admin/AdminBreadcrumb";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -172,7 +173,8 @@ const ListUserAdmin = () => {
   ];
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
+      <AdminBreadcrumb />
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">
           Danh sách người dùng{" "}
@@ -184,7 +186,6 @@ const ListUserAdmin = () => {
           Thêm tài khoản user
         </Link>
       </div>
-      <h2>User List</h2>
       {/* Thanh tìm kiếm và bộ lọc */}
       <div style={{ marginBottom: 16, display: "flex", gap: "10px" }}>
         {/* Ô tìm kiếm */}

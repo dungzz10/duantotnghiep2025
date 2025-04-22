@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from "axios";
 import RatingStarts from '../../../components/RatingStarts';
+import AdminBreadcrumb from '../../../components/admin/AdminBreadcrumb';
 
 const Reviews = () => {
   const [comments, setComments] = useState([]);
@@ -49,9 +50,9 @@ const Reviews = () => {
   });
 
   return (
-    <div className="p-4 sm:p-6 md:p-8">
+    <div style={{ padding: "20px" }}>
+      <AdminBreadcrumb />
       <h2 className="text-2xl font-bold mb-6">Quản lý đánh giá sản phẩm</h2>
-
       {/* Bộ lọc */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
         <input

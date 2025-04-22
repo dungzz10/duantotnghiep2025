@@ -18,6 +18,7 @@ import {
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import AdminBreadcrumb from "../../../components/admin/AdminBreadcrumb";
 
 const { Search } = Input;
 
@@ -365,7 +366,9 @@ const Warehouse = () => {
               Xóa
             </Button>
           </Popconfirm>
-          <Button onClick={() => navigate(`/admin/products/detail/${record._id}`)}>
+          <Button
+            onClick={() => navigate(`/admin/products/detail/${record._id}`)}
+          >
             Xem chi tiết
           </Button>
         </div>
@@ -522,7 +525,9 @@ const Warehouse = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: "20px" }}>
+      <AdminBreadcrumb />
+        <h1 className="text-2xl font-semibold text-gray-800">Kho hàng</h1>
       <div style={{ marginBottom: 16 }}>
         <Search
           placeholder="Tìm kiếm theo tên sản phẩm"

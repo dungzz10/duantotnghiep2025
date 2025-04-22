@@ -25,6 +25,7 @@ import {
 } from "@ant-design/icons";
 import { format } from "date-fns";
 import moment from "moment";
+import AdminBreadcrumb from "../../../components/admin/AdminBreadcrumb";
 
 const { Option } = Select;
 
@@ -606,10 +607,11 @@ const Order = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <AdminBreadcrumb />
       {!selectedOrder && (
         <>
-          <h2>Quản lý đơn hàng</h2>
-          <div style={{ marginBottom: "16px", display: "flex", gap: "10px" }}>
+          <h1 className="text-2xl font-semibold text-gray-800">Quản lý đơn hàng</h1>
+          <div style={{display: "flex", gap: "10px" }}>
             <Input
               placeholder="Tìm kiếm đơn hàng, số điện thoại người đặt hoặc nhận"
               prefix={<SearchOutlined />}

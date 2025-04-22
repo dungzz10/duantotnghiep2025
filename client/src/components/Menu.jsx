@@ -13,6 +13,7 @@ const Menu = ({ showCatMenu, setShowCatMenu }) => {
         { id: 4, name: "Giới thiệu", url: "/gioi-thieu" },
         { id: 5, name: "Danh mục", subMenu: true },
         { id: 6, name: "Liên hệ", url: "/lien-he" },
+        { id: 6, name: "Tra cứu đơn hàng", url: "/search-orders" },
     ];
 
     return (

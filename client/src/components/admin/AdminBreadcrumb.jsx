@@ -9,9 +9,11 @@ const breadcrumbNameMap = {
   "/admin/warehouse": "Kho hàng",
   "/admin/banners": "Banners",
   "/admin/customers": "Khách hàng",
-  "/admin/useradmin": "Người dùng",
+  "/admin/useradmin": "Quản trị viên",
   "/admin/settings": "Cài đặt",
   "/admin/lien-he": "Liên hệ",
+  "/admin/danh-gia": "Đánh giá sản phẩm",
+  "/admin/vouchers": "Voucher",
 };
 
 const AdminBreadcrumb = () => {

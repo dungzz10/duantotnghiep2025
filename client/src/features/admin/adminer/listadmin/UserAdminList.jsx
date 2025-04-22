@@ -3,6 +3,7 @@ import { Table, Button, Space, Modal, message, Tag } from "antd";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import UserAdminForm from "../updateadmin/UserAdminForm";
+import AdminBreadcrumb from "../../../../components/admin/AdminBreadcrumb";
 
 const UserAdminList = () => {
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -145,7 +146,8 @@ const UserAdminList = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div style={{ padding: "20px" }}>
+      <AdminBreadcrumb />
       <div className="flex justify-between mb-4">
         <h1 className="text-2xl font-bold">Quản lý Admin</h1>
         <Button type="primary" onClick={() => setEditModalVisible(true)}>

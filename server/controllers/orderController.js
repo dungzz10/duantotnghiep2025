@@ -128,13 +128,12 @@ export const getAllOrders = CatchAsync(async (req, res, next) => {
 export const getOrderById = CatchAsync(async (req, res, next) => {
   const { orderId } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(orderId)) {
-    return next(
-      new HandelError(`Tham số không hợp lệ: orderId = ${orderId}`, 400)
-    );
+  // Kiểm tra nếu orderId trống
+  if (!orderId || typeof orderId !== "string") {
+    return next(new HandelError("Mã đơn hàng không hợp lệ", 400));
   }
 
-  const order = await Order.findById(orderId)
+  const order = await Order.findOne({ orderId }) // 🔁 thay vì findById
     .populate({
       path: "userId",
       select: "-password -passwordResetToken -passwordResetExpires",
@@ -151,6 +150,7 @@ export const getOrderById = CatchAsync(async (req, res, next) => {
 
   res.status(200).json({ success: true, order });
 });
+
 
 export const createCODOrder = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu thanh toán COD:", req.body);

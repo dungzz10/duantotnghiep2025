@@ -41,8 +41,10 @@ const ProfileContain = ({ user }) => {
   if (isLoadingPass) return <p> loading ....</p>;
 
   return (
+    
     <div className="bg-white shadow-lg rounded-xl overflow-hidden max-w-4xl mx-auto">
       {/* Banner and Profile Image Section */}
+      <h1 className="text-2xl font-semibold text-gray-800">Thông tin cá nhân</h1>
       <div className="relative">
         {/* Banner Image */}
         <div className="h-48 md:h-64 w-full">

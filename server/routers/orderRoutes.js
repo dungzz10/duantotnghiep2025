@@ -34,7 +34,7 @@ orderRoutes.get("/", isAuththenticated, getAllOrders);
 orderRoutes.get("/new", isAuththenticated, getNewOrders);
 orderRoutes.post("/create", isAuththenticated, createCODOrder);
 orderRoutes.post("/updateKho", isAuththenticated, updateKho);
-orderRoutes.get("/:orderId", isAuththenticated, getOrderById);
+orderRoutes.get("/:orderId", getOrderById);
 orderRoutes.patch("/orderStatus/:orderId", isAuththenticated, updateOrder);
 orderRoutes.delete("/:orderId", isAuththenticated, deleteOrder);
 orderRoutes.patch("/return/:orderId", isAuththenticated, returnOrder);

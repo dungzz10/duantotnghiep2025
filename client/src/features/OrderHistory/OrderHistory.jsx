@@ -343,7 +343,7 @@ const OrderHistory = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h2>Lịch sử đặt đơn hàng</h2>
+      <h1 style={{ textAlign: "center", marginBottom: "20px" }} className="text-2xl font-semibold text-gray-800">Lịch sử đơn hàng</h1>
       <div
         style={{
           display: "flex",
