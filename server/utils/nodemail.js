@@ -46,6 +46,8 @@ export const sendOrderConfirmationEmail = async ({
     html: `
   <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
     <h2 style="color: #4CAF50;">🎉 Đơn hàng của bạn đã được tạo thành công!</h2>
+    <h3 style="margin-bottom: 8px;">🚚 Thông tin giao hàng:</h3>
+      <p><strong>Địa chỉ:</strong> ${shippingAddress.address}</p>
     <p><strong>Mã đơn hàng:</strong> ${orderId}</p>
     <p><strong>Trạng thái đơn hàng:</strong> ${orderStatus}</p>
      <p><strong>Trạng thái thanh toán:</strong> ${paymentStatus}</p>
@@ -80,9 +82,6 @@ export const sendOrderConfirmationEmail = async ({
     </table>
 
     <div style="text-align: right; margin-top: 32px;">
-      <h3 style="margin-bottom: 8px;">🚚 Thông tin giao hàng:</h3>
-      <p><strong>Địa chỉ:</strong> ${shippingAddress.address}</p>
-
       <h3 style="margin: 24px 0 8px;">💰 Thanh toán:</h3>
       <p><strong>Phương thức:</strong> ${paymentMethod}</p>
       <p><strong>Tổng giá sản phẩm:</strong> ${total.toLocaleString('vi-VN')} VNĐ</p>
@@ -95,7 +94,7 @@ export const sendOrderConfirmationEmail = async ({
 
     <hr style="margin: 24px 0;" />
     <p style="text-align: center;">Cảm ơn bạn đã mua sắm tại <strong>WD20 Shop</strong>! ❤️</p>
-    <img src="../../client/src/assets/theshoes.png" alt="Logo" style="width: 100px; display: block; margin: 0 auto; text-align: center;" />
+    <img src="https://res.cloudinary.com/ddj0otz9u/image/upload/v1745312175/theshoes_ew2hqq.png" alt="Logo" style="width: 150px; display: block; margin: 0 auto; text-align: center;" />
   </div>
 `,
   };
