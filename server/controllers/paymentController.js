@@ -7,6 +7,7 @@ import HandelError from "../utils/Error.js";
 import Order from "../models/orderModel.js";
 import Product from "../models/productModel.js";
 import Voucher from "../models/voucherModel.js";
+import { sendOrderConfirmationEmail } from "../utils/nodemail.js";
 
 const generateSignature = (params) => {
   const rawSignature = Object.entries(params)
@@ -22,8 +23,16 @@ const generateSignature = (params) => {
 export const createMomoPayment = CatchAsync(async (req, res, next) => {
   console.log("Nhận yêu cầu MoMo:", req.body);
   try {
-    const { amount, products, finalTotal ,total2, paymentType,shippingFee, voucherDiscount,voucherCode } =
-      req.body;
+    const {
+      amount,
+      products,
+      finalTotal,
+      total2,
+      paymentType,
+      shippingFee,
+      voucherDiscount,
+      voucherCode,
+    } = req.body;
     const total = finalTotal || amount;
     if (!total || isNaN(total) || total < 1000) {
       return next(new HandelError("Số tiền thanh toán không hợp lệ", 400));
@@ -93,7 +102,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
         address,
         addressType: "home",
       },
-      total:total2,
+      total: total2,
       voucherDiscount,
       paymentMethod: "MoMo",
       paymentStatus: "pending",
@@ -104,7 +113,7 @@ export const createMomoPayment = CatchAsync(async (req, res, next) => {
       code: voucherCode.toUpperCase(),
     });
     console.log("Voucher:", voucher);
-  
+    
     if (voucher) {
       voucher.quantity -= 1;
       await voucher.save();
@@ -297,6 +306,20 @@ export const verifyTransaction = CatchAsync(async (req, res, next) => {
             }
           );
         }
+        const userEmail = req.user?.email;
+        await sendOrderConfirmationEmail({
+          to: userEmail,
+          orderId: updatedOrder.orderId,
+          products: updatedOrder.products,
+          finalTotal: updatedOrder.finalTotal,
+          total: updatedOrder.total,
+          shippingFee: updatedOrder.shippingFee,
+          voucherDiscount: updatedOrder.voucherDiscount || 0,
+          paymentMethod: updatedOrder.paymentMethod,
+          shippingAddress: updatedOrder.shippingAddress,
+          paymentStatus: "Thanh toán thành công",
+          orderStatus: "Đang chờ xử lý",
+        });
 
         let transactions = [];
 
@@ -569,9 +592,18 @@ export const ipnNotification = CatchAsync(async (req, res, next) => {
 
 //  thanh toán bằng ví
 export const createWalletPayment = CatchAsync(async (req, res, next) => {
-  const { amount,shippingFee, shippingAddress, voucherDiscount,voucherCode, products, finalTotal ,total } =
-    req.body;
+  const {
+    amount,
+    shippingFee,
+    shippingAddress,
+    voucherDiscount,
+    voucherCode,
+    products,
+    finalTotal,
+    total,
+  } = req.body;
   const userId = req.user?.id;
+  const userEmail = req.user?.email;
 
   if (!userId) {
     return next(new HandelError("Người dùng chưa xác thực", 401));
@@ -625,6 +657,20 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
 
   user.wallet.transactions.push(transactionData);
   await user.save();
+
+  await sendOrderConfirmationEmail({
+    to: userEmail,
+    orderId,
+    products,
+    finalTotal,
+    total,
+    shippingFee,
+    paymentStatus: "Thanh toán thành công",
+    orderStatus: "Đang chờ xử lý",
+    voucherDiscount,
+    paymentMethod: "WALLET",
+    shippingAddress,
+  });
 
   return res.status(200).json({
     success: true,

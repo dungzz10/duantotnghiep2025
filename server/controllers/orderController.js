@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import Product from "../models/productModel.js";
 import User from "../models/usersModel.js";
 import Voucher from "../models/voucherModel.js";
+import { sendOrderConfirmationEmail } from "../utils/nodemail.js";
 
 const validStatuses = [
   "pending",
@@ -168,6 +169,7 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
   const finalTotal = total + shippingFee - voucherDiscount;
 
   const userId = req.user?.id;
+  const userEmail = req.user?.email;
   if (!userId) {
     return next(new HandelError("Người dùng chưa xác thực", 401));
   }
@@ -211,6 +213,19 @@ export const createCODOrder = CatchAsync(async (req, res, next) => {
     voucher.quantity -= 1;
     await voucher.save();
   }
+  await sendOrderConfirmationEmail({
+    to: userEmail,
+    orderId,
+    products,
+    finalTotal,
+    total,
+    paymentStatus: "Chưa thanh toán",
+    orderStatus: "Đang chờ xử lý",
+    shippingFee,
+    voucherDiscount,
+    paymentMethod: "COD",
+    shippingAddress,
+  });
 
   console.log("Đơn hàng COD đã được lưu vào DB:", newOrder);
 
