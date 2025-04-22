@@ -1,159 +1,180 @@
 import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-  },
-
-  customerPhone: {
-    type: Number,
-  },
-
-  orderId: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  amount: {
-    type: Number,
-    required: true,
-  },
-  total: {
-    type: Number,
-    required: true,
-  },
-  products: [
-    {
-      productId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Product",
-        required: true,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      price: {
-        type: Number,
-        required: true,
-      },
-      title: String,
-      color: String,
-      size: String,
-      quantity: {
-        type: Number,
-        required: true,
-        min: [1, "Số lượng phải ít nhất là 1"],
-      },
-      totalPrice: {
-        type: Number,
-        required: true,
-      },
-      image: String,
-    },
-  ],
-  shippingAddress: {
-    address: {
-      type: String,
+const orderSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
       required: true,
     },
-    recipientAddress: {
+
+    customerPhone: {
+      type: Number,
+    },
+
+    orderId: {
       type: String,
-      required: function () {
-        return (
-          this.recipientAddress || this.recipientName || this.recipientPhone
-        );
+      required: true,
+      unique: true,
+    },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    total: {
+      type: Number,
+      required: true,
+    },
+    products: [
+      {
+        productId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+        name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        title: String,
+        color: String,
+        size: String,
+        quantity: {
+          type: Number,
+          required: true,
+          min: [1, "Số lượng phải ít nhất là 1"],
+        },
+        totalPrice: {
+          type: Number,
+          required: true,
+        },
+        image: String,
+      },
+    ],
+    shippingAddress: {
+      address: {
+        type: String,
+        required: true,
+      },
+      recipientAddress: {
+        type: String,
+        required: function () {
+          return (
+            this.recipientAddress || this.recipientName || this.recipientPhone
+          );
+        },
+      },
+      recipientName: {
+        type: String,
+        required: function () {
+          return this.recipientName || this.recipientPhone;
+        },
+      },
+      recipientPhone: {
+        type: String,
+        required: function () {
+          return this.recipientName || this.recipientPhone;
+        },
+      },
+      addressType: {
+        type: String,
+        default: "home",
       },
     },
-    recipientName: {
+    shippingFee: {
+      type: Number,
+      default: 30000,
+    },
+    voucherDiscount: {
+      type: Number,
+      default: 0,
+    },
+    finalTotal: {
+      type: Number,
+      required: true,
+    },
+    paymentMethod: {
       type: String,
-      required: function () {
-        return this.recipientName || this.recipientPhone;
+      enum: ["COD", "ATM_MOMO", "WALLET", "MoMo"],
+      required: true,
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "completed", "failed"],
+      default: "pending",
+    },
+    transactionId: String,
+    orderStatus: {
+      type: String,
+      enum: [
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "trahang",
+        "cancelled",
+      ],
+      default: "pending",
+    },
+    date: {
+      type: Date,
+      default: Date.now,
+    },
+    cancellation: {
+      reason: String,
+      images: [String], // Array of image URLs
+      date: Date,
+      isConfirmed: {
+        type: Boolean,
+        default: false,
       },
+      confirmationDate: Date,
+      userConfirmed: Boolean,
     },
-    recipientPhone: {
-      type: String,
-      required: function () {
-        return this.recipientName || this.recipientPhone;
-      },
-    },
-    addressType: {
-      type: String,
-      default: "home",
-    },
-  },
-  shippingFee: {
-    type: Number,
-    default: 30000,
-  },
-  voucherDiscount: {
-    type: Number,
-    default: 0,
-  },
-  finalTotal: {
-    type: Number,
-    required: true,
-  },
-  paymentMethod: {
-    type: String,
-    enum: ["COD", "ATM_MOMO", "WALLET", "MoMo"],
-    required: true,
-  },
-  paymentStatus: {
-    type: String,
-    enum: ["pending", "completed", "failed"],
-    default: "pending",
-  },
-  transactionId: String,
-  orderStatus: {
-    type: String,
-    enum: ["pending", "processing", "shipped", "delivered","trahang", "cancelled"],
-    default: "pending",
-  },
-  date: {
-    type: Date,
-    default: Date.now,
-  },
-  cancellation: {
-    reason: String,
-    images: [String], // Array of image URLs
-    date: Date,
-    isConfirmed: {
-      type: Boolean,
-      default: false
-    },
-    confirmationDate: Date,
-    userConfirmed: Boolean 
-  },
-  returnRequest: {
-    reason: String,
-    images: [String], 
-    date: Date,
-    status: {
-      type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending"
-    },
-    approvalDate: Date,
-    userConfirmed: Boolean 
-  },
-  statusHistory: [
-    {
+    returnRequest: {
+      reason: String,
+      images: [String],
+      date: Date,
       status: {
         type: String,
-        enum: ["pending", "processing", "shipped", "delivered", "trahang", "cancelled"],
-        required: true,
+        enum: ["pending", "approved", "rejected"],
+        default: "pending",
       },
-      date: {
-        type: Date,
-        default: Date.now,
-        required: true,
-      },
+      approvalDate: Date,
+      userConfirmed: Boolean,
     },
-  ],
-});
+    statusHistory: [
+      {
+        status: {
+          type: String,
+          enum: [
+            "pending",
+            "processing",
+            "shipped",
+            "delivered",
+            "trahang",
+            "cancelled",
+          ],
+          required: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+          required: true,
+        },
+      },
+    ],
+  },
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
 orderSchema.post("save", async function (doc, next) {
   const Product = mongoose.model("Product");
 

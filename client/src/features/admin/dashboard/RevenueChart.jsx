@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import moment from "moment";
+import moment from 'moment-timezone';
 import { Card, DatePicker, Spin, Select } from "antd";
 import {
   Chart as ChartJS,

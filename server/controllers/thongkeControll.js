@@ -2,6 +2,7 @@ import Order from "../models/orderModel.js";
 import CatchAsync from "../utils/CatchAsync.js";
 import HandelError from "../utils/Error.js";
 import Product from "../models/productModel.js";
+import moment from "moment-timezone";
 
 // Thống kê 10 user đặt hàng nhiều nhất
 export const topUsers = CatchAsync(async (req, res, next) => {
@@ -278,54 +279,59 @@ export const deliveredOrders = CatchAsync(async (req, res, next) => {
   });
 });
 
-
-
 // Thống kê doanh thu theo thời gian (ngày, tuần, tháng, năm)
 export const getRevenueStatistics = CatchAsync(async (req, res, next) => {
-  const { startDate, endDate, type = "day" } = req.query;
-  
-  // Kiểm tra và chuyển đổi startDate, endDate thành đối tượng Date
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999);
-  start.setHours(0, 0, 0, 0);
+  const {
+    startDate,
+    endDate,
+    type = "day",
+    timezone = "Asia/Ho_Chi_Minh",
+  } = req.query;
 
-  // Kiểm tra tính hợp lệ của ngày tháng
-  if (isNaN(start) || isNaN(end)) {
-    return res.status(400).json({ success: false, message: "Invalid dates." });
-  }
+  const start = moment(startDate).tz(timezone).startOf("day").toDate();
+  const end = moment(endDate).tz(timezone).endOf("day").toDate();
 
   let groupBy;
-  let dateFormat;
+  let dateField = "$updatedAt"; // Thay đổi từ date sang updatedAt
 
   switch (type) {
     case "week":
-      groupBy = { $week: "$date" };
-      dateFormat = "%V";
+      groupBy = { $week: dateField };
       break;
     case "month":
-      groupBy = { 
-        year: { $year: "$date" },
-        month: { $month: "$date" }
+      groupBy = {
+        $dateToString: {
+          format: "%Y-%m",
+          date: dateField,
+          timezone: timezone,
+        },
       };
       break;
     case "year":
-      groupBy = { $year: "$date" };
+      groupBy = {
+        $dateToString: {
+          format: "%Y",
+          date: dateField,
+          timezone: timezone,
+        },
+      };
       break;
     default:
       // day
-      groupBy = { 
-        year: { $year: "$date" },
-        month: { $month: "$date" },
-        day: { $dayOfMonth: "$date" }
+      groupBy = {
+        $dateToString: {
+          format: "%Y-%m-%d",
+          date: dateField,
+          timezone: timezone,
+        },
       };
   }
 
   const revenueStats = await Order.aggregate([
     {
       $match: {
-        date: { $gte: start, $lte: end },
-        orderStatus: { $in: ["delivered", "completed"] },
+        updatedAt: { $gte: start, $lte: end }, // Thay đổi từ date sang updatedAt
+        orderStatus: "delivered", // Chỉ lấy đơn hàng đã giao
       },
     },
     {
@@ -334,69 +340,25 @@ export const getRevenueStatistics = CatchAsync(async (req, res, next) => {
         revenue: { $sum: "$finalTotal" },
         orders: { $sum: 1 },
         avgOrderValue: { $avg: "$finalTotal" },
+        // Thêm thông tin thời gian giao hàng
+        deliveryDate: { $first: "$updatedAt" },
       },
     },
     {
-      $project: {
-        _id: 1,
-        revenue: 1,
-        orders: 1,
-        avgOrderValue: 1,
+      $addFields: {
         date: {
-          $cond: [
-            { $eq: [type, "week"] },
-            "$_id",
-            {
-              $cond: [
-                { $eq: [type, "month"] },
-                {
-                  $concat: [
-                    { $toString: "$_id.year" },
-                    "-",
-                    {
-                      $cond: [
-                        { $lt: ["$_id.month", 10] },
-                        { $concat: ["0", { $toString: "$_id.month" }] },
-                        { $toString: "$_id.month" }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  $cond: [
-                    { $eq: [type, "year"] },
-                    { $toString: "$_id" },
-                    {
-                      $concat: [
-                        { $toString: "$_id.year" },
-                        "-",
-                        {
-                          $cond: [
-                            { $lt: ["$_id.month", 10] },
-                            { $concat: ["0", { $toString: "$_id.month" }] },
-                            { $toString: "$_id.month" }
-                          ]
-                        },
-                        "-",
-                        {
-                          $cond: [
-                            { $lt: ["$_id.day", 10] },
-                            { $concat: ["0", { $toString: "$_id.day" }] },
-                            { $toString: "$_id.day" }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      }
+          $dateToString: {
+            format: "%Y-%m-%d",
+            date: "$deliveryDate",
+            timezone: timezone,
+          },
+        },
+      },
     },
-    { $sort: { date: 1 } },
+    { $sort: { deliveryDate: 1 } },
   ]);
+
+  console.log("Generated revenue stats:", revenueStats);
 
   res.status(200).json({
     success: true,
