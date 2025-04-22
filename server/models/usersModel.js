@@ -81,7 +81,7 @@ const userSchema = new mongoose.Schema(
       },
     ],
     phoneNumber: {
-      type: Number,
+      type: String,
     },
 
     withdrawalAccounts: [

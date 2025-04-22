@@ -625,7 +625,11 @@ export const createWalletPayment = CatchAsync(async (req, res, next) => {
   }
 
   user.wallet.balance -= finalTotal;
-  const orderId = `ORDER_${Date.now()}`;
+  const generateOrderId = () =>
+    `${Math.random().toString(36).toUpperCase().slice(2, 6)}-${Math.floor(
+      10000 + Math.random() * 90000
+    )}`;
+  const orderId = generateOrderId();
   const newOrder = await Order.create({
     userId,
     shippingAddress,

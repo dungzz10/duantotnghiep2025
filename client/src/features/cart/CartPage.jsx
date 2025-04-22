@@ -117,26 +117,30 @@ const CartPage = () => {
         message.warning("Không có kích thước nào cho màu này.");
         return;
       }
-      const availableSizeWithStock = availableSizes.filter(size => size.quantity > 0);
-    if (availableSizeWithStock.length === 0) {
-      message.warning("Không có kích thước còn hàng cho màu này.");
-      return;
-    }
-    
-    let newDefaultSize = availableSizeWithStock[0].size;
-    let newDefaultPrice = availableSizeWithStock[0].price;
+      const availableSizeWithStock = availableSizes.filter(
+        (size) => size.quantity > 0
+      );
+      if (availableSizeWithStock.length === 0) {
+        message.warning("Không có kích thước còn hàng cho màu này.");
+        return;
+      }
 
-    if (availableSizes[0].quantity === 0) {
-      newDefaultSize = availableSizeWithStock[1] ? availableSizeWithStock[1].size : availableSizeWithStock[0].size;
-      newDefaultPrice = availableSizeWithStock[1] ? availableSizeWithStock[1].price : availableSizeWithStock[0].price;
-    }
+      let newDefaultSize = availableSizeWithStock[0].size;
+      let newDefaultPrice = availableSizeWithStock[0].price;
+
+      if (availableSizes[0].quantity === 0) {
+        newDefaultSize = availableSizeWithStock[1]
+          ? availableSizeWithStock[1].size
+          : availableSizeWithStock[0].size;
+        newDefaultPrice = availableSizeWithStock[1]
+          ? availableSizeWithStock[1].price
+          : availableSizeWithStock[0].price;
+      }
 
       setCartData((prev) =>
         prev.map((product) => {
           if (product.productId === productId) {
-
             const updatedVariants = product.variants.map((v) =>
-
               v.color === variant.color && v.size === variant.size
                 ? {
                     ...v,
@@ -144,18 +148,19 @@ const CartPage = () => {
                     size: newDefaultSize,
                     price: newDefaultPrice,
                   }
-                : v 
+                : v
             );
-  
+
             const newTotalPrice = updatedVariants.reduce(
-              (sum, currentVariant) => sum + currentVariant.quantity * currentVariant.price,
+              (sum, currentVariant) =>
+                sum + currentVariant.quantity * currentVariant.price,
               0
             );
             const newTotalQuantity = updatedVariants.reduce(
               (sum, currentVariant) => sum + currentVariant.quantity,
               0
             );
-  
+
             return {
               ...product,
               variants: updatedVariants,
@@ -227,23 +232,21 @@ const CartPage = () => {
 
   const handleQuantityChange = async (value, productId, variant) => {
     if (value < 1) return;
-  
-    try {
 
+    try {
       setCartData((prev) => {
         return prev.map((product) => {
           if (product.productId === productId) {
-
             const updatedVariants = product.variants.map((v) =>
               v.color === variant.color && v.size === variant.size
-                ? { ...v, quantity: value } 
+                ? { ...v, quantity: value }
                 : v
             );
             const newTotalQuantity = updatedVariants.reduce(
               (sum, v) => sum + v.quantity,
               0
             );
-  
+
             const newTotalPrice = updatedVariants.reduce(
               (sum, v) =>
                 v.color === variant.color && v.size === variant.size
@@ -251,7 +254,7 @@ const CartPage = () => {
                   : sum + v.quantity * v.price,
               0
             );
-  
+
             return {
               ...product,
               variants: updatedVariants,
@@ -267,7 +270,6 @@ const CartPage = () => {
       message.error("Không thể cập nhật số lượng sản phẩm");
     }
   };
-  
 
   const handleDeleteItem = async (productId, variantToDelete) => {
     try {
@@ -472,7 +474,12 @@ const CartPage = () => {
 
   return (
     <div style={{ padding: "20px", backgroundColor: "#f5f5f5" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "20px" }} className="text-2xl font-semibold text-gray-800">Giỏ Hàng</h1>
+      <h1
+        style={{ textAlign: "center", marginBottom: "20px" }}
+        className="text-2xl font-semibold text-gray-800"
+      >
+        Giỏ Hàng
+      </h1>
       <Table
         columns={columns}
         dataSource={cartData}
@@ -482,18 +489,30 @@ const CartPage = () => {
         expandable={{
           expandedRowRender: (record) => (
             <div>
-              {record.variants.map((variant) => (
+              {record.variants.map((variant, index) => (
                 <div
                   key={`${record.productId}-${variant.color}-${variant.size}`}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "0.345fr 0.25fr 0.188fr 0.1fr",
+                    gridTemplateColumns: "2fr 1fr 1fr 1fr",
                     alignItems: "center",
                     padding: "10px 0",
-                    borderBottom: "1px solid #f0f0f0",
+                    borderBottom:
+                      index !== record.variants.length - 1
+                        ? "1px solid #f0f0f0"
+                        : "none",
                   }}
                 >
-                  <div style={{ paddingLeft: "38px" }}>
+                  <div
+                    style={{
+                      marginLeft: "40px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      maxWidth: 280,
+                      flexWrap: "wrap",
+                    }}
+                  >
                     {/* Dropdown chọn màu */}
                     <Select
                       placeholder="Chọn màu"
@@ -504,8 +523,7 @@ const CartPage = () => {
                       }
                       onFocus={() => handleFetchColors(record.productId)}
                     >
-                      {colors
-                      .map((color) => (
+                      {colors.map((color) => (
                         <Select.Option key={color} value={color}>
                           {color}
                         </Select.Option>
@@ -530,23 +548,19 @@ const CartPage = () => {
                       // disabled={!variant.selectedColor}
                     >
                       {sizes
-                      .filter((sizeObj) => sizeObj.quantity > 0)
-                      .map(
-                        (
-                          sizeObj
-                        ) => (
+                        .filter((sizeObj) => sizeObj.quantity > 0)
+                        .map((sizeObj) => (
                           <Select.Option
                             key={sizeObj.size}
                             value={sizeObj.size}
                           >
                             {sizeObj.size}{" "}
-                          
                           </Select.Option>
-                        )
-                      )}
+                        ))}
                     </Select>
                   </div>
-                  <span>
+                  <div style={{ textAlign: "center", maxWidth: 100,
+                      flexWrap: "wrap", marginLeft: 65 }}>
                     <InputNumber
                       min={1}
                       value={variant.quantity}
@@ -554,20 +568,17 @@ const CartPage = () => {
                         handleQuantityChange(value, record.productId, variant)
                       }
                     />
-                  </span>
-                  <span style={{ paddingLeft: "37px" }}>
+                  </div>
+                  <div style={{ textAlign: "center",maxWidth: 120,
+                      flexWrap: "wrap", marginLeft: 105 }}>
                     {variant.price.toLocaleString()} VNĐ
-                  </span>
-                  <div
-                    style={{
-                      display: "flex",
-                      textAlign: "center",
-                      paddingLeft: "95px",
-                    }}
-                  >
+                  </div>
+                  <div style={{ textAlign: "center",maxWidth: 50,
+                      flexWrap: "wrap", marginLeft: 133 }}>
                     <Button
                       type="link"
                       danger
+                      size="small"
                       onClick={() =>
                         handleDeleteItem(record.productId, variant)
                       }
