@@ -48,13 +48,14 @@ const ProductVariantManager = ({ variants, setVariants }) => {
       return;
     }
 
-    // Add the new variant with a unique key
+   
     const newVariant = {
       ...currentVariant,
       key: `${variants.length + 1}-${currentVariant.color}-${
         currentVariant.size
       }`,
     };
+    console.log(newVariant,"newVariant");
 
     setVariants([...variants, newVariant]);
 

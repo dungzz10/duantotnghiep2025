@@ -30,6 +30,7 @@ const ProductsAdmin = () => {
   const [tags, setTags] = useState([]);
   const [images, setImages] = useState([]);
   const [variants, setVariants] = useState([]);
+  // console.log(variants,"123");
 
   const handleAddImages = (newImages) => {
     setImages(newImages);

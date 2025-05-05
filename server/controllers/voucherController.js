@@ -112,14 +112,16 @@ export const applyVoucher = CatchAsync(async (req, res, next) => {
 
   // Tính giá trị giảm giá
   let discountAmount;
+  console.log(voucher.type,orderValue,voucher.value,voucher,"sjdfnsjfbshjf");
   if (voucher.type === "percentage") {
     discountAmount = Math.min(
-      (orderValue * voucher.value) / 100,
-      voucher.maxDiscount
+      (orderValue * (voucher.value)) / 100
+     
     );
   } else {
     discountAmount = Math.min(voucher.value, orderValue);
   }
+  console.log(discountAmount,"sjdfnsjfbshjf");
 
   res.status(200).json({
     success: true,

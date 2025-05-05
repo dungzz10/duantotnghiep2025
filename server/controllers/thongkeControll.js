@@ -213,14 +213,19 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
         orderStatus: { $in: ["delivered", "completed"] }, // Chỉ tính đơn hàng đã giao
       },
     },
+   
     {
       $group: {
         _id: null,
+        
         totalProfit: {
+          
           $sum: {
             $subtract: [
               "$finalTotal", // Tổng tiền của đơn hàng
-              { $add: ["$shippingFee", "$voucherDiscount"] }, // Trừ đi chi phí vận chuyển và giảm giá
+             
+              { $add: ["$shippingFee"] }, // Trừ đi chi phí vận chuyển và giảm giá
+             
             ],
           },
         },
@@ -228,8 +233,9 @@ export const totalProfit = CatchAsync(async (req, res, next) => {
     },
   ]);
 
-  const totalProfit = orders[0]?.totalProfit || 0; // Nếu không có đơn hàng thì trả về 0
 
+  const totalProfit = orders[0]?.totalProfit || 0; // Nếu không có đơn hàng thì trả về 0
+  console.log(orders, "orders1234");
   res.status(200).json({
     success: true,
     totalProfit,

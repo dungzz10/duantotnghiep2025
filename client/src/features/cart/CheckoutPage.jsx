@@ -692,11 +692,7 @@ const CheckoutPage = () => {
                             <br />
                             <Text type="secondary">
                               {appliedVoucher.type === "percentage"
-                                ? `Giảm ${
-                                    appliedVoucher.value
-                                  }% (tối đa ${appliedVoucher.maxDiscount.toLocaleString(
-                                    "vi-VN"
-                                  )}đ)`
+                                ? `Giảm ${appliedVoucher.value}% `
                                 : `Giảm ${appliedVoucher.value.toLocaleString(
                                     "vi-VN"
                                   )}đ`}
@@ -787,7 +783,6 @@ const CheckoutPage = () => {
         </Row>
       </Card>
       <Modal
-       
         open={isModalVisible}
         onCancel={handleCloseModal}
         destroyOnClose={true}

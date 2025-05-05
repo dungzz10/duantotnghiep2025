@@ -49,6 +49,11 @@ export const createProduct = CatchAsync(async (req, res, next) => {
   if (existingProduct) {
     return next(new HandelError("Sản phẩm với tiêu đề này đã tồn tại.", 400));
   }
+    // Kiểm tra xem có image được gửi lên không
+    if (!productData.image || 
+      (Array.isArray(productData.image) && productData.image.length === 0)) {
+    return next(new HandelError("Vui lòng thêm ít nhất một hình ảnh cho sản phẩm.", 400));
+  }
 
   // Gán ID người dùng vào sản phẩm
   productData.user = req.user.id;
